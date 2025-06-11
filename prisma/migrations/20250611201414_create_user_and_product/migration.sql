@@ -11,7 +11,7 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "produtos" (
+CREATE TABLE "Produto" (
     "id" TEXT NOT NULL,
     "nome" VARCHAR(255) NOT NULL,
     "descricao" TEXT,
@@ -28,23 +28,23 @@ CREATE TABLE "produtos" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "produtos_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Produto_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE INDEX "produtos_nome_idx" ON "produtos"("nome");
+CREATE INDEX "Produto_nome_idx" ON "Produto"("nome");
 
 -- CreateIndex
-CREATE INDEX "produtos_categoria_idx" ON "produtos"("categoria");
+CREATE INDEX "Produto_categoria_idx" ON "Produto"("categoria");
 
 -- CreateIndex
-CREATE INDEX "produtos_marca_idx" ON "produtos"("marca");
+CREATE INDEX "Produto_marca_idx" ON "Produto"("marca");
 
 -- CreateIndex
-CREATE INDEX "produtos_ativo_idx" ON "produtos"("ativo");
+CREATE INDEX "Produto_ativo_idx" ON "Produto"("ativo");
 
 -- CreateIndex
-CREATE INDEX "produtos_promocao_idx" ON "produtos"("promocao");
+CREATE INDEX "Produto_promocao_idx" ON "Produto"("promocao");

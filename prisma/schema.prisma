@@ -49,5 +49,4 @@ model Produto {
   @@index([marca])
   @@index([ativo])
   @@index([promocao])
-  @@map("produtos")
 }
