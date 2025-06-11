@@ -1,4 +1,4 @@
-import { Produto } from "@/generated/prisma";
+import { Produto } from "@/infrastructure/generated/prisma";
 
 export type TProduto = Produto;
 

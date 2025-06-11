@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/generated/prisma";
+import { PrismaClient } from "@/infrastructure/generated/prisma";
 import { prisma } from "@/infrastructure";
 import {
   IProdutoRepository,
