@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { Header } from "./header";
+import { Header } from "./Header";
 import { SideBar } from "./side-bar";
 import { useState } from "react";
 interface IAplication {

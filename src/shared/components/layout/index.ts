@@ -1,3 +1,3 @@
 export * from "./side-bar";
-export * from "./header";
+export * from "./Header";
 export * from "./aplication";

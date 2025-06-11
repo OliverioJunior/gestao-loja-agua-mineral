@@ -1,3 +1,4 @@
+"use client";
 import {
   Droplets,
   TrendingUp,
@@ -7,15 +8,18 @@ import {
   Settings,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 interface ISideBar {
   sidebarOpen: boolean;
   closeSidebar: () => void;
 }
 export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
+  const pathname = usePathname();
   return (
     <>
       {/* Sidebar */}
-      <div
+      <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[var(--sidebar)] border-r border-[var(--sidebar-border)] transition-transform duration-200 ease-in-out`}
@@ -36,11 +40,11 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
 
         <nav className="p-4 space-y-2">
           <Button
-            variant="secondary"
+            variant={pathname === "/" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <TrendingUp className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            Dashboard
+            <Link href="/">Dashboard</Link>
           </Button>
           <Button
             variant="ghost"
@@ -50,11 +54,11 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
             Pedidos
           </Button>
           <Button
-            variant="ghost"
+            variant={pathname === "/estoque" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <Package className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            Estoque
+            <Link href="/estoque">Estoque</Link>
           </Button>
           <Button
             variant="ghost"
@@ -71,7 +75,7 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
             Configurações
           </Button>
         </nav>
-      </div>
+      </aside>
 
       {/* Overlay para mobile */}
       {sidebarOpen && (
