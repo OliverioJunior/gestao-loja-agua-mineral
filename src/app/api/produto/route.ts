@@ -10,7 +10,7 @@ export async function GET() {
     return NextResponse.json(produtos);
   } catch {
     return NextResponse.json(
-      { message: "E" },
+      { message: "Erro interno no servidor ao buscar produtos" },
       { status: StatusCode.INTERNAL_SERVER_ERROR }
     );
   }
