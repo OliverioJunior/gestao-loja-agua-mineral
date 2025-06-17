@@ -5,7 +5,6 @@ interface ICards {
   produtos: IProduto[];
 }
 export const Cards: React.FC<ICards> = ({ produtos }) => {
-  console.log({ produtos });
   const totalProdutos = produtos.length;
   const produtosBaixo = produtos.filter((p) => p.status === "baixo").length;
   const produtosCriticos = produtos.filter(
