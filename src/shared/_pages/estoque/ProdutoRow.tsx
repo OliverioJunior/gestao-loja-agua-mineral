@@ -1,3 +1,4 @@
+import { Button, TableCell, TableRow } from "@/shared/components/ui";
 import { Package, Eye, Edit3, Trash2 } from "lucide-react";
 
 interface IProdutoRow {
@@ -57,8 +58,8 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
   };
 
   return (
-    <tr className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors">
-      <td className="py-4 px-6">
+    <TableRow className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors">
+      <TableCell className="py-4 px-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
             <Package className="w-5 h-5 text-blue-400" />
@@ -70,20 +71,22 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
             </p>
           </div>
         </div>
-      </td>
-      <td className="py-4 px-6 text-slate-300">{produto.categoria}</td>
-      <td className="py-4 px-6">
+      </TableCell>
+      <TableCell className="py-4 px-6 text-slate-300">
+        {produto.categoria}
+      </TableCell>
+      <TableCell className="py-4 px-6">
         <div className="flex items-center gap-2">
           <span className={`font-medium ${getStatusColor(produto.status)}`}>
             {produto.estoque}
           </span>
           <span className="text-slate-400 text-sm">/ min {produto.minimo}</span>
         </div>
-      </td>
-      <td className="py-4 px-6 text-white font-medium">
+      </TableCell>
+      <TableCell className="py-4 px-6 text-white font-medium">
         R$ {produto.preco.toFixed(2)}
-      </td>
-      <td className="py-4 px-6">
+      </TableCell>
+      <TableCell className="py-4 px-6">
         <span
           className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(
             produto.status
@@ -91,32 +94,35 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
         >
           {getStatusText(produto.status)}
         </span>
-      </td>
-      <td className="py-4 px-6 text-slate-300">
+      </TableCell>
+      <TableCell className="py-4 px-6 text-slate-300">
         {new Date(produto.ultimaMovimentacao).toLocaleDateString("pt-BR")}
-      </td>
-      <td className="py-4 px-6">
+      </TableCell>
+      <TableCell className="py-4 px-6">
         <div className="flex items-center justify-center gap-2">
-          <button
+          <Button
+            variant={"ghost"}
             onClick={() => onView(produto)}
             className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
           >
             <Eye className="w-4 h-4" />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={"ghost"}
             onClick={() => onEdit(produto)}
             className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/10 rounded-lg transition-colors"
           >
             <Edit3 className="w-4 h-4" />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={"ghost"}
             onClick={() => onDelete(produto)}
             className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
           >
             <Trash2 className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

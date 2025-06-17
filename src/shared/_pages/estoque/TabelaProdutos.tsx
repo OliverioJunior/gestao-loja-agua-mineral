@@ -2,6 +2,15 @@
 import { useState } from "react";
 import { FiltrosPesquisa } from "./FiltrosPesquisa";
 import { IProduto, ProdutoRow } from "./ProdutoRow";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui";
 
 interface ITabelaProduto {
   produtos: IProduto[];
@@ -35,41 +44,39 @@ export function TabelaProdutos({
   return (
     <>
       <FiltrosPesquisa
-        filterStatus={filterStatus}
-        onAddProduct={() => console.log("adicionar produto")}
         searchTerm={searchTerm}
         setFilterStatus={setFilterStatus}
         setSearchTerm={setSearchTerm}
       />
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-700/30 border-b border-slate-700/50">
-              <tr>
-                <th className="text-left py-4 px-6 text-slate-300 font-medium">
+          <Table className="w-full">
+            <TableHeader className="bg-slate-700/30 border-b border-slate-700/50">
+              <TableRow>
+                <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                   Produto
-                </th>
-                <th className="text-left py-4 px-6 text-slate-300 font-medium">
+                </TableHead>
+                <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                   Categoria
-                </th>
-                <th className="text-left py-4 px-6 text-slate-300 font-medium">
+                </TableHead>
+                <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                   Estoque
-                </th>
-                <th className="text-left py-4 px-6 text-slate-300 font-medium">
+                </TableHead>
+                <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                   Preço
-                </th>
-                <th className="text-left py-4 px-6 text-slate-300 font-medium">
+                </TableHead>
+                <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                   Status
-                </th>
-                <th className="text-left py-4 px-6 text-slate-300 font-medium">
+                </TableHead>
+                <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                   Última Movimentação
-                </th>
-                <th className="text-center py-4 px-6 text-slate-300 font-medium">
+                </TableHead>
+                <TableHead className="text-center py-4 px-6 text-slate-300 font-medium">
                   Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredProdutos.map((produto) => (
                 <ProdutoRow
                   key={produto.id}
@@ -79,8 +86,16 @@ export function TabelaProdutos({
                   onDelete={onDelete}
                 />
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell className="text-center" colSpan={4}>
+                  {"            "}
+                </TableCell>
+                <TableCell className="text-right"> {"            "}</TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
         </div>
       </div>
     </>
