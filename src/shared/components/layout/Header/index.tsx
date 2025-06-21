@@ -21,10 +21,15 @@ export const Header: React.FC<IHeader> = ({ onClick, ...props }) => {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" data-testid="mobile-button-bell">
             <Bell className="h-5 w-5 text-[var(--foreground)]" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={onClick}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClick}
+            data-testid="mobile-button-menu"
+          >
             <Menu className="h-5 w-5 text-[var(--foreground)]" />
           </Button>
         </div>
