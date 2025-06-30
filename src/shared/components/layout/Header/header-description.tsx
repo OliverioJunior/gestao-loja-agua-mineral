@@ -32,7 +32,6 @@ const HeaderContent = memo<HeaderContentProps>(({ data, className }) => {
 
 HeaderContent.displayName = "HeaderContent";
 
-// Componente principal
 export const HeaderDescription = memo<HeaderDescriptionProps>(
   ({
     className,
@@ -41,14 +40,12 @@ export const HeaderDescription = memo<HeaderDescriptionProps>(
   }) => {
     const pathname = usePathname();
 
-    // Função helper para obter dados da rota
     const getRouteData = (path: string): HeaderDescriptionData => {
-      // Verifica se é uma rota exata
       const exactRoute = path in ROUTE_CONFIG;
       if (exactRoute) {
         return ROUTE_CONFIG[path as RouteKey];
       }
-      // Verifica se é uma subrota (ex: /estoque/123)
+
       const subRoute = path.split("/").slice(0, 2).join("/");
       const baseRoute = Object.keys(ROUTE_CONFIG).find(
         (route) => route !== "/" && subRoute.startsWith(route)
@@ -58,7 +55,6 @@ export const HeaderDescription = memo<HeaderDescriptionProps>(
         return ROUTE_CONFIG[baseRoute as RouteKey];
       }
 
-      // Fallback para rotas não mapeadas
       return {
         title: fallbackTitle,
         description: fallbackDescription,
