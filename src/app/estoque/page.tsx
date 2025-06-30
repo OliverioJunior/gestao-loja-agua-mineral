@@ -1,4 +1,4 @@
-import { EstoquePage } from "@/shared/_pages/estoque";
+import { EstoquePage } from "@/layout/estoque";
 
 export default function Estoque() {
   return <EstoquePage />;

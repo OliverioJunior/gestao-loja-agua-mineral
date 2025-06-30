@@ -1,5 +1,5 @@
 "use client";
-import { DashboardContent } from "@/shared/_pages/dashboard";
+import { DashboardContent } from "@/layout/dashboard";
 
 export default function Home() {
   // Dados simulados

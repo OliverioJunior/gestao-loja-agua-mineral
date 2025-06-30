@@ -59,7 +59,7 @@ export function EstoquePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-[calc(100dvh-93px)]">
       <div className="p-6">
         <Cards produtos={produtosMock} />
 

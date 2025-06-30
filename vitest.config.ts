@@ -4,12 +4,6 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
-  test: {
-    globals: true,
-    environment: "jsdom",
-    setupFiles: ["./setupTests.ts"], // Esse arquivo deve existir se você estiver usando ele!
-    include: ["tests/**/*.test.{ts,tsx}"], // use o nome certo da pasta!
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
