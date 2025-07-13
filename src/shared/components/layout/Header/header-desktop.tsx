@@ -35,7 +35,7 @@ export const HeaderDesktop = memo<HeaderDesktopProps>(
           >
             <Bell className={HEADER_STYLES.notification} />
           </Button>
-          <div className={HEADER_STYLES.avatar}>
+          <div className={HEADER_STYLES.avatar} aria-label="Perfil">
             <span className={HEADER_STYLES["avatar-text"]}>JS</span>
           </div>
         </div>
