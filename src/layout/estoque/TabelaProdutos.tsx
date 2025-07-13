@@ -89,7 +89,7 @@ export function TabelaProdutos({
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell className="text-center" colSpan={4}>
+                <TableCell className="text-center" colSpan={6}>
                   {"            "}
                 </TableCell>
                 <TableCell className="text-right"> {"            "}</TableCell>

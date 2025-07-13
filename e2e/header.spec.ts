@@ -14,7 +14,7 @@ test.describe("Header Component", () => {
       const mobileHeader = page.getByTestId("mobile-button-menu");
       await expect(mobileHeader).toBeVisible();
     });
-    test("não deve exibir o header mobile em telas pequenas", async ({
+    test("não deve exibir o header mobile em telas não pequenas", async ({
       page,
     }) => {
       // Definir viewport mobile
