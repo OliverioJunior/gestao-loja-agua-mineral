@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "docker-compose up -d && next dev --turbopack",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": " next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
