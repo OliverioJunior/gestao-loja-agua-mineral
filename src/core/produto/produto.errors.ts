@@ -9,6 +9,7 @@ type Messages = {
   nome_min_length: "Nome do produto deve ter pelo menos 2 caracteres";
   preco_positive: "Preço deve ser maior que zero";
   categoria_invalid: "Categoria inválida";
+  preco_max_value: "Preço deve ser menor ou igual a 999999.99";
 };
 
 export class ProdutoValidation extends ValidationError {
@@ -18,6 +19,7 @@ export class ProdutoValidation extends ValidationError {
       nome_min_length: "Nome do produto deve ter pelo menos 2 caracteres",
       preco_positive: "Preço deve ser maior que zero",
       categoria_invalid: "Categoria inválida",
+      preco_max_value: "Preço deve ser menor ou igual a 999999.99",
     };
     const message = messages[rule as keyof typeof messages];
     super(message, field, value);
