@@ -4,17 +4,22 @@ import {
   ValidationError,
 } from "../error/domain.errors";
 
+type Messages = {
+  nome_required: "Nome do produto é obrigatório";
+  nome_min_length: "Nome do produto deve ter pelo menos 2 caracteres";
+  preco_positive: "Preço deve ser maior que zero";
+  categoria_invalid: "Categoria inválida";
+};
+
 export class ProdutoValidation extends ValidationError {
-  constructor(field: string, value: unknown, rule: string) {
-    const messages = {
+  constructor(field: string, value: unknown, rule: keyof Messages) {
+    const messages: Messages = {
       nome_required: "Nome do produto é obrigatório",
       nome_min_length: "Nome do produto deve ter pelo menos 2 caracteres",
       preco_positive: "Preço deve ser maior que zero",
       categoria_invalid: "Categoria inválida",
     };
-    const message =
-      messages[rule as keyof typeof messages] ||
-      `Validação falhou para ${field}`;
+    const message = messages[rule as keyof typeof messages];
     super(message, field, value);
     this.context = { ...this.context, rule };
   }
