@@ -10,6 +10,7 @@ type Messages = {
   preco_positive: "Preço deve ser maior que zero";
   categoria_invalid: "Categoria inválida";
   preco_max_value: "Preço deve ser menor ou igual a 999999.99";
+  produto_required_to_update: "Nenhum campo foi atualizado";
 };
 
 export class ProdutoValidation extends ValidationError {
@@ -20,6 +21,7 @@ export class ProdutoValidation extends ValidationError {
       preco_positive: "Preço deve ser maior que zero",
       categoria_invalid: "Categoria inválida",
       preco_max_value: "Preço deve ser menor ou igual a 999999.99",
+      produto_required_to_update: "Nenhum campo foi atualizado",
     };
     const message = messages[rule as keyof typeof messages];
     super(message, field, value);
