@@ -1,9 +1,9 @@
-import { BusinessRulesError, ValidationError } from "../error/domain.errors";
+import { BusinessRulesError } from "../error/domain.errors";
 import { CreateProdutoInput, UpdateProdutoInput } from "./produto.entity";
 import { ProdutoValidation } from "./produto.errors";
 
 export class ProdutoValidator {
-  static validateCreateInput(data: CreateProdutoInput): void {
+  static validateCreateInput(data: CreateProdutoInput) {
     // Nome obrigatório
     if (!data.nome?.trim()) {
       throw new ProdutoValidation("nome", data.nome, "nome_required");
@@ -56,13 +56,31 @@ export class ProdutoValidator {
         { precoVenda: data.precoVenda, precoCusto: data.precoCusto }
       );
     }
+    return { data, validate: true };
   }
 
-  static validateUpdateInput(data: UpdateProdutoInput): void {
+  static validateUpdateInput(data: UpdateProdutoInput) {
+    if (
+      !data.ativo &&
+      !data.categoria &&
+      !data.descricao &&
+      !data.estoqueMinimo &&
+      !data.marca &&
+      !data.nome &&
+      !data.precoCusto &&
+      !data.precoPromocao &&
+      !data.precoRevenda &&
+      !data.precoVenda &&
+      !data.promocao &&
+      !data.quantidade
+    ) {
+      throw new ProdutoValidation(
+        "produto",
+        data,
+        "produto_required_to_update"
+      );
+    }
     if (data.nome !== undefined) {
-      if (!data.nome?.trim()) {
-        throw new ProdutoValidation("nome", data.nome, "nome_required");
-      }
       if (data.nome.trim().length < 2) {
         throw new ProdutoValidation("nome", data.nome, "nome_min_length");
       }
@@ -94,21 +112,6 @@ export class ProdutoValidator {
         );
       }
     }
-  }
-
-  static validateId(id: string): void {
-    if (!id?.trim()) {
-      throw new ValidationError("ID é obrigatório", "id", id);
-    }
-  }
-
-  static validatePaginationParams(
-    page?: number,
-    limit?: number
-  ): { page: number; limit: number } {
-    const validatedPage = Math.max(1, page || 1);
-    const validatedLimit = Math.min(Math.max(1, limit || 10), 100);
-
-    return { page: validatedPage, limit: validatedLimit };
+    return { update: true, data };
   }
 }
