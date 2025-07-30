@@ -11,19 +11,25 @@ export class ProdutoRepository implements IProdutoRepository {
   constructor(private readonly db: PrismaClient = prisma) {}
 
   async create(data: CreateProdutoInput): Promise<TProduto> {
-    return await this.db.produto.create({ data });
+    return await this.db.$transaction(async (prisma) => {
+      return await prisma.produto.create({ data });
+    });
   }
 
   async update(id: string, data: UpdateProdutoInput): Promise<TProduto> {
-    return await this.db.produto.update({
-      where: { id },
-      data,
+    return await this.db.$transaction(async (prisma) => {
+      return await prisma.produto.update({
+        where: { id },
+        data,
+      });
     });
   }
 
   async delete(id: string): Promise<TProduto> {
-    return await this.db.produto.delete({
-      where: { id },
+    return await this.db.$transaction(async (prisma) => {
+      return await prisma.produto.delete({
+        where: { id },
+      });
     });
   }
 
