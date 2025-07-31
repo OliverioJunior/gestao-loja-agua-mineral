@@ -161,4 +161,17 @@ describe("ProdutoValidator", () => {
       );
     });
   });
+  describe("validateId", () => {
+    it("should throw an error when id is empty", () => {
+      expect(() => ProdutoValidator.validateId("")).toThrow(ProdutoValidation);
+    });
+  });
+  it("should return success when id is valid", () => {
+    const id = "1";
+    const result = ProdutoValidator.validateId(id);
+    expect(result).toEqual({
+      id: "1",
+      validate: true,
+    });
+  });
 });
