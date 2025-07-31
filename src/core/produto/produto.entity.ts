@@ -16,13 +16,4 @@ export interface IProdutoRepository {
   findById(id: string): Promise<TProduto | null>;
   findByNome(nome: string): Promise<TProduto[]>;
   existsById(id: string): Promise<boolean>;
-  findWithPagination(
-    page: number,
-    limit: number
-  ): Promise<{
-    data: TProduto[];
-    total: number;
-    page: number;
-    totalPages: number;
-  }>;
 }

@@ -63,32 +63,4 @@ export class ProdutoRepository implements IProdutoRepository {
     });
     return count > 0;
   }
-
-  async findWithPagination(
-    page: number,
-    limit: number
-  ): Promise<{
-    data: TProduto[];
-    total: number;
-    page: number;
-    totalPages: number;
-  }> {
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      this.db.produto.findMany({
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
-      }),
-      this.db.produto.count(),
-    ]);
-
-    return {
-      data,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
 }
