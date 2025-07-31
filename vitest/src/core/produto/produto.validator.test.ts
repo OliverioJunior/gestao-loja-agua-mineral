@@ -21,6 +21,19 @@ describe("ProdutoValidator", () => {
     createdAt: new Date(),
     updatedAt: new Date(),
   };
+  describe("ValidateInput", () => {
+    it("should validate all fields", () => {
+      expect(ProdutoValidator.validateInput(produtoBase)).toEqual({
+        data: produtoBase,
+        validate: true,
+      });
+    });
+    it("should fail when any field is empty", () => {
+      expect(() =>
+        ProdutoValidator.validateInput({ ...produtoBase, nome: "" })
+      ).toThrow(ProdutoValidation);
+    });
+  });
   describe("ValidateCreateInput", () => {
     it("should work with all valid data", () => {
       expect(

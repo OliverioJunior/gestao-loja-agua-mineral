@@ -5,6 +5,7 @@ import {
 } from "../error/domain.errors";
 
 type Messages = {
+  all_field_required: "Todos os campos são obrigatórios";
   nome_required: "Nome do produto é obrigatório";
   nome_min_length: "Nome do produto deve ter pelo menos 2 caracteres";
   preco_positive: "Preço deve ser maior que zero";
@@ -17,6 +18,7 @@ type Messages = {
 export class ProdutoValidation extends ValidationError {
   constructor(field: string, value: unknown, rule: keyof Messages) {
     const messages: Messages = {
+      all_field_required: "Todos os campos são obrigatórios",
       nome_required: "Nome do produto é obrigatório",
       nome_min_length: "Nome do produto deve ter pelo menos 2 caracteres",
       preco_positive: "Preço deve ser maior que zero",
