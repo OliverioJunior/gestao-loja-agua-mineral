@@ -114,4 +114,14 @@ export class ProdutoValidator {
     }
     return { update: true, data };
   }
+
+  static validateId(id: string) {
+    if (!id) {
+      throw new ProdutoValidation("id", id, "id_required");
+    }
+    return {
+      id: id,
+      validate: true,
+    };
+  }
 }
