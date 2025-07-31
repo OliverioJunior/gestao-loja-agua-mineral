@@ -317,4 +317,37 @@ describe("ProdutoService", () => {
       "Produto não encontrado"
     );
   });
+  it("should find all produtos", async () => {
+    const expectedResult = [
+      {
+        id: "1",
+        nome: "Produto 1",
+        descricao: null,
+        marca: null,
+        categoria: null,
+        precoCusto: 100,
+        precoVenda: 200,
+        precoRevenda: null,
+        precoPromocao: null,
+        estoqueMinimo: 10,
+        quantidade: 0,
+        ativo: true,
+        promocao: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    vitest
+      .spyOn(produtoRepository, "findAll")
+      .mockResolvedValue(expectedResult);
+    await expect(produtoService.findAll()).resolves.toEqual(expectedResult);
+  });
+  it("should fail when 'findAll' return an error", async () => {
+    vitest
+      .spyOn(produtoRepository, "findAll")
+      .mockRejectedValue(new Error("Erro durante busca de produtos"));
+    await expect(produtoService.findAll()).rejects.toThrowError(
+      "Erro durante busca de produtos"
+    );
+  });
 });

@@ -85,4 +85,11 @@ export class ProdutoService {
       return ErrorHandler.handleRepositoryError(error, "busca de produto");
     }
   }
+  async findAll(): Promise<TProduto[]> {
+    try {
+      return await this.produtoRepository.findAll();
+    } catch (error) {
+      return ErrorHandler.handleRepositoryError(error, "busca de produtos");
+    }
+  }
 }
