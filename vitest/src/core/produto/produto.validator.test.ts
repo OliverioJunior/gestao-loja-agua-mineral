@@ -28,10 +28,15 @@ describe("ProdutoValidator", () => {
         validate: true,
       });
     });
-    it("should fail when any field is empty", () => {
+    it("should fail when any field is undefined", () => {
       expect(() =>
-        ProdutoValidator.validateInput({ ...produtoBase, nome: "" })
-      ).toThrow(ProdutoValidation);
+        ProdutoValidator.validateInput({
+          ...produtoBase,
+          nome: undefined as unknown as string,
+        })
+      ).toThrow(
+        new ProdutoValidation("produto", undefined, "all_field_required")
+      );
     });
   });
   describe("ValidateCreateInput", () => {
