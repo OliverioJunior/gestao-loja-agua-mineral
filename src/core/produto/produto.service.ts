@@ -56,7 +56,7 @@ export class ProdutoService {
       );
     }
   }
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<TProduto> {
     try {
       ProdutoValidator.validateId(id);
 
@@ -65,7 +65,7 @@ export class ProdutoService {
         throw new ProdutoNotFoundError(id);
       }
 
-      await this.produtoRepository.delete(id);
+      return await this.produtoRepository.delete(id);
     } catch (error) {
       return ErrorHandler.handleRepositoryError(error, "exclusão de produto");
     }
@@ -83,34 +83,6 @@ export class ProdutoService {
       return produto;
     } catch (error) {
       return ErrorHandler.handleRepositoryError(error, "busca de produto");
-    }
-  }
-
-  async findAll(filtros?: {
-    nome?: string;
-    page?: number;
-    limit?: number;
-  }): Promise<
-    | { data: TProduto[]; total: number; page: number; totalPages: number }
-    | TProduto[]
-  > {
-    try {
-      if (filtros?.nome) {
-        return await this.produtoRepository.findByNome(filtros.nome);
-      }
-
-      if (filtros?.page && filtros?.limit) {
-        const { page, limit } = ProdutoValidator.validatePaginationParams(
-          filtros.page,
-          filtros.limit
-        );
-
-        return await this.produtoRepository.findWithPagination(page, limit);
-      }
-
-      return await this.produtoRepository.findAll();
-    } catch (error) {
-      return ErrorHandler.handleRepositoryError(error, "busca de produtos");
     }
   }
 }
