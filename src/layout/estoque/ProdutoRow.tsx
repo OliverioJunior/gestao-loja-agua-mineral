@@ -104,6 +104,8 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
             variant={"ghost"}
             onClick={() => onView(produto)}
             className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+            aria-label="View"
+            name="View"
           >
             <Eye className="w-4 h-4" />
           </Button>
@@ -111,6 +113,8 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
             variant={"ghost"}
             onClick={() => onEdit(produto)}
             className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/10 rounded-lg transition-colors"
+            aria-label="Edit"
+            name="Edit"
           >
             <Edit3 className="w-4 h-4" />
           </Button>
@@ -118,6 +122,8 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
             variant={"ghost"}
             onClick={() => onDelete(produto)}
             className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+            aria-label="Delete"
+            name="Delete"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
