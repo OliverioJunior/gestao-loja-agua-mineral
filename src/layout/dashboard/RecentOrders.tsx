@@ -29,8 +29,6 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
         return "bg-blue-100 text-blue-800 dark:bg-blue-800/20 dark:text-blue-400";
       case "pending":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-800/20 dark:text-yellow-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800/20 dark:text-gray-400";
     }
   };
 
@@ -42,8 +40,6 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
         return "Preparando";
       case "pending":
         return "Pendente";
-      default:
-        return status;
     }
   };
 
