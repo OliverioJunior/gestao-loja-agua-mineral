@@ -72,7 +72,7 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <Settings className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            Configurações
+            <Link href="/configuracoes">Configurações</Link>
           </Button>
         </nav>
       </aside>
