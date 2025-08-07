@@ -43,14 +43,20 @@ export function FiltrosPesquisa({
             <Select
               defaultValue="todos"
               onValueChange={(e) => setFilterStatus(e)}
+              name="select-status"
             >
-              <SelectTrigger size="lg">
-                <SelectValue placeholder="Todos os status" />
+              <SelectTrigger name="select-status" size="lg">
+                <SelectValue
+                  placeholder="Todos os status"
+                  aria-label="options-status"
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Status</SelectLabel>
-                  <SelectItem value="todos">Todos os status</SelectItem>
+                  <SelectItem aria-label="status" value="todos">
+                    Todos os status
+                  </SelectItem>
                   <SelectItem value="ok">Em estoque</SelectItem>
                   <SelectItem value="baixo">Estoque baixo</SelectItem>
                   <SelectItem value="critico">Estoque crítico</SelectItem>
