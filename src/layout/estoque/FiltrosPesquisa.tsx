@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, Download } from "lucide-react";
-import { DialogProduto } from "./DialogProduto";
+import { DialogEstoque } from "./DialogEstoque";
 import {
   Input,
   Select,
@@ -69,7 +69,7 @@ export function FiltrosPesquisa({
               <Download className="w-4 h-4" />
               Exportar
             </button>
-            <DialogProduto />
+            <DialogEstoque />
           </div>
         </div>
       </div>
