@@ -29,7 +29,6 @@ model Produto {
   nome      String  @db.VarChar(255)
   descricao String? @db.Text
   marca     String? @db.VarChar(100)
-  categoria String? @db.VarChar(100)
 
   precoCusto    Int
   precoVenda    Int
@@ -42,12 +41,23 @@ model Produto {
   ativo    Boolean @default(true)
   promocao Boolean @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id])
+  categoriaId String?    @map("categoria_id") @db.VarChar(100)
 
   @@index([nome])
-  @@index([categoria])
   @@index([marca])
   @@index([ativo])
   @@index([promocao])
+}
+
+model Categoria {
+  id            String    @id @default(uuid())
+  nome          String    @db.VarChar(255)
+  description   String?   @db.Text
+  productsCount Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  produtos      Produto[]
 }
