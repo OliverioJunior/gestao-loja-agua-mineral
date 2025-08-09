@@ -45,6 +45,7 @@ model Produto {
   updatedAt   DateTime   @updatedAt
   categoria   Categoria? @relation(fields: [categoriaId], references: [id])
   categoriaId String?    @map("categoria_id") @db.VarChar(100)
+  Item        Item[]
 
   @@index([nome])
   @@index([marca])
@@ -62,6 +63,11 @@ model Categoria {
   produtos      Produto[]
 }
 
+enum Status {
+  ATIVO
+  INATIVO
+}
+
 model Cliente {
   id          Int       @id @default(autoincrement())
   nome        String    @db.VarChar(200)
@@ -75,11 +81,35 @@ model Cliente {
   CEP         String    @db.VarChar(10)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+  Pedido      Pedido[]
 
   @@map("clientes")
 }
 
-enum Status {
-  ATIVO
-  INATIVO
+enum StatusPedido {
+  CANCELADO
+  ENTREGUE
+  PENDENTE
+}
+
+model Pedido {
+  id        Int          @id @default(autoincrement())
+  cliente   Cliente      @relation(fields: [clienteId], references: [id])
+  clienteId Int          @map("cliente_id")
+  data      DateTime     @default(now())
+  total     Int
+  status    StatusPedido @default(PENDENTE)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  itens     Item[]
+}
+
+model Item {
+  id         Int     @id @default(autoincrement())
+  pedido     Pedido  @relation(fields: [pedidoId], references: [id])
+  pedidoId   Int     @map("pedido_id")
+  produto    Produto @relation(fields: [produtoId], references: [id])
+  produtoId  String  @map("produto_id")
+  quantidade Int
+  preco      Int
 }
