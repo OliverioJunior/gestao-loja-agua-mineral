@@ -61,3 +61,25 @@ model Categoria {
   updatedAt     DateTime  @updatedAt
   produtos      Produto[]
 }
+
+model Cliente {
+  id          Int       @id @default(autoincrement())
+  nome        String    @db.VarChar(200)
+  aniversario DateTime? @db.Date
+  email       String    @db.VarChar(200)
+  telefone    String    @db.VarChar(16)
+  endereco    String    @db.Text
+  status      Status    @default(ATIVO)
+  cidade      String    @db.VarChar(200)
+  estado      String    @db.VarChar(200)
+  CEP         String    @db.VarChar(10)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("clientes")
+}
+
+enum Status {
+  ATIVO
+  INATIVO
+}
