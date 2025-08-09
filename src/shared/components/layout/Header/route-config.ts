@@ -42,4 +42,11 @@ export const ROUTE_CONFIG: Record<RouteKey, HeaderDescriptionData> = {
     titleClassName: "text-2xl font-bold text-foreground",
     descriptionClassName: "text-muted-foreground",
   },
+  "/pedidos": {
+    title: "Pedidos",
+    description: "Acompanhe seus pedidos e clientes",
+    icon: Package,
+    titleClassName: "text-2xl font-bold text-foreground",
+    descriptionClassName: "text-muted-foreground",
+  },
 };

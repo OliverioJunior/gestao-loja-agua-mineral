@@ -51,7 +51,7 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <ShoppingCart className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            Pedidos
+            <Link href="/pedidos">Pedidos</Link>
           </Button>
           <Button
             variant={pathname === "/estoque" ? "secondary" : "ghost"}
