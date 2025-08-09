@@ -94,9 +94,11 @@ export function ProductDetailsModal({
                 </label>
                 <div className="mt-1">
                   <Badge
-                    className={`${getCategoryColor(product.categoria)} border`}
+                    className={`${getCategoryColor(
+                      product.categoriaId
+                    )} border`}
                   >
-                    {getCategoryText(product.categoria)}
+                    {getCategoryText(product.categoriaId)}
                   </Badge>
                 </div>
               </div>
