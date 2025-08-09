@@ -47,7 +47,7 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
             <Link href="/">Dashboard</Link>
           </Button>
           <Button
-            variant="ghost"
+            variant={pathname === "/pedidos" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <ShoppingCart className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
@@ -61,14 +61,14 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
             <Link href="/estoque">Estoque</Link>
           </Button>
           <Button
-            variant="ghost"
+            variant={pathname === "/clientes" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <Users className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
             <Link href="/clientes">Clientes</Link>
           </Button>
           <Button
-            variant="ghost"
+            variant={pathname === "/configuracoes" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <Settings className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
