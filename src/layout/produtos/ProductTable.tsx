@@ -32,22 +32,21 @@ export function ProductTable({
               <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                 Produto
               </TableHead>
-              <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
-                Categoria
-              </TableHead>
+
               <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                 Preços
               </TableHead>
               <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                 Estoque
               </TableHead>
-              <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
-                Status
-              </TableHead>
+
               <TableHead className="text-left py-4 px-6 text-slate-300 font-medium">
                 Última Atualização
               </TableHead>
-              <TableHead className="text-center py-4 px-6 text-slate-300 font-medium">
+              <TableHead
+                className="text-center py-4 px-6 text-slate-300 font-medium"
+                colSpan={2}
+              >
                 Ações
               </TableHead>
             </TableRow>
@@ -66,7 +65,7 @@ export function ProductTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={5}
                   className="text-center py-8 text-slate-400"
                 >
                   Nenhum produto encontrado
@@ -76,7 +75,7 @@ export function ProductTable({
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell className="text-center" colSpan={6}>
+              <TableCell className="text-center" colSpan={5}>
                 <span className="text-sm text-slate-400">
                   {products.length} produto(s) encontrado(s)
                 </span>

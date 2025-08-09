@@ -1,7 +1,7 @@
 export function getCategoryColor(categoria?: string | null): string {
   switch (categoria?.toLowerCase()) {
     case "água mineral":
-      return "bg-blue-100 text-blue-800 border-blue-200";
+      return "text-blue-800 border-none";
     case "água com gás":
       return "bg-green-100 text-green-800 border-green-200";
     case "água saborizada":
@@ -29,9 +29,7 @@ export function getCategoryText(categoria?: string | null): string {
 }
 
 export function getStatusColor(ativo: boolean): string {
-  return ativo
-    ? "bg-green-100 text-green-800 border-green-200"
-    : "bg-red-100 text-red-800 border-red-200";
+  return ativo ? "text-green-800 border-none" : " text-red-800 border-none";
 }
 
 export function getStatusText(ativo: boolean): string {
@@ -45,7 +43,10 @@ export function formatPrice(price: number): string {
   }).format(price / 100);
 }
 
-export function getStockStatus(quantidade: number, estoqueMinimo: number): {
+export function getStockStatus(
+  quantidade: number,
+  estoqueMinimo: number
+): {
   status: "normal" | "baixo" | "zerado";
   color: string;
   text: string;
@@ -53,22 +54,22 @@ export function getStockStatus(quantidade: number, estoqueMinimo: number): {
   if (quantidade === 0) {
     return {
       status: "zerado",
-      color: "bg-red-100 text-red-800 border-red-200",
+      color: "text-red-800 border-none",
       text: "Sem Estoque",
     };
   }
-  
+
   if (quantidade <= estoqueMinimo) {
     return {
       status: "baixo",
-      color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      color: "text-yellow-800 border-none",
       text: "Estoque Baixo",
     };
   }
-  
+
   return {
     status: "normal",
-    color: "bg-green-100 text-green-800 border-green-200",
+    color: "text-green-800 border-none",
     text: "Estoque Normal",
   };
 }

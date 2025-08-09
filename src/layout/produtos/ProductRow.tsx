@@ -2,22 +2,10 @@ import { TableCell, TableRow, Button } from "@/shared/components/ui";
 import { Eye, Edit, Trash2, Package, Badge } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import {
-  getCategoryColor,
-  getCategoryText,
-  getStatusColor,
-  getStatusText,
-  formatPrice,
-  getStockStatus,
-} from "./product-utils";
+import { getStatusColor, getStatusText, formatPrice } from "./product-utils";
 import { IProductRow } from "./types";
 
 export function ProductRow({ product, onView, onEdit, onDelete }: IProductRow) {
-  const stockStatus = getStockStatus(
-    product.quantidade,
-    product.estoqueMinimo || 0
-  );
-
   return (
     <TableRow className="hover:bg-muted/50 transition-colors">
       <TableCell className="py-4 px-6">
@@ -32,12 +20,6 @@ export function ProductRow({ product, onView, onEdit, onDelete }: IProductRow) {
             </div>
           </div>
         </div>
-      </TableCell>
-
-      <TableCell className="py-4 px-6">
-        <Badge className={`${getCategoryColor(product.categoria)} border`}>
-          {getCategoryText(product.categoria)}
-        </Badge>
       </TableCell>
 
       <TableCell className="py-4 px-6">
@@ -58,27 +40,18 @@ export function ProductRow({ product, onView, onEdit, onDelete }: IProductRow) {
 
       <TableCell className="py-4 px-6">
         <div className="space-y-1">
-          <div className="text-sm font-medium">{product.quantidade} un.</div>
-          <Badge className={`${stockStatus.color} border text-xs`}>
-            {stockStatus.text}
-          </Badge>
-        </div>
-      </TableCell>
-
-      <TableCell className="py-4 px-6">
-        <div className="space-y-1">
           <Badge className={`${getStatusColor(product.ativo)} border`}>
             {getStatusText(product.ativo)}
           </Badge>
           {product.promocao && (
-            <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+            <Badge className=" text-purple-800 border-none text-xs">
               Promoção
             </Badge>
           )}
         </div>
       </TableCell>
 
-      <TableCell className="py-4 px-6">
+      <TableCell className="py-4 px-6" colSpan={2}>
         <div className="text-sm text-muted-foreground">
           {format(product.updatedAt, "dd/MM/yyyy", { locale: ptBR })}
         </div>
