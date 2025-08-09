@@ -3,7 +3,8 @@ export type RouteKey =
   | "/estoque"
   | "/vendas"
   | "/relatorios"
-  | "/configuracoes";
+  | "/configuracoes"
+  | "/clientes";
 
 export interface HeaderDescriptionData {
   title: string;

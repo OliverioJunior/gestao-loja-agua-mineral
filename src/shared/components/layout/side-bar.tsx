@@ -65,7 +65,7 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
             className="w-full justify-start text-[var(--sidebar-foreground)]"
           >
             <Users className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            Clientes
+            <Link href="/clientes">Clientes</Link>
           </Button>
           <Button
             variant="ghost"

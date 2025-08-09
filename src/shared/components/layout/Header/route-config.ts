@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Settings } from "lucide-react";
+import { LayoutDashboard, Package, Settings, Users } from "lucide-react";
 import { RouteKey, HeaderDescriptionData } from "./types";
 
 export const ROUTE_CONFIG: Record<RouteKey, HeaderDescriptionData> = {
@@ -32,6 +32,13 @@ export const ROUTE_CONFIG: Record<RouteKey, HeaderDescriptionData> = {
     title: "Configurações",
     description: "Personalize e configure todos os aspectos do seu sistema",
     icon: Settings,
+    titleClassName: "text-2xl font-bold text-foreground",
+    descriptionClassName: "text-muted-foreground",
+  },
+  "/clientes": {
+    title: "Clientes",
+    description: "Gerencie seus clientes e acompanhe suas informações",
+    icon: Users,
     titleClassName: "text-2xl font-bold text-foreground",
     descriptionClassName: "text-muted-foreground",
   },
