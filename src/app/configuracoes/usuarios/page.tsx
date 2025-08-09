@@ -8,7 +8,7 @@ import {
   UserTable,
   IUser,
   IUserStats,
-} from "./components";
+} from "@/layout/usuarios";
 
 export default function UsuariosPage() {
   const [searchTerm, setSearchTerm] = useState("");
