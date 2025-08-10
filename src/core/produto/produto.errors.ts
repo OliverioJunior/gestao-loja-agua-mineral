@@ -27,7 +27,7 @@ export class ProdutoValidation extends ValidationError {
       produto_required_to_update: "Nenhum campo foi atualizado",
       id_required: "Id é obrigatório",
     };
-    const message = messages[rule as keyof typeof messages];
+    const message = messages[rule];
     super(message, field, value);
     this.context = { ...this.context, rule };
   }

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/infrastructure/generated/prisma";
 import {
   ICategoriaRepository,
   TCategoria,
@@ -10,15 +10,19 @@ export class CategoriaRepository implements ICategoriaRepository {
   constructor(private db: PrismaClient) {}
 
   async create(data: CreateCategoriaInput): Promise<TCategoria> {
-    return await this.db.categoria.create({
-      data,
+    return await this.db.$transaction(async (prisma) => {
+      return await prisma.categoria.create({
+        data,
+      });
     });
   }
 
   async update(id: string, data: UpdateCategoriaInput): Promise<TCategoria> {
-    return await this.db.categoria.update({
-      where: { id },
-      data,
+    return await this.db.$transaction(async (prisma) => {
+      return await prisma.categoria.update({
+        where: { id },
+        data,
+      });
     });
   }
 
