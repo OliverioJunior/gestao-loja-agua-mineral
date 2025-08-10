@@ -134,7 +134,6 @@ export class ProdutoValidator {
       "ativo",
       "promocao",
       "precoRevenda",
-      "categoria",
       "marca",
       "precoPromocao",
       "quantidade",
