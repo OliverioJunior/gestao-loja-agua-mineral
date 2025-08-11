@@ -6,17 +6,17 @@ type TAction = "create" | "update";
 export class User {
   private data: TUsuario;
   private action: TAction | undefined;
-  
+
   constructor(data: TUsuario, action?: TAction) {
     this.data = data;
     this.action = action;
   }
-  
+
   validationData() {
     if (this.action === "create")
-      UsuarioValidator.validateCreateInput(this.data);
+      return UsuarioValidator.validateCreateInput(this.data).data;
     if (this.action === "update")
-      UsuarioValidator.validateUpdateInput(this.data);
+      return UsuarioValidator.validateUpdateInput(this.data).data;
     return UsuarioValidator.validateInput(this.data).data;
   }
 }

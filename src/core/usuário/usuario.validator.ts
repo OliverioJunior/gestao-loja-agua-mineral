@@ -9,7 +9,7 @@ export class UsuarioValidator {
   private static readonly MIN_NAME_LENGTH = 2;
   private static readonly MIN_PASSWORD_LENGTH = 6;
   private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  private static readonly VALID_ROLES = ["ADMIN", "USER"];
+  private static readonly VALID_ROLES = ["ADMIN", "MANAGER", "USER"];
 
   static validateInput(data: TUsuario): { data: TUsuario; validate: boolean } {
     this.validateAllField(data);
@@ -90,7 +90,7 @@ export class UsuarioValidator {
     if (!role) {
       throw new UsuarioValidation("role", role, "role_required");
     }
-    if (!this.VALID_ROLES.includes(role)) {
+    if (!this.VALID_ROLES.includes(role.toUpperCase())) {
       throw new UsuarioValidation("role", role, "role_invalid");
     }
   }

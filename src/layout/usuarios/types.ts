@@ -1,11 +1,6 @@
-export interface IUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { User } from "@/infrastructure/generated/prisma";
+
+export type IUser = User;
 
 export interface IUserRow {
   user: IUser;

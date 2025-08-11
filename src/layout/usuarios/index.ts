@@ -1,6 +1,6 @@
 export { UserRow } from "./UserRow";
 export { UserFilters } from "./UserFilters";
-export { UserDetailsModal } from "./UserDetailsModal";
+export { UserModal } from "./UserModal";
 export { UserStatsCards } from "./UserStatsCards";
 export { UserTable } from "./UserTable";
 export * from "./types";

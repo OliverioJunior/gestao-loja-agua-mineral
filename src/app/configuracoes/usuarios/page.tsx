@@ -1,58 +1,26 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/shared/components/ui";
 import {
   UserFilters,
-  UserDetailsModal,
+  UserModal,
   UserStatsCards,
   UserTable,
   IUser,
   IUserStats,
 } from "@/layout/usuarios";
+import { UserProvider, useUser } from "@/context/user/useContext";
+import { toast } from "sonner";
 
-export default function UsuariosPage() {
+function UsuariosPageContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("todos");
-  const [users, setUsers] = useState<IUser[]>([]);
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{
+    user: IUser;
+    mode: "view" | "edit";
+  } | null>(null);
 
-  useEffect(() => {
-    const mockUsers: IUser[] = [
-      {
-        id: "1",
-        name: "João Silva",
-        email: "joao.silva@empresa.com",
-        role: "admin",
-        createdAt: new Date("2024-01-15"),
-        updatedAt: new Date("2024-12-10"),
-      },
-      {
-        id: "2",
-        name: "Maria Santos",
-        email: "maria.santos@empresa.com",
-        role: "manager",
-        createdAt: new Date("2024-02-20"),
-        updatedAt: new Date("2024-12-08"),
-      },
-      {
-        id: "3",
-        name: "Pedro Costa",
-        email: "pedro.costa@empresa.com",
-        role: "user",
-        createdAt: new Date("2024-03-10"),
-        updatedAt: new Date("2024-12-05"),
-      },
-      {
-        id: "4",
-        name: "Ana Oliveira",
-        email: "ana.oliveira@empresa.com",
-        role: "user",
-        createdAt: new Date("2024-04-05"),
-        updatedAt: new Date("2024-12-01"),
-      },
-    ];
-    setUsers(mockUsers);
-  }, []);
+  const { users, setUsers } = useUser();
 
   const filteredUsers = users.filter((user) => {
     if (filterRole !== "todos" && user.role !== filterRole) {
@@ -71,16 +39,41 @@ export default function UsuariosPage() {
   });
 
   const handleView = (user: IUser) => {
-    setSelectedUser(user);
+    setSelectedUser({ user, mode: "view" });
   };
 
-  const handleEdit = (user: IUser) => {
-    console.log("Editar usuário:", user);
+  const handleEditClick = (user: IUser) => {
+    setSelectedUser({ user, mode: "edit" });
   };
 
-  const handleDelete = (user: IUser) => {
-    setUsers(users.filter((u) => u.id !== user.id));
-    console.log("Usuário excluído:", user);
+  const handleEditSave = (updatedUser: IUser) => {
+    setUsers(
+      users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+    setSelectedUser(null);
+  };
+
+  const handleDelete = async (user: IUser) => {
+    try {
+      const response = await fetch("/api/user/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: user.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao excluir usuário");
+      }
+
+      // Remove user from context after successful API call
+      setUsers(users.filter((u) => u.id !== user.id));
+      toast.success("Usuário excluído com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
+      toast.error("Erro ao excluir usuário");
+    }
   };
 
   const getRoleStats = (): IUserStats => ({
@@ -110,19 +103,28 @@ export default function UsuariosPage() {
             <UserTable
               users={filteredUsers}
               onView={handleView}
-              onEdit={handleEdit}
+              onEdit={handleEditClick}
               onDelete={handleDelete}
             />
           </CardContent>
         </Card>
 
-        <UserDetailsModal
-          user={selectedUser}
+        <UserModal
+          user={selectedUser?.user || null}
           isOpen={!!selectedUser}
           onClose={() => setSelectedUser(null)}
-          onEdit={handleEdit}
+          onSave={handleEditSave}
+          initialMode={selectedUser?.mode || "view"}
         />
       </div>
     </main>
+  );
+}
+
+export default function UsuariosPage() {
+  return (
+    <UserProvider>
+      <UsuariosPageContent />
+    </UserProvider>
   );
 }

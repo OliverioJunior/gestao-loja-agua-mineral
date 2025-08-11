@@ -3,6 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import { Header } from "./Header";
 import { SideBar } from "./side-bar";
+import { Toaster } from "@/shared/components/ui/sonner";
 import { useState } from "react";
 interface IAplication {
   children: React.ReactNode;
@@ -28,6 +29,7 @@ export const Aplication: React.FC<IAplication> = ({ children }) => {
           </div>
         </div>
       </div>
+      <Toaster />
     </ThemeProvider>
   );
 };
