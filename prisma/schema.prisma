@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/infrastructure/generated/prisma"
@@ -15,37 +9,56 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @db.Uuid
   name      String
   role      String
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  clientesCriados     Cliente[] @relation("ClienteCreatedBy")
+  clientesAtualizados Cliente[] @relation("ClienteUpdatedBy")
+
+  produtosCriados     Produto[] @relation("ProdutoCreatedBy")
+  produtosAtualizados Produto[] @relation("ProdutoUpdatedBy")
+
+  categoriasCriadas     Categoria[] @relation("CategoriaCreatedBy")
+  categoriasAtualizadas Categoria[] @relation("CategoriaUpdatedBy")
+
+  pedidosCriados     Pedido[] @relation("PedidoCreatedBy")
+  pedidosAtualizados Pedido[] @relation("PedidoUpdatedBy")
+
+  itensCriados     Item[] @relation("ItemCreatedBy")
+  itensAtualizados Item[] @relation("ItemUpdatedBy")
 }
 
 model Produto {
-  id        String  @id @default(uuid())
-  nome      String  @db.VarChar(255)
-  descricao String? @db.Text
-  marca     String? @db.VarChar(100)
-
+  id            String   @id @default(uuid()) @db.Uuid
+  nome          String   @db.VarChar(255)
+  descricao     String?  @db.Text
+  marca         String?  @db.VarChar(100)
   precoCusto    Int
   precoVenda    Int
   precoRevenda  Int?
   precoPromocao Int?
+  quantidade    Int      @default(0)
+  estoqueMinimo Int?     @default(0)
+  ativo         Boolean  @default(true)
+  promocao      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  quantidade    Int  @default(0)
-  estoqueMinimo Int? @default(0)
-
-  ativo    Boolean @default(true)
-  promocao Boolean @default(false)
-
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
   categoria   Categoria? @relation(fields: [categoriaId], references: [id])
-  categoriaId String?    @map("categoria_id") @db.VarChar(100)
-  Item        Item[]
+  categoriaId String?    @db.Uuid
+
+  Item Item[]
+
+  criadoPor   User   @relation("ProdutoCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId String @db.Uuid
+
+  atualizadoPor   User   @relation("ProdutoUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String @db.Uuid
 
   @@index([nome])
   @@index([marca])
@@ -54,13 +67,20 @@ model Produto {
 }
 
 model Categoria {
-  id            String    @id @default(uuid())
-  nome          String    @db.VarChar(255)
-  description   String?   @db.Text
-  productsCount Int       @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  produtos      Produto[]
+  id            String   @id @default(uuid()) @db.Uuid
+  nome          String   @db.VarChar(255)
+  description   String?  @db.Text
+  productsCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  produtos Produto[]
+
+  criadoPor   User   @relation("CategoriaCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId String @db.Uuid
+
+  atualizadoPor   User   @relation("CategoriaUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String @db.Uuid
 }
 
 enum Status {
@@ -78,10 +98,17 @@ model Cliente {
   status      Status    @default(ATIVO)
   cidade      String    @db.VarChar(200)
   estado      String    @db.VarChar(200)
-  CEP         String    @db.VarChar(10)
+  cep         String    @map("CEP") @db.VarChar(10)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
-  Pedido      Pedido[]
+
+  Pedido Pedido[]
+
+  criadoPor   User   @relation("ClienteCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId String @db.Uuid
+
+  atualizadoPor   User   @relation("ClienteUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String @db.Uuid
 
   @@map("clientes")
 }
@@ -95,21 +122,36 @@ enum StatusPedido {
 model Pedido {
   id        Int          @id @default(autoincrement())
   cliente   Cliente      @relation(fields: [clienteId], references: [id])
-  clienteId Int          @map("cliente_id")
+  clienteId Int
   data      DateTime     @default(now())
   total     Int
   status    StatusPedido @default(PENDENTE)
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
-  itens     Item[]
+
+  itens Item[]
+
+  criadoPor   User   @relation("PedidoCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId String @db.Uuid
+
+  atualizadoPor   User   @relation("PedidoUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String @db.Uuid
 }
 
 model Item {
-  id         Int     @id @default(autoincrement())
-  pedido     Pedido  @relation(fields: [pedidoId], references: [id])
-  pedidoId   Int     @map("pedido_id")
-  produto    Produto @relation(fields: [produtoId], references: [id])
-  produtoId  String  @map("produto_id")
+  id         Int      @id @default(autoincrement())
+  pedido     Pedido   @relation(fields: [pedidoId], references: [id])
+  pedidoId   Int
+  produto    Produto  @relation(fields: [produtoId], references: [id])
+  produtoId  String   @db.Uuid
   quantidade Int
   preco      Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  criadoPor   User   @relation("ItemCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId String @db.Uuid
+
+  atualizadoPor   User   @relation("ItemUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String @db.Uuid
 }
