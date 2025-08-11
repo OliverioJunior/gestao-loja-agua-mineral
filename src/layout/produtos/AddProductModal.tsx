@@ -45,11 +45,16 @@ export function AddProductModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const productData = {
+    const productData: TProduto = {
       nome: formData.nome,
       descricao: formData.descricao || null,
       marca: formData.marca || null,
-      categoria: formData.categoria || null,
+      categoriaId: null,
+      atualizadoPorId: "1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      criadoPorId: "1",
+      id: "1",
       precoCusto: parseFloat(formData.precoCusto) * 100, // Converter para centavos
       precoVenda: parseFloat(formData.precoVenda) * 100,
       precoRevenda: formData.precoRevenda

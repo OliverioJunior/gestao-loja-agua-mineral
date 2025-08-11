@@ -39,6 +39,7 @@ export function OrderRow({
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const handleView = () => {
+    setIsDetailsModalOpen(true);
     onView(order);
   };
 
