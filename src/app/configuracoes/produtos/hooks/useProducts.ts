@@ -43,11 +43,8 @@ export const useProducts = () => {
         const searchLower = searchTerm.toLowerCase();
         const matchesName = product.nome.toLowerCase().includes(searchLower);
         const matchesBrand = product.marca?.toLowerCase().includes(searchLower);
-        const matchesCategory = product.categoria
-          ?.toLowerCase()
-          .includes(searchLower);
 
-        if (!matchesName && !matchesBrand && !matchesCategory) {
+        if (!matchesName && !matchesBrand) {
           return false;
         }
       }
