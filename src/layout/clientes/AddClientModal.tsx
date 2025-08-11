@@ -17,11 +17,7 @@ import {
 import { Plus } from "lucide-react";
 import { AddClientModalProps } from "./types";
 
-export function AddClientModal({
-  isOpen,
-  onClose,
-  onSubmit,
-}: AddClientModalProps) {
+export function AddClientModal({ isOpen, onClose, onSubmit }: AddClientModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,7 +26,6 @@ export function AddClientModal({
     city: "",
     state: "",
     zipCode: "",
-    birthday: "",
     status: "ativo" as "ativo" | "inativo",
   });
 
@@ -46,7 +41,6 @@ export function AddClientModal({
       state: "",
       zipCode: "",
       status: "ativo",
-      birthday: "",
     });
     onClose();
   };
@@ -61,7 +55,6 @@ export function AddClientModal({
       state: "",
       zipCode: "",
       status: "ativo",
-      birthday: "",
     });
     onClose();
   };
@@ -82,9 +75,7 @@ export function AddClientModal({
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Digite o nome completo"
                 required
               />
@@ -95,9 +86,7 @@ export function AddClientModal({
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="Digite o e-mail"
                 required
               />
@@ -110,9 +99,7 @@ export function AddClientModal({
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="(11) 99999-9999"
                 required
               />
@@ -141,23 +128,8 @@ export function AddClientModal({
             <Input
               id="address"
               value={formData.address}
-              onChange={(e) =>
-                setFormData({ ...formData, address: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               placeholder="Digite o endereço completo"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="birthday">Data de Nascimento</Label>
-            <Input
-              id="birthday"
-              type="date"
-              value={formData.birthday}
-              onChange={(e) =>
-                setFormData({ ...formData, birthday: e.target.value })
-              }
-              placeholder="Digite a data de nascimento"
               required
             />
           </div>
@@ -168,9 +140,7 @@ export function AddClientModal({
               <Input
                 id="city"
                 value={formData.city}
-                onChange={(e) =>
-                  setFormData({ ...formData, city: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 placeholder="Digite a cidade"
                 required
               />
@@ -180,9 +150,7 @@ export function AddClientModal({
               <Input
                 id="state"
                 value={formData.state}
-                onChange={(e) =>
-                  setFormData({ ...formData, state: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 placeholder="SP"
                 maxLength={2}
                 required
@@ -193,9 +161,7 @@ export function AddClientModal({
               <Input
                 id="zipCode"
                 value={formData.zipCode}
-                onChange={(e) =>
-                  setFormData({ ...formData, zipCode: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
                 placeholder="00000-000"
                 required
               />
