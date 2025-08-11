@@ -4,13 +4,15 @@ import { CreateUsuarioInput } from "@/core/usuário/usuario.entity";
 import { UsuarioRepository } from "@/core/usuário/usuario.repository";
 import { UsuarioService } from "@/core/usuário/usuario.service";
 import { NextResponse } from "next/server";
-
+import { hash } from "argon2";
 export async function POST(req: Request) {
   try {
     const usuarioService = new UsuarioService(new UsuarioRepository());
     const body = await req.json();
     console.log({ body });
     const user = new User(body, "create").validationData();
+    user.password = await hash(user.password || "");
+
     const usuario = await usuarioService.create(user as CreateUsuarioInput);
 
     return NextResponse.json(usuario);
