@@ -1,16 +1,22 @@
+"use client";
 import { memo, useCallback } from "react";
-import { Droplets, Bell, Menu } from "lucide-react";
+import { Droplets, Bell, Menu, User, LogOut } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { HeaderMobileProps } from "./types";
+import { useCurrentUser, getUserInitials } from "@/shared/hooks/useCurrentUser";
+import { useRouter } from "next/navigation";
 
 const HEADER_STYLES = {
   container:
     "lg:hidden bg-[var(--card)] border-b border-[var(--border)] px-4 py-3 flex items-center justify-between",
   logo: "flex items-center gap-2",
-  actions: "flex items-center gap-2",
+  actions: "flex items-center gap-1",
   icon: "text-[var(--foreground)]",
   primaryIcon: "text-[var(--primary)]",
   appName: "font-semibold text-[var(--foreground)]",
+  avatar: "h-7 w-7 bg-[var(--primary)]/20 rounded-full flex items-center justify-center",
+  avatarText: "text-xs font-medium text-[var(--primary)]",
+  loading: "h-4 w-4 animate-spin",
 } as const;
 
 const ICON_SIZES = {
@@ -28,6 +34,9 @@ export const HeaderMobile = memo<HeaderMobileProps>(
     className,
     "data-testid": testId = "header-mobile",
   }) => {
+    const { user, loading, error } = useCurrentUser();
+    const router = useRouter();
+    
     const handleMenuClick = useCallback(() => {
       onMenuClick();
     }, [onMenuClick]);
@@ -35,6 +44,48 @@ export const HeaderMobile = memo<HeaderMobileProps>(
     const handleNotificationClick = useCallback(() => {
       onNotificationClick?.();
     }, [onNotificationClick]);
+
+    const handleLogout = useCallback(async () => {
+      try {
+        const response = await fetch("/api/auth/signout", {
+          method: "POST",
+        });
+        
+        if (response.ok) {
+          router.push("/login");
+        } else {
+          console.error("Erro ao fazer logout");
+        }
+      } catch (error) {
+        console.error("Erro ao fazer logout:", error);
+      }
+    }, [router]);
+
+    const renderUserAvatar = () => {
+      if (loading) {
+        return (
+          <div className={HEADER_STYLES.avatar} aria-label="Carregando...">
+            <User className={HEADER_STYLES.loading} />
+          </div>
+        );
+      }
+
+      if (error || !user) {
+        return (
+          <div className={HEADER_STYLES.avatar} aria-label="Usuário não encontrado">
+            <User className="h-3 w-3 text-[var(--muted-foreground)]" />
+          </div>
+        );
+      }
+
+      return (
+        <div className={HEADER_STYLES.avatar} aria-label={`Perfil de ${user.name}`}>
+          <span className={HEADER_STYLES.avatarText}>
+            {getUserInitials(user.name)}
+          </span>
+        </div>
+      );
+    };
 
     const containerClassName = className
       ? `${HEADER_STYLES.container} ${className}`
@@ -64,6 +115,24 @@ export const HeaderMobile = memo<HeaderMobileProps>(
               aria-hidden="true"
             />
           </Button>
+
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              data-testid={`${testId}-logout-button`}
+              aria-label="Fazer logout"
+              className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            >
+              <LogOut
+                className={`${ICON_SIZES.action}`}
+                aria-hidden="true"
+              />
+            </Button>
+          )}
+
+          {renderUserAvatar()}
 
           <Button
             variant="ghost"
