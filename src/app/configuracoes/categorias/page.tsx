@@ -19,45 +19,9 @@ export default function CategoriasPage() {
   );
 
   useEffect(() => {
-    const mockCategories: ICategory[] = [
-      {
-        id: "1",
-        name: "Água Mineral",
-        description: "Águas minerais naturais e com gás",
-
-        productsCount: 15,
-        createdAt: new Date("2024-01-15"),
-        updatedAt: new Date("2024-12-10"),
-      },
-      {
-        id: "2",
-        name: "Água Saborizada",
-        description: "Águas com sabores naturais",
-
-        productsCount: 8,
-        createdAt: new Date("2024-02-20"),
-        updatedAt: new Date("2024-12-08"),
-      },
-      {
-        id: "3",
-        name: "Água Alcalina",
-        description: "Águas com pH alcalino",
-
-        productsCount: 5,
-        createdAt: new Date("2024-03-10"),
-        updatedAt: new Date("2024-12-05"),
-      },
-      {
-        id: "4",
-        name: "Água Destilada",
-        description: "Águas destiladas para uso específico",
-
-        productsCount: 0,
-        createdAt: new Date("2024-04-05"),
-        updatedAt: new Date("2024-12-01"),
-      },
-    ];
-    setCategories(mockCategories);
+    fetch("/api/categoria")
+      .then(async (res) => await res.json())
+      .then((data) => setCategories(data));
   }, []);
 
   const filteredCategories = categories.filter((category) => {

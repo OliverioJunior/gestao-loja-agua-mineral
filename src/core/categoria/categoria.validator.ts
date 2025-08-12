@@ -8,6 +8,20 @@ import { CategoriaValidation } from "./categoria.errors";
 export class CategoriaValidator {
   private static readonly MIN_NAME_LENGTH = 2;
 
+  private static readonly ALLOWED_CREATE_FIELDS = [
+    "nome",
+    "description",
+    "productsCount",
+    "criadoPorId",
+    "atualizadoPorId",
+  ];
+
+  private static readonly ALLOWED_UPDATE_FIELDS = [
+    "nome",
+    "description",
+    "productsCount",
+  ];
+
   static validateInput(data: TCategoria): {
     data: TCategoria;
     validate: boolean;
@@ -18,6 +32,7 @@ export class CategoriaValidator {
   }
 
   static validateCreateInput(data: CreateCategoriaInput) {
+    this.validateNoExtraFields(data, this.ALLOWED_CREATE_FIELDS);
     this.validateNome(data.nome);
     this.validateAllField(data);
 
@@ -25,6 +40,8 @@ export class CategoriaValidator {
   }
 
   static validateUpdateInput(data: UpdateCategoriaInput) {
+    this.validateNoExtraFields(data, this.ALLOWED_UPDATE_FIELDS);
+
     if (data.nome !== undefined) {
       this.validateNome(data.nome);
     }
@@ -78,5 +95,21 @@ export class CategoriaValidator {
         );
       }
     });
+  }
+
+  private static validateNoExtraFields(
+    data: Record<string, unknown>,
+    allowedFields: string[]
+  ) {
+    const dataKeys = Object.keys(data);
+    const extraFields = dataKeys.filter((key) => !allowedFields.includes(key));
+
+    if (extraFields.length > 0) {
+      throw new CategoriaValidation(
+        "categoria",
+        extraFields,
+        "field_not_allowed"
+      );
+    }
   }
 }

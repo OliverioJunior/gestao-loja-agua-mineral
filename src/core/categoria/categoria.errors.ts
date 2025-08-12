@@ -6,6 +6,7 @@ type TMessages = {
   nome_min_length: "Nome da categoria deve ter pelo menos 2 caracteres";
   categoria_required_to_update: "Pelo menos um campo deve ser fornecido para atualização";
   all_field_required: "Todos os campos obrigatórios devem ser fornecidos";
+  field_not_allowed: "Campo não permitido";
 };
 
 export class CategoriaValidation extends ValidationError {
@@ -17,6 +18,7 @@ export class CategoriaValidation extends ValidationError {
       categoria_required_to_update:
         "Pelo menos um campo deve ser fornecido para atualização",
       all_field_required: "Todos os campos obrigatórios devem ser fornecidos",
+      field_not_allowed: "Campo não permitido",
     };
 
     const message = messages[rule as keyof typeof messages];

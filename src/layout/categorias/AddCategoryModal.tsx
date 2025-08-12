@@ -1,3 +1,4 @@
+"use client";
 import {
   Button,
   Dialog,
@@ -14,11 +15,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 
 interface AddCategoryModalProps {
-  onAddCategory?: (category: {
-    nome: string;
-    description: string;
-    status: "ativo" | "inativo";
-  }) => void;
+  onAddCategory?: (category: { nome: string; description: string }) => void;
 }
 
 export function AddCategoryModal({ onAddCategory }: AddCategoryModalProps) {
@@ -26,18 +23,27 @@ export function AddCategoryModal({ onAddCategory }: AddCategoryModalProps) {
   const [formData, setFormData] = useState({
     nome: "",
     description: "",
-    status: "ativo" as "ativo" | "inativo",
   });
 
-  const handleSubmit = () => {
-    if (formData.nome.trim()) {
-      onAddCategory?.(formData);
-      setFormData({
-        nome: "",
-        description: "",
-        status: "ativo",
+  const handleSubmit = async () => {
+    try {
+      formData.nome = formData.nome.trim();
+      formData.description = formData.description.trim();
+
+      const response = await fetch("/api/categoria/create", {
+        method: "POST",
+        body: JSON.stringify(formData),
       });
-      setIsOpen(false);
+      if (response.ok) {
+        onAddCategory?.(formData);
+        setFormData({
+          nome: "",
+          description: "",
+        });
+        setIsOpen(false);
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar categoria:", error);
     }
   };
 
@@ -45,7 +51,6 @@ export function AddCategoryModal({ onAddCategory }: AddCategoryModalProps) {
     setFormData({
       nome: "",
       description: "",
-      status: "ativo",
     });
     setIsOpen(false);
   };
