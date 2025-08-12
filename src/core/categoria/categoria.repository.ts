@@ -5,9 +5,12 @@ import {
   CreateCategoriaInput,
   UpdateCategoriaInput,
 } from "./categoria.entity";
-
+import { prisma } from "@/infrastructure";
 export class CategoriaRepository implements ICategoriaRepository {
-  constructor(private db: PrismaClient) {}
+  private prisma: PrismaClient;
+  constructor(private readonly db: PrismaClient = prisma) {
+    this.prisma = db as PrismaClient;
+  }
 
   async create(data: CreateCategoriaInput): Promise<TCategoria> {
     return await this.db.$transaction(async (prisma) => {
