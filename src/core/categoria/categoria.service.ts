@@ -13,8 +13,9 @@ export class CategoriaService {
 
   async create(data: CreateCategoriaInput): Promise<TCategoria> {
     try {
-      CategoriaValidator.validateCreateInput(data);
-      return await this.categoriaRepository.create(data);
+      const { data: validatedData } =
+        CategoriaValidator.validateCreateInput(data);
+      return await this.categoriaRepository.create(validatedData);
     } catch (error) {
       return ErrorHandler.handleRepositoryError(error, "criação de categoria");
     }
