@@ -5,11 +5,27 @@ import { Header } from "./Header";
 import { SideBar } from "./side-bar";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+
 interface IAplication {
   children: React.ReactNode;
 }
 export const Aplication: React.FC<IAplication> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  if (pathname === "/login") {
+    return (
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+        <Toaster />
+      </ThemeProvider>
+    );
+  }
   return (
     <ThemeProvider
       attribute="class"
