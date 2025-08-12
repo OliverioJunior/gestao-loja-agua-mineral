@@ -1,11 +1,5 @@
-export interface ICategory {
-  id: string;
-  name: string;
-  description: string;
-  productsCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Categoria } from "@/infrastructure/generated/prisma";
+export type ICategory = Categoria;
 
 export interface ICategoryRow {
   category: ICategory;

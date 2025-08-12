@@ -41,7 +41,7 @@ export function CategoryDetailsModal({
               <Tag className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-medium text-slate-200">{category.name}</h3>
+              <h3 className="font-medium text-slate-200">{category.nome}</h3>
               <p className="text-sm text-slate-400">{category.description}</p>
             </div>
           </div>

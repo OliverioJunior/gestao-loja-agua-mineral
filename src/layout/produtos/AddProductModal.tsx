@@ -1,4 +1,5 @@
 import { TProduto } from "@/core/produto/produto.entity";
+import { useCategory } from "@/hooks/categoria/useCategory";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +42,8 @@ export function AddProductModal({
     ativo: true,
     promocao: false,
   });
-
+  const { categories } = useCategory();
+  console.log({ categories, teste: "1" });
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -158,10 +160,11 @@ export function AddProductModal({
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Água Mineral">Água Mineral</SelectItem>
-                <SelectItem value="Água com Gás">Água com Gás</SelectItem>
-                <SelectItem value="Água Saborizada">Água Saborizada</SelectItem>
-                <SelectItem value="Água Alcalina">Água Alcalina</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.nome}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

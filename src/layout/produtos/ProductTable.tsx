@@ -65,7 +65,7 @@ export function ProductTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-center py-8 text-slate-400"
                 >
                   Nenhum produto encontrado
@@ -80,7 +80,6 @@ export function ProductTable({
                   {products.length} produto(s) encontrado(s)
                 </span>
               </TableCell>
-              <TableCell className="text-right"></TableCell>
             </TableRow>
           </TableFooter>
         </Table>

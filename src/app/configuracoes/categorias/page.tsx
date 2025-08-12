@@ -30,7 +30,7 @@ export default function CategoriasPage() {
         // Mapear os dados da API para a interface ICategory
         const mappedCategories = data.map((category: ICategory) => ({
           id: category.id,
-          name: category.name, // Mapear 'nome' do banco para 'name' da interface
+          nome: category.nome,
           description: category.description,
           productsCount: category.productsCount,
           createdAt: new Date(category.createdAt),
@@ -47,8 +47,8 @@ export default function CategoriasPage() {
 
     if (
       searchTerm &&
-      !category.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !category.description.toLowerCase().includes(searchTerm.toLowerCase())
+      !category.nome.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !category.description?.toLowerCase().includes(searchTerm.toLowerCase())
     ) {
       return false;
     }
@@ -102,17 +102,9 @@ export default function CategoriasPage() {
 
       if (response.ok) {
         const newCategoryData = await response.json();
-        const newCategory: ICategory = {
-          id: newCategoryData.id,
-          name: newCategoryData.nome,
-          description: newCategoryData.description,
-          productsCount: newCategoryData.productsCount,
-          createdAt: new Date(newCategoryData.createdAt),
-          updatedAt: new Date(newCategoryData.updatedAt),
-        };
 
-        setCategories([...categories, newCategory]);
-        console.log("Nova categoria adicionada:", newCategory);
+        setCategories([...newCategoryData]);
+        console.log("Nova categoria adicionada:", newCategoryData);
       } else {
         console.error("Erro ao adicionar categoria");
       }

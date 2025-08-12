@@ -35,8 +35,8 @@ export function EditCategoryModal({
   useEffect(() => {
     if (category) {
       setFormData({
-        nome: category.name,
-        description: category.description,
+        nome: category.nome || "",
+        description: category.description || "",
       });
     }
   }, [category]);
@@ -63,7 +63,7 @@ export function EditCategoryModal({
         const updatedCategory = await response.json();
         const categoryToUpdate: ICategory = {
           ...category,
-          name: updatedCategory.nome,
+          nome: updatedCategory.nome,
           description: updatedCategory.description,
           updatedAt: new Date(updatedCategory.updatedAt),
         };
@@ -80,8 +80,8 @@ export function EditCategoryModal({
   const handleCancel = () => {
     if (category) {
       setFormData({
-        nome: category.name,
-        description: category.description,
+        nome: category.nome || "",
+        description: category.description || "",
       });
     }
     onClose();

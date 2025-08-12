@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { IProductStats, IFiltrosProdutos } from "@/layout/produtos";
-import { MOCK_PRODUCTS } from "../constants";
 import { TProduto } from "@/core/produto/produto.entity";
 
 export const useProducts = () => {
@@ -14,7 +13,9 @@ export const useProducts = () => {
 
   // Initialize products with mock data
   useEffect(() => {
-    setProducts(MOCK_PRODUCTS);
+    fetch("/api/produto")
+      .then(async (res) => await res.json())
+      .then((data) => setProducts(data));
   }, []);
 
   // Memoized filtered products for better performance
