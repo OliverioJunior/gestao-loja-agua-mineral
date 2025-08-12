@@ -9,7 +9,6 @@ export async function POST(req: Request) {
   try {
     const usuarioService = new UsuarioService(new UsuarioRepository());
     const body = await req.json();
-    console.log({ body });
     const user = new User(body, "create").validationData();
     user.password = await hash(user.password || "");
 
