@@ -4,5 +4,6 @@ export { CategoryDetailsModal } from "./CategoryDetailsModal";
 export { CategoryStatsCards } from "./CategoryStatsCards";
 export { CategoryTable } from "./CategoryTable";
 export { AddCategoryModal } from "./AddCategoryModal";
+export { EditCategoryModal } from "./EditCategoryModal";
 export * from "./types";
 export * from "./category-utils";

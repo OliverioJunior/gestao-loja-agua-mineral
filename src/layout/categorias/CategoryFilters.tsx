@@ -7,7 +7,6 @@ interface CategoryFiltersProps extends IFiltrosCategorias {
   onAddCategory: (category: {
     nome: string;
     description: string;
-    status: "ativo" | "inativo";
   }) => void;
 }
 

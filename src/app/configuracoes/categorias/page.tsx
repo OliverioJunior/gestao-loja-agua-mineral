@@ -6,6 +6,7 @@ import {
   CategoryDetailsModal,
   CategoryStatsCards,
   CategoryTable,
+  EditCategoryModal,
   ICategory,
   ICategoryStats,
 } from "@/layout/categorias";
@@ -17,11 +18,26 @@ export default function CategoriasPage() {
   const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(
     null
   );
+  const [editingCategory, setEditingCategory] = useState<ICategory | null>(
+    null
+  );
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/categoria")
       .then(async (res) => await res.json())
-      .then((data) => setCategories(data));
+      .then((data) => {
+        // Mapear os dados da API para a interface ICategory
+        const mappedCategories = data.map((category: ICategory) => ({
+          id: category.id,
+          name: category.name, // Mapear 'nome' do banco para 'name' da interface
+          description: category.description,
+          productsCount: category.productsCount,
+          createdAt: new Date(category.createdAt),
+          updatedAt: new Date(category.updatedAt),
+        }));
+        setCategories(mappedCategories);
+      });
   }, []);
 
   const filteredCategories = categories.filter((category) => {
@@ -45,29 +61,64 @@ export default function CategoriasPage() {
   };
 
   const handleEdit = (category: ICategory) => {
-    console.log("Editar categoria:", category);
+    setEditingCategory(category);
+    setIsEditModalOpen(true);
+    setSelectedCategory(null);
   };
 
-  const handleDelete = (category: ICategory) => {
-    setCategories(categories.filter((c) => c.id !== category.id));
-    console.log("Categoria excluída:", category);
+  const handleDelete = async (category: ICategory) => {
+    try {
+      const response = await fetch("/api/categoria/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: category.id }),
+      });
+
+      if (response.ok) {
+        setCategories(categories.filter((c) => c.id !== category.id));
+        console.log("Categoria excluída:", category);
+      } else {
+        console.error("Erro ao excluir categoria");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir categoria:", error);
+    }
   };
 
-  const handleAddCategory = (categoryData: {
+  const handleAddCategory = async (categoryData: {
     nome: string;
     description: string;
   }) => {
-    const newCategory: ICategory = {
-      id: Date.now().toString(), // Simulando um ID único
-      name: categoryData.nome,
-      description: categoryData.description,
-      productsCount: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    try {
+      const response = await fetch("/api/categoria/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(categoryData),
+      });
 
-    setCategories([...categories, newCategory]);
-    console.log("Nova categoria adicionada:", newCategory);
+      if (response.ok) {
+        const newCategoryData = await response.json();
+        const newCategory: ICategory = {
+          id: newCategoryData.id,
+          name: newCategoryData.nome,
+          description: newCategoryData.description,
+          productsCount: newCategoryData.productsCount,
+          createdAt: new Date(newCategoryData.createdAt),
+          updatedAt: new Date(newCategoryData.updatedAt),
+        };
+
+        setCategories([...categories, newCategory]);
+        console.log("Nova categoria adicionada:", newCategory);
+      } else {
+        console.error("Erro ao adicionar categoria");
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar categoria:", error);
+    }
   };
 
   const getStatusStats = (): ICategoryStats => ({
@@ -107,6 +158,22 @@ export default function CategoriasPage() {
           isOpen={!!selectedCategory}
           onClose={() => setSelectedCategory(null)}
           onEdit={handleEdit}
+        />
+
+        <EditCategoryModal
+          category={editingCategory}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingCategory(null);
+          }}
+          onEditCategory={(updatedCategory) => {
+            setCategories(
+              categories.map((c) =>
+                c.id === updatedCategory.id ? updatedCategory : c
+              )
+            );
+          }}
         />
       </div>
     </main>

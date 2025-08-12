@@ -20,6 +20,10 @@ export class CategoriaValidator {
     "nome",
     "description",
     "productsCount",
+    "createdAt",
+    "updatedAt",
+    "criadoPorId",
+    "atualizadoPorId",
   ];
 
   static validateInput(data: TCategoria): {
