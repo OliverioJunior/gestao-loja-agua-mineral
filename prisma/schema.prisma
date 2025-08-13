@@ -92,8 +92,8 @@ model Cliente {
   id          Int       @id @default(autoincrement())
   nome        String    @db.VarChar(200)
   aniversario DateTime? @db.Date
-  email       String    @db.VarChar(200)
-  telefone    String    @db.VarChar(16)
+  email       String    @unique @db.VarChar(200)
+  telefone    String    @unique @db.VarChar(16)
   endereco    String    @db.Text
   status      Status    @default(ATIVO)
   cidade      String    @db.VarChar(200)
