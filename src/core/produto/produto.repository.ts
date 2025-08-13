@@ -12,7 +12,12 @@ export class ProdutoRepository implements IProdutoRepository {
 
   async create(data: CreateProdutoInput): Promise<TProduto> {
     return await this.db.$transaction(async (prisma) => {
-      return await prisma.produto.create({ data });
+      return await prisma.produto.create({
+        data,
+        include: {
+          categoria: true,
+        },
+      });
     });
   }
 
@@ -21,6 +26,9 @@ export class ProdutoRepository implements IProdutoRepository {
       return await prisma.produto.update({
         where: { id },
         data,
+        include: {
+          categoria: true, // Inclui os dados da categoria relacionada
+        },
       });
     });
   }
@@ -35,6 +43,9 @@ export class ProdutoRepository implements IProdutoRepository {
 
   async findAll(): Promise<TProduto[]> {
     return await this.db.produto.findMany({
+      include: {
+        categoria: true, // Inclui os dados da categoria relacionada
+      },
       orderBy: { createdAt: "desc" },
     });
   }
@@ -42,6 +53,9 @@ export class ProdutoRepository implements IProdutoRepository {
   async findById(id: string): Promise<TProduto | null> {
     return await this.db.produto.findUnique({
       where: { id },
+      include: {
+        categoria: true, // Inclui os dados da categoria relacionada
+      },
     });
   }
 
@@ -52,6 +66,9 @@ export class ProdutoRepository implements IProdutoRepository {
           contains: nome,
           mode: "insensitive",
         },
+      },
+      include: {
+        categoria: true,
       },
       orderBy: { nome: "asc" },
     });

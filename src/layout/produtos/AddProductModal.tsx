@@ -1,4 +1,4 @@
-import { TProduto } from "@/core/produto/produto.entity";
+import { TProdutoWithCategoria } from "@/core/produto/produto.entity";
 import { useCategory } from "@/hooks/categoria/useCategory";
 import {
   Dialog,
@@ -17,10 +17,35 @@ import {
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
+// Função para formatar valor monetário brasileiro
+const formatCurrency = (value: string): string => {
+  // Remove tudo que não é dígito
+  const numericValue = value.replace(/\D/g, "");
+
+  if (!numericValue) return "";
+
+  // Converte para número e divide por 100 para ter centavos
+  const numberValue = parseInt(numericValue) / 100;
+
+  // Formata para o padrão brasileiro
+  return numberValue.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+// Função para converter valor formatado de volta para número
+// const parseCurrency = (formattedValue: string): number => {
+//   const numericValue = formattedValue.replace(/\D/g, "");
+//   return parseInt(numericValue || "0") / 100;
+// };
+
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (product: Omit<TProduto, "id" | "createdAt" | "updatedAt">) => void;
+  onAdd: (
+    product: Omit<TProdutoWithCategoria, "id" | "createdAt" | "updatedAt">
+  ) => void;
 }
 
 export function AddProductModal({
@@ -32,7 +57,7 @@ export function AddProductModal({
     nome: "",
     descricao: "",
     marca: "",
-    categoria: "",
+    categoriaId: "",
     precoCusto: "",
     precoVenda: "",
     precoRevenda: "",
@@ -43,36 +68,28 @@ export function AddProductModal({
     promocao: false,
   });
   const { categories } = useCategory();
-  console.log({ categories, teste: "1" });
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const response = await fetch("/api/produto/create", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      console.log(data);
+      onAdd(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      handleClose();
+    }
+  };
 
-    const productData: TProduto = {
-      nome: formData.nome,
-      descricao: formData.descricao || null,
-      marca: formData.marca || null,
-      categoriaId: null,
-      atualizadoPorId: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      criadoPorId: "1",
-      id: "1",
-      precoCusto: parseFloat(formData.precoCusto) * 100, // Converter para centavos
-      precoVenda: parseFloat(formData.precoVenda) * 100,
-      precoRevenda: formData.precoRevenda
-        ? parseFloat(formData.precoRevenda) * 100
-        : null,
-      precoPromocao: formData.precoPromocao
-        ? parseFloat(formData.precoPromocao) * 100
-        : null,
-      quantidade: parseInt(formData.quantidade),
-      estoqueMinimo: parseInt(formData.estoqueMinimo),
-      ativo: formData.ativo,
-      promocao: formData.promocao,
-    };
-
-    onAdd(productData);
-    handleClose();
+  // Handlers para formatação de preços
+  const handlePriceChange = (field: string, value: string) => {
+    const formattedValue = formatCurrency(value);
+    setFormData({ ...formData, [field]: formattedValue });
   };
 
   const handleClose = () => {
@@ -80,7 +97,7 @@ export function AddProductModal({
       nome: "",
       descricao: "",
       marca: "",
-      categoria: "",
+      categoriaId: "",
       precoCusto: "",
       precoVenda: "",
       precoRevenda: "",
@@ -151,9 +168,9 @@ export function AddProductModal({
           <div className="space-y-2">
             <Label htmlFor="categoria">Categoria</Label>
             <Select
-              value={formData.categoria}
+              value={formData.categoriaId}
               onValueChange={(value) =>
-                setFormData({ ...formData, categoria: value })
+                setFormData({ ...formData, categoriaId: value })
               }
             >
               <SelectTrigger>
@@ -175,11 +192,10 @@ export function AddProductModal({
               <Label htmlFor="precoCusto">Preço de Custo (R$) *</Label>
               <Input
                 id="precoCusto"
-                type="number"
-                step="0.01"
+                type="text"
                 value={formData.precoCusto}
                 onChange={(e) =>
-                  setFormData({ ...formData, precoCusto: e.target.value })
+                  handlePriceChange("precoCusto", e.target.value)
                 }
                 placeholder="0,00"
                 required
@@ -190,11 +206,10 @@ export function AddProductModal({
               <Label htmlFor="precoVenda">Preço de Venda (R$) *</Label>
               <Input
                 id="precoVenda"
-                type="number"
-                step="0.01"
+                type="text"
                 value={formData.precoVenda}
                 onChange={(e) =>
-                  setFormData({ ...formData, precoVenda: e.target.value })
+                  handlePriceChange("precoVenda", e.target.value)
                 }
                 placeholder="0,00"
                 required
@@ -205,11 +220,10 @@ export function AddProductModal({
               <Label htmlFor="precoRevenda">Preço Revenda (R$)</Label>
               <Input
                 id="precoRevenda"
-                type="number"
-                step="0.01"
+                type="text"
                 value={formData.precoRevenda}
                 onChange={(e) =>
-                  setFormData({ ...formData, precoRevenda: e.target.value })
+                  handlePriceChange("precoRevenda", e.target.value)
                 }
                 placeholder="0,00"
               />
@@ -219,11 +233,10 @@ export function AddProductModal({
               <Label htmlFor="precoPromocao">Preço Promoção (R$)</Label>
               <Input
                 id="precoPromocao"
-                type="number"
-                step="0.01"
+                type="text"
                 value={formData.precoPromocao}
                 onChange={(e) =>
-                  setFormData({ ...formData, precoPromocao: e.target.value })
+                  handlePriceChange("precoPromocao", e.target.value)
                 }
                 placeholder="0,00"
               />

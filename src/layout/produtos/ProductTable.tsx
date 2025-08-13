@@ -8,13 +8,13 @@ import {
   TableRow,
 } from "@/shared/components/ui";
 import { ProductRow } from "./ProductRow";
-import { TProduto } from "@/core/produto/produto.entity";
+import { TProdutoWithCategoria } from "@/core/produto/produto.entity";
 
 interface ProductTableProps {
-  products: TProduto[];
-  onView: (product: TProduto) => void;
-  onEdit: (product: TProduto) => void;
-  onDelete: (product: TProduto) => void;
+  products: TProdutoWithCategoria[];
+  onView: (product: TProdutoWithCategoria) => void;
+  onEdit: (product: TProdutoWithCategoria) => void;
+  onDelete: (product: TProdutoWithCategoria) => void;
 }
 
 export function ProductTable({

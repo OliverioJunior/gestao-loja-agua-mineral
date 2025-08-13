@@ -1,14 +1,19 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { IProductStats, IFiltrosProdutos } from "@/layout/produtos";
-import { TProduto } from "@/core/produto/produto.entity";
+import { TProdutoWithCategoria } from "@/core/produto/produto.entity";
 
 export const useProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<IFiltrosProdutos>({
     status: "todos",
   });
-  const [products, setProducts] = useState<TProduto[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<TProduto | null>(null);
+  const [products, setProducts] = useState<TProdutoWithCategoria[]>([]);
+  const [selectedProduct, setSelectedProduct] =
+    useState<TProdutoWithCategoria | null>(null);
+  const [editingProduct, setEditingProduct] =
+    useState<TProdutoWithCategoria | null>(null);
+  const [deletingProduct, setDeletingProduct] =
+    useState<TProdutoWithCategoria | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Initialize products with mock data
@@ -73,13 +78,15 @@ export const useProducts = () => {
   }, [products]);
 
   // Memoized event handlers for better performance
-  const handleProductClick = useCallback((product: TProduto) => {
+  const handleProductClick = useCallback((product: TProdutoWithCategoria) => {
     setSelectedProduct(product);
   }, []);
 
   const handleAddProduct = useCallback(
-    (productData: Omit<TProduto, "id" | "createdAt" | "updatedAt">) => {
-      const newProduct: TProduto = {
+    (
+      productData: Omit<TProdutoWithCategoria, "id" | "createdAt" | "updatedAt">
+    ) => {
+      const newProduct: TProdutoWithCategoria = {
         ...productData,
         id: Date.now().toString(),
         createdAt: new Date(),
@@ -90,19 +97,59 @@ export const useProducts = () => {
     []
   );
 
-  const handleEdit = useCallback((product: TProduto) => {
-    // TODO: Implement edit functionality
-    console.log("Editar produto:", product);
+  const handleEdit = useCallback((product: TProdutoWithCategoria) => {
+    setEditingProduct(product);
+    setSelectedProduct(null); // Fechar modal de visualização se estiver aberto
   }, []);
 
-  const handleDelete = useCallback((product: TProduto) => {
-    setProducts((prev) => prev.filter((p) => p.id !== product.id));
-    console.log("Produto excluído:", product);
+  const handleDelete = useCallback((product: TProdutoWithCategoria) => {
+    setDeletingProduct(product);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async (product: TProdutoWithCategoria) => {
+    try {
+      await fetch("/api/produto/delete", {
+        method: "DELETE",
+        body: JSON.stringify({ id: product.id }),
+      });
+      setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      console.log("Produto excluído:", product);
+    } catch (error) {
+      console.error("Erro ao excluir produto:", error);
+    }
+  }, []);
+
+  const handleCloseDeleteModal = useCallback(() => {
+    setDeletingProduct(null);
   }, []);
 
   const handleCloseModal = useCallback(() => {
     setSelectedProduct(null);
   }, []);
+
+  const handleCloseEditModal = useCallback(() => {
+    setEditingProduct(null);
+  }, []);
+
+  const handleSaveEdit = useCallback(
+    async (updatedProduct: TProdutoWithCategoria) => {
+      try {
+        await fetch("/api/produto/update", {
+          method: "PUT",
+          body: JSON.stringify(updatedProduct),
+        });
+        setProducts((prev) =>
+          prev.map((product) =>
+            product.id === updatedProduct.id ? updatedProduct : product
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
+      setEditingProduct(null);
+    },
+    []
+  );
 
   const handleCloseAddModal = useCallback(() => {
     setIsAddModalOpen(false);
@@ -118,6 +165,8 @@ export const useProducts = () => {
     filters,
     products,
     selectedProduct,
+    editingProduct,
+    deletingProduct,
     isAddModalOpen,
     filteredProducts,
     stats,
@@ -130,8 +179,12 @@ export const useProducts = () => {
     handleProductClick,
     handleAddProduct,
     handleEdit,
+    handleSaveEdit,
     handleDelete,
+    handleConfirmDelete,
     handleCloseModal,
+    handleCloseEditModal,
+    handleCloseDeleteModal,
     handleCloseAddModal,
     handleOpenAddModal,
   };

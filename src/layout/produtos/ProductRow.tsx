@@ -1,8 +1,8 @@
-import { TableCell, TableRow, Button } from "@/shared/components/ui";
-import { Eye, Edit, Trash2, Package, Badge } from "lucide-react";
+import { TableCell, TableRow, Button, Badge } from "@/shared/components/ui";
+import { Eye, Edit, Trash2, Package } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { getStatusColor, getStatusText, formatPrice } from "./product-utils";
+import { getStatusColor, formatPrice } from "./product-utils";
 import { IProductRow } from "./types";
 
 export function ProductRow({ product, onView, onEdit, onDelete }: IProductRow) {
@@ -41,7 +41,7 @@ export function ProductRow({ product, onView, onEdit, onDelete }: IProductRow) {
       <TableCell className="py-4 px-6">
         <div className="space-y-1">
           <Badge className={`${getStatusColor(product.ativo)} border`}>
-            {getStatusText(product.ativo)}
+            {product.quantidade}
           </Badge>
           {product.promocao && (
             <Badge className=" text-purple-800 border-none text-xs">

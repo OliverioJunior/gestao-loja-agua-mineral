@@ -7,6 +7,7 @@ import {
   ProductStatsCards,
   ProductTable,
   AddProductModal,
+  DeleteConfirmModal,
 } from "@/layout/produtos";
 import { useProducts } from "./hooks/useProducts";
 
@@ -15,6 +16,8 @@ export default function ProdutosPage() {
     searchTerm,
     filters,
     selectedProduct,
+    editingProduct,
+    deletingProduct,
     isAddModalOpen,
     filteredProducts,
     stats,
@@ -23,8 +26,12 @@ export default function ProdutosPage() {
     handleProductClick,
     handleAddProduct,
     handleEdit,
+    handleSaveEdit,
     handleDelete,
+    handleConfirmDelete,
     handleCloseModal,
+    handleCloseEditModal,
+    handleCloseDeleteModal,
     handleCloseAddModal,
     handleOpenAddModal,
   } = useProducts();
@@ -61,10 +68,25 @@ export default function ProdutosPage() {
             onEdit={handleEdit}
           />
 
+          <ProductDetailsModal
+            product={editingProduct}
+            isOpen={!!editingProduct}
+            onClose={handleCloseEditModal}
+            onEdit={handleSaveEdit}
+            openInEditMode={true}
+          />
+
           <AddProductModal
             isOpen={isAddModalOpen}
             onClose={handleCloseAddModal}
             onAdd={handleAddProduct}
+          />
+
+          <DeleteConfirmModal
+            product={deletingProduct}
+            isOpen={!!deletingProduct}
+            onClose={handleCloseDeleteModal}
+            onConfirm={handleConfirmDelete}
           />
         </div>
       </div>

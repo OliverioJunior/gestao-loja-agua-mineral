@@ -1,6 +1,10 @@
-import { Produto } from "@/infrastructure/generated/prisma";
+import { Categoria, Produto } from "@/infrastructure/generated/prisma";
 
 export type TProduto = Produto;
+
+export type TProdutoWithCategoria = Produto & {
+  categoria: Categoria | null;
+};
 
 export type CreateProdutoInput = Omit<
   TProduto,

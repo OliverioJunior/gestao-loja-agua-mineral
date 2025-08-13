@@ -1,10 +1,10 @@
-import { TProduto } from "@/core/produto/produto.entity";
+import { TProdutoWithCategoria } from "@/core/produto/produto.entity";
 
 export interface IProductRow {
-  product: TProduto;
-  onView: (product: TProduto) => void;
-  onEdit: (product: TProduto) => void;
-  onDelete: (product: TProduto) => void;
+  product: TProdutoWithCategoria;
+  onView: (product: TProdutoWithCategoria) => void;
+  onEdit: (product: TProdutoWithCategoria) => void;
+  onDelete: (product: TProdutoWithCategoria) => void;
 }
 
 export interface IFiltrosProdutos {
