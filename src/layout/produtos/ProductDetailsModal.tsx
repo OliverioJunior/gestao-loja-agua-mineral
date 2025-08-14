@@ -532,23 +532,8 @@ export function ProductDetailsModal({
                   });
                   setEditMode(false);
                 } else {
-                  // Entrar no modo edição
-                  setEditMode(true);
-                  setFormData({
-                    ...product,
-                    precoCusto: formatCurrency(
-                      (product.precoCusto / 100).toString()
-                    ),
-                    precoVenda: formatCurrency(
-                      (product.precoVenda / 100).toString()
-                    ),
-                    precoRevenda: product.precoRevenda
-                      ? formatCurrency((product.precoRevenda / 100).toString())
-                      : "",
-                    precoPromocao: product.precoPromocao
-                      ? formatCurrency((product.precoPromocao / 100).toString())
-                      : "",
-                  });
+                  // Chamar onEdit para abrir o modal de edição dedicado
+                  onEdit(product);
                 }
               }}
               className="flex items-center gap-2"

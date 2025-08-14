@@ -29,7 +29,20 @@ export async function PUT(req: NextRequest) {
     }
 
     produtoToUpdate.atualizadoPorId = currentUser.id;
-    produtoToUpdate.categoriaId = categoria.id;
+    
+    // Tratar categoria se fornecida
+    if (categoria && categoria.id) {
+      produtoToUpdate.categoriaId = categoria.id;
+    }
+    
+    // Converter campos numéricos se fornecidos
+    if (produtoToUpdate.estoque !== undefined) {
+      produtoToUpdate.estoque = Number(produtoToUpdate.estoque);
+    }
+    if (produtoToUpdate.estoqueMinimo !== undefined) {
+      produtoToUpdate.estoqueMinimo = Number(produtoToUpdate.estoqueMinimo);
+    }
+    
     const data = new Product(produtoToUpdate, "update").validationData();
 
     const produto = await produtoService.update(id, data);

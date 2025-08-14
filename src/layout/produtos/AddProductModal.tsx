@@ -1,4 +1,4 @@
-import { TProdutoWithCategoria } from "@/core/produto/produto.entity";
+import { CreateProdutoInput } from "@/core/produto/produto.entity";
 import { useCategory } from "@/hooks/categoria/useCategory";
 import {
   Dialog,
@@ -34,18 +34,10 @@ const formatCurrency = (value: string): string => {
   });
 };
 
-// Função para converter valor formatado de volta para número
-// const parseCurrency = (formattedValue: string): number => {
-//   const numericValue = formattedValue.replace(/\D/g, "");
-//   return parseInt(numericValue || "0") / 100;
-// };
-
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (
-    product: Omit<TProdutoWithCategoria, "id" | "createdAt" | "updatedAt">
-  ) => void;
+  onAdd: (product: CreateProdutoInput) => Promise<void>;
 }
 
 export function AddProductModal({
@@ -53,35 +45,33 @@ export function AddProductModal({
   onClose,
   onAdd,
 }: AddProductModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateProdutoInput>({
     nome: "",
     descricao: "",
     marca: "",
     categoriaId: "",
-    precoCusto: "",
-    precoVenda: "",
-    precoRevenda: "",
-    precoPromocao: "",
-    quantidade: "",
-    estoqueMinimo: "",
+    precoCusto: 0,
+    precoVenda: 0,
+    precoRevenda: 0,
+    precoPromocao: 0,
+    estoque: 0,
+    estoqueMinimo: 0,
     ativo: true,
     promocao: false,
+    atualizadoPorId: "",
+    criadoPorId: "",
   });
   const { categories } = useCategory();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/produto/create", {
-        method: "POST",
-        body: JSON.stringify(formData),
-      });
-      const data = await response.json();
-      onAdd(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
+      await onAdd(formData);
       handleClose();
+    } catch (error) {
+      console.error("Erro ao criar produto:", error);
+      // Aqui você pode adicionar uma notificação de erro para o usuário
+      alert("Erro ao criar produto. Verifique os dados e tente novamente.");
     }
   };
 
@@ -97,14 +87,16 @@ export function AddProductModal({
       descricao: "",
       marca: "",
       categoriaId: "",
-      precoCusto: "",
-      precoVenda: "",
-      precoRevenda: "",
-      precoPromocao: "",
-      quantidade: "",
-      estoqueMinimo: "",
+      precoCusto: 0,
+      precoVenda: 0,
+      precoRevenda: 0,
+      precoPromocao: 0,
+      estoque: 0,
+      estoqueMinimo: 0,
       ativo: true,
       promocao: false,
+      atualizadoPorId: "",
+      criadoPorId: "",
     });
     onClose();
   };
@@ -141,7 +133,7 @@ export function AddProductModal({
               <Label htmlFor="marca">Marca</Label>
               <Input
                 id="marca"
-                value={formData.marca}
+                value={formData.marca || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, marca: e.target.value })
                 }
@@ -154,7 +146,7 @@ export function AddProductModal({
             <Label htmlFor="descricao">Descrição</Label>
             <textarea
               id="descricao"
-              value={formData.descricao}
+              value={formData.descricao || ""}
               onChange={(e) =>
                 setFormData({ ...formData, descricao: e.target.value })
               }
@@ -167,7 +159,7 @@ export function AddProductModal({
           <div className="space-y-2">
             <Label htmlFor="categoria">Categoria</Label>
             <Select
-              value={formData.categoriaId}
+              value={formData.categoriaId || ""}
               onValueChange={(value) =>
                 setFormData({ ...formData, categoriaId: value })
               }
@@ -220,7 +212,7 @@ export function AddProductModal({
               <Input
                 id="precoRevenda"
                 type="text"
-                value={formData.precoRevenda}
+                value={formData.precoRevenda?.toString() || ""}
                 onChange={(e) =>
                   handlePriceChange("precoRevenda", e.target.value)
                 }
@@ -233,7 +225,7 @@ export function AddProductModal({
               <Input
                 id="precoPromocao"
                 type="text"
-                value={formData.precoPromocao}
+                value={formData.precoPromocao?.toString() || ""}
                 onChange={(e) =>
                   handlePriceChange("precoPromocao", e.target.value)
                 }
@@ -245,13 +237,13 @@ export function AddProductModal({
           {/* Estoque */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quantidade">Quantidade em Estoque *</Label>
+              <Label htmlFor="estoque">Quantidade em Estoque *</Label>
               <Input
-                id="quantidade"
+                id="estoque"
                 type="number"
-                value={formData.quantidade}
+                value={formData.estoque}
                 onChange={(e) =>
-                  setFormData({ ...formData, quantidade: e.target.value })
+                  setFormData({ ...formData, estoque: Number(e.target.value) })
                 }
                 placeholder="0"
                 required
@@ -263,9 +255,12 @@ export function AddProductModal({
               <Input
                 id="estoqueMinimo"
                 type="number"
-                value={formData.estoqueMinimo}
+                value={formData.estoqueMinimo || 0}
                 onChange={(e) =>
-                  setFormData({ ...formData, estoqueMinimo: e.target.value })
+                  setFormData({
+                    ...formData,
+                    estoqueMinimo: Number(e.target.value),
+                  })
                 }
                 placeholder="0"
                 required

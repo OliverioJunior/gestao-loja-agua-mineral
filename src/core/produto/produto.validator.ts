@@ -105,11 +105,11 @@ export class ProdutoValidator {
       "estoqueMinimo",
       "ativo",
       "promocao",
-      "categoria",
+      "categoriaId",
       "precoRevenda",
       "marca",
       "precoPromocao",
-      "quantidade",
+      "estoque",
     ];
 
     const hasAtLeastOneField = fields.some(
@@ -125,28 +125,43 @@ export class ProdutoValidator {
     }
   }
   private static validateAllField(data: CreateProdutoInput) {
-    const fields: (keyof CreateProdutoInput)[] = [
+    // Validar apenas campos obrigatórios
+    const requiredFields: (keyof CreateProdutoInput)[] = [
       "nome",
-      "descricao",
       "precoCusto",
       "precoVenda",
-      "estoqueMinimo",
+      "estoque",
       "ativo",
       "promocao",
-      "precoRevenda",
-      "marca",
-      "precoPromocao",
-      "estoque",
     ];
 
-    fields.forEach((field) => {
-      if (data[field] === undefined) {
+    requiredFields.forEach((field) => {
+      if (data[field] === undefined || data[field] === null) {
         throw new ProdutoValidation(
           "produto",
           data[field],
-          "all_field_required"
+          `all_field_required`
         );
       }
     });
+
+    // Validar campos numéricos específicos
+    if (typeof data.estoque !== "number" || data.estoque < 0) {
+      throw new ProdutoValidation(
+        "estoque",
+        data.estoque,
+        "all_field_required"
+      );
+    }
+
+    if (data.estoqueMinimo !== undefined && data.estoqueMinimo !== null) {
+      if (typeof data.estoqueMinimo !== "number" || data.estoqueMinimo < 0) {
+        throw new ProdutoValidation(
+          "estoqueMinimo",
+          data.estoqueMinimo,
+          "all_field_required"
+        );
+      }
+    }
   }
 }

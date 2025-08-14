@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
       return Math.round(parseFloat(numericValue) * 100);
     };
 
+    // Converter preços de string formatada para centavos
     produtoData.precoCusto = convertBrazilianCurrencyToCents(
       produtoData.precoCusto
     );
@@ -47,8 +48,15 @@ export async function POST(req: NextRequest) {
     produtoData.precoPromocao = produtoData.precoPromocao
       ? convertBrazilianCurrencyToCents(produtoData.precoPromocao)
       : null;
-    produtoData.quantidade = Number(produtoData.quantidade);
-    produtoData.estoqueMinimo = Number(produtoData.estoqueMinimo);
+    
+    // Converter campos numéricos
+    produtoData.estoque = Number(produtoData.estoque || 0);
+    produtoData.estoqueMinimo = Number(produtoData.estoqueMinimo || 0);
+    
+    // Garantir que campos opcionais sejam tratados corretamente
+    if (!produtoData.descricao) produtoData.descricao = null;
+    if (!produtoData.marca) produtoData.marca = null;
+    if (!produtoData.categoriaId) produtoData.categoriaId = null;
 
     const data = new Product(produtoData).validationData();
 

@@ -83,16 +83,34 @@ export const useProducts = () => {
   }, []);
 
   const handleAddProduct = useCallback(
-    (
+    async (
       productData: Omit<TProdutoWithCategoria, "id" | "createdAt" | "updatedAt">
     ) => {
-      const newProduct: TProdutoWithCategoria = {
-        ...productData,
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setProducts((prev) => [newProduct, ...prev]);
+      try {
+        const response = await fetch("/api/produto/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(productData),
+        });
+        
+        if (!response.ok) {
+          throw new Error("Erro ao criar produto");
+        }
+        
+        const newProduct = await response.json();
+        
+        // Recarregar a lista de produtos para garantir sincronização
+        const updatedResponse = await fetch("/api/produto");
+        const updatedProducts = await updatedResponse.json();
+        setProducts(updatedProducts);
+        
+        return newProduct;
+      } catch (error) {
+        console.error("Erro ao adicionar produto:", error);
+        throw error;
+      }
     },
     []
   );
