@@ -1,4 +1,4 @@
-import { Cliente, Status } from "@/infrastructure/generated/prisma";
+import { Cliente } from "@/infrastructure/generated/prisma";
 import {
   CreateClienteInput,
   TClienteWithCount,
@@ -23,16 +23,9 @@ export interface ClientFiltersProps {
   onSearchChange: (value: string) => void;
   filterStatus: string;
   onFilterStatusChange: (value: string) => void;
-  onAddClient: (clientData: {
-    nome: string;
-    email: string;
-    telefone: string;
-    endereco: string;
-    cidade: string;
-    estado: string;
-    cep: string;
-    status: Status;
-  }) => void;
+  onAddClient: (
+    clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
+  ) => Promise<void>;
 }
 
 export interface ClientTableProps {
@@ -65,5 +58,5 @@ export interface AddClientModalProps {
   onClose: () => void;
   onSubmit: (
     clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
-  ) => void;
+  ) => Promise<void>;
 }

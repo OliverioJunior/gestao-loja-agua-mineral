@@ -13,6 +13,7 @@ import {
 import { Search, Plus } from "lucide-react";
 import { ClientFiltersProps } from "./types";
 import { AddClientModal } from "./AddClientModal";
+import { CreateClienteInput } from "@/core/cliente/cliente.entity";
 
 export function ClientFilters({
   searchTerm,
@@ -23,16 +24,9 @@ export function ClientFilters({
 }: ClientFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleAddClient = (clientData: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    status: "ativo" | "inativo";
-  }) => {
+  const handleAddClient = async (
+    clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
+  ) => {
     onAddClient(clientData);
     setIsAddModalOpen(false);
   };

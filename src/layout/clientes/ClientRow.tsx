@@ -1,17 +1,7 @@
-import { useState } from "react";
 import {
   TableCell,
   TableRow,
   Button,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/shared/components/ui";
 import { Eye, Edit, Trash2, CheckCircle, XCircle } from "lucide-react";
 import { ClientRowProps } from "./types";
@@ -28,12 +18,6 @@ export function ClientRow({
   onEdit,
   onDelete,
 }: ClientRowProps) {
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  const handleDelete = () => {
-    onDelete(client);
-    setIsDeleteDialogOpen(false);
-  };
 
   const StatusIcon = client.status === "ATIVO" ? CheckCircle : XCircle;
 
@@ -85,38 +69,14 @@ export function ClientRow({
           >
             <Edit className="h-4 w-4" />
           </Button>
-          <AlertDialog
-            open={isDeleteDialogOpen}
-            onOpenChange={setIsDeleteDialogOpen}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(client)}
+            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
           >
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Tem certeza que deseja excluir o cliente &quot;{client.nome}
-                  &quot;? Esta ação não pode ser desfeita.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-red-600 hover:bg-red-700"
-                >
-                  Excluir
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </TableCell>
     </TableRow>

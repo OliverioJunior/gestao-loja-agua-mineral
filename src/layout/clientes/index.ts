@@ -4,6 +4,7 @@ export { ClientDetailsModal } from "./ClientDetailsModal";
 export { ClientStatsCards } from "./ClientStatsCards";
 export { ClientTable } from "./ClientTable";
 export { AddClientModal } from "./AddClientModal";
+export { EditClientModal } from "./EditClientModal";
 export { DeleteClientModal } from "./DeleteClientModal";
 export * from "./types";
 export * from "./client-utils";

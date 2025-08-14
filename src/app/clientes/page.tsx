@@ -5,7 +5,7 @@ import {
   ClientDetailsModal,
   ClientStatsCards,
   ClientTable,
-  AddClientModal,
+  EditClientModal,
   DeleteClientModal,
 } from "@/layout/clientes";
 import { useClientes } from "@/hooks/clientes/useClientes";
@@ -17,7 +17,6 @@ export default function ClientesPage() {
     selectedClient,
     editingClient,
     deletingClient,
-    isAddModalOpen,
     filteredClients,
     stats,
     loading,
@@ -33,8 +32,6 @@ export default function ClientesPage() {
     handleCloseModal,
     handleCloseEditModal,
     handleCloseDeleteModal,
-    handleCloseAddModal,
-    handleOpenAddModal,
   } = useClientes();
 
   if (loading) {
@@ -59,8 +56,8 @@ export default function ClientesPage() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <p className="text-red-600 mb-4">{error}</p>
-              <button 
-                onClick={() => window.location.reload()} 
+              <button
+                onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
               >
                 Tentar Novamente
@@ -85,7 +82,7 @@ export default function ClientesPage() {
                 onSearchChange={setSearchTerm}
                 filterStatus={filterStatus}
                 onFilterStatusChange={setFilterStatus}
-                onAddClient={handleOpenAddModal}
+                onAddClient={handleAddClient}
               />
 
               <ClientTable
@@ -106,18 +103,11 @@ export default function ClientesPage() {
           />
 
           {/* Modal de Edição */}
-          <ClientDetailsModal
+          <EditClientModal
             client={editingClient}
             isOpen={!!editingClient}
             onClose={handleCloseEditModal}
-            onEdit={handleSaveEdit}
-          />
-
-          {/* Modal de Adicionar */}
-          <AddClientModal
-            isOpen={isAddModalOpen}
-            onClose={handleCloseAddModal}
-            onSubmit={handleAddClient}
+            onSubmit={handleSaveEdit}
           />
 
           {/* Modal de Confirmação de Exclusão */}
