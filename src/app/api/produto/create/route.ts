@@ -49,7 +49,6 @@ export async function POST(req: NextRequest) {
       : null;
     produtoData.quantidade = Number(produtoData.quantidade);
     produtoData.estoqueMinimo = Number(produtoData.estoqueMinimo);
-    console.log({ produtoData });
 
     const data = new Product(produtoData).validationData();
 
