@@ -27,7 +27,6 @@ export default function CategoriasPage() {
     fetch("/api/categoria")
       .then(async (res) => await res.json())
       .then((data) => {
-        // Mapear os dados da API para a interface ICategory
         const mappedCategories = data.map((category: ICategory) => ({
           id: category.id,
           nome: category.nome,
@@ -86,29 +85,8 @@ export default function CategoriasPage() {
     }
   };
 
-  const handleAddCategory = async (categoryData: {
-    nome: string;
-    description: string;
-  }) => {
-    try {
-      const response = await fetch("/api/categoria/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(categoryData),
-      });
-
-      if (response.ok) {
-        const newCategoryData = await response.json();
-
-        setCategories([...newCategoryData]);
-      } else {
-        console.error("Erro ao adicionar categoria");
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar categoria:", error);
-    }
+  const handleAddCategory = (categoryData: ICategory) => {
+    setCategories([...categories, categoryData]);
   };
 
   const getStatusStats = (): ICategoryStats => ({

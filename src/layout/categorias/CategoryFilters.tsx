@@ -1,13 +1,10 @@
 import { Input } from "@/shared/components/ui";
 import { Search } from "lucide-react";
-import { IFiltrosCategorias } from "./types";
+import { ICategory, IFiltrosCategorias } from "./types";
 import { AddCategoryModal } from "./AddCategoryModal";
 
 interface CategoryFiltersProps extends IFiltrosCategorias {
-  onAddCategory: (category: {
-    nome: string;
-    description: string;
-  }) => void;
+  onAddCategory: (category: ICategory) => void;
 }
 
 export function CategoryFilters({

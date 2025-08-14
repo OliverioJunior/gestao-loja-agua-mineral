@@ -59,7 +59,8 @@ export function AddClientModal({
           ? new Date(formData.aniversario)
           : null,
       };
-      onSubmit(submitData);
+
+      await onSubmit(submitData);
 
       // Reset form
       setFormData({
@@ -73,12 +74,13 @@ export function AddClientModal({
         aniversario: "",
         status: Status.ATIVO,
       });
-      onClose();
     } catch (error) {
+      console.error("Erro ao criar cliente:", error);
       setError(
         error instanceof Error ? error.message : "Erro ao criar cliente"
       );
     } finally {
+      onClose();
       setLoading(false);
     }
   };

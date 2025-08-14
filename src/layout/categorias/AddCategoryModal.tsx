@@ -13,13 +13,16 @@ import {
 } from "@/shared/components/ui";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { ICategory } from "./types";
 
 interface AddCategoryModalProps {
-  onAddCategory?: (category: { nome: string; description: string }) => void;
+  onAddCategory?: (category: ICategory) => void;
 }
 
 export function AddCategoryModal({ onAddCategory }: AddCategoryModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({
     nome: "",
     description: "",
@@ -27,6 +30,7 @@ export function AddCategoryModal({ onAddCategory }: AddCategoryModalProps) {
 
   const handleSubmit = async () => {
     try {
+      setIsSubmitting(true);
       formData.nome = formData.nome.trim();
       formData.description = formData.description.trim();
 
@@ -35,13 +39,15 @@ export function AddCategoryModal({ onAddCategory }: AddCategoryModalProps) {
         body: JSON.stringify(formData),
       });
       if (response.ok) {
-        onAddCategory?.(formData);
+        const newCategory = await response.json();
+        onAddCategory?.(newCategory);
         setFormData({
           nome: "",
           description: "",
         });
         setIsOpen(false);
       }
+      setIsSubmitting(false);
     } catch (error) {
       console.error("Erro ao adicionar categoria:", error);
     }
@@ -111,7 +117,7 @@ export function AddCategoryModal({ onAddCategory }: AddCategoryModalProps) {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!formData.nome.trim()}
+            disabled={!formData.nome.trim() || isSubmitting}
             className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Criar Categoria
