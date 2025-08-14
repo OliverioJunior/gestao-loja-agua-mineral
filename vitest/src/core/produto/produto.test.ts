@@ -12,10 +12,15 @@ describe("Produto", () => {
     ativo: true,
     promocao: false,
     precoRevenda: 150,
-    categoria: null,
+    categoriaId: "1",
     marca: "Marca 1",
-    precoPromocao: 100,
-    quantidade: 10,
+
+    precoPromocao: 10,
+
+    estoque: 10,
+    criadoPorId: "1",
+    atualizadoPorId: "1",
+
     createdAt: new Date(),
     updatedAt: new Date(),
   };

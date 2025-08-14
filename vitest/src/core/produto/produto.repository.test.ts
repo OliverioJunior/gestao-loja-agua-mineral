@@ -26,8 +26,10 @@ describe("ProdutoRepository", () => {
       precoPromocao: 100,
       precoRevenda: 120,
       promocao: false,
-      quantidade: 200,
-      categoria: "Eletrônicos",
+      estoque: 200,
+      categoriaId: "1",
+      criadoPorId: "1",
+      atualizadoPorId: "1",
     };
 
     const expectedResult: TProduto = {
@@ -42,8 +44,11 @@ describe("ProdutoRepository", () => {
       precoPromocao: 100,
       precoRevenda: 120,
       promocao: false,
-      quantidade: 200,
-      categoria: "Eletrônicos",
+      estoque: 200,
+      categoriaId: "1",
+      criadoPorId: "1",
+      atualizadoPorId: "1",
+
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     };
@@ -100,8 +105,11 @@ describe("ProdutoRepository", () => {
       precoPromocao: null,
       precoRevenda: null,
       promocao: false,
-      quantidade: 0,
-      categoria: null,
+      estoque: 0,
+      categoriaId: "1",
+      atualizadoPorId: "1",
+      criadoPorId: "1",
+
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     };
@@ -132,8 +140,11 @@ describe("ProdutoRepository", () => {
       precoPromocao: null,
       precoRevenda: null,
       promocao: false,
-      quantidade: 0,
-      categoria: null,
+      estoque: 0,
+      categoriaId: null,
+      criadoPorId: "1",
+      atualizadoPorId: "1",
+
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     };
@@ -157,8 +168,10 @@ describe("ProdutoRepository", () => {
       precoPromocao: null,
       precoRevenda: null,
       promocao: false,
-      quantidade: 0,
-      categoria: null,
+      estoque: 0,
+      categoriaId: null,
+      criadoPorId: "1",
+      atualizadoPorId: "1",
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     };
@@ -182,8 +195,10 @@ describe("ProdutoRepository", () => {
       precoPromocao: null,
       precoRevenda: null,
       promocao: false,
-      quantidade: 0,
-      categoria: null,
+      estoque: 0,
+      categoriaId: null,
+      criadoPorId: "1",
+      atualizadoPorId: "1",
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     };
@@ -207,8 +222,10 @@ describe("ProdutoRepository", () => {
       precoPromocao: null,
       precoRevenda: null,
       promocao: false,
-      quantidade: 0,
-      categoria: null,
+      estoque: 0,
+      categoriaId: null,
+      criadoPorId: "1",
+      atualizadoPorId: "1",
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
       updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     };

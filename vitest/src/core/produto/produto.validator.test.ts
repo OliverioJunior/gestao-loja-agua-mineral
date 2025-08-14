@@ -9,7 +9,7 @@ describe("ProdutoValidator", () => {
     nome: "produto",
     descricao: "descricao",
     marca: "marca",
-    categoria: "categoria",
+    categoriaId: "1",
     precoCusto: 10,
     precoVenda: 11,
     precoRevenda: 10,
@@ -17,7 +17,10 @@ describe("ProdutoValidator", () => {
     ativo: true,
     estoqueMinimo: 10,
     promocao: false,
-    quantidade: 10,
+    estoque: 10,
+    criadoPorId: "1",
+    atualizadoPorId: "1",
+
     createdAt: new Date(),
     updatedAt: new Date(),
   };
