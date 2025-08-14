@@ -39,7 +39,7 @@ export const useProducts = () => {
             if (!product.promocao) return false;
             break;
           case "estoque_baixo":
-            if (product.quantidade > (product.estoqueMinimo || 0)) return false;
+            if (product.estoque > (product.estoqueMinimo || 0)) return false;
             break;
         }
       }
@@ -65,7 +65,7 @@ export const useProducts = () => {
     const inactiveProducts = products.filter((p) => !p.ativo);
     const promotionProducts = products.filter((p) => p.promocao);
     const lowStockProducts = products.filter(
-      (p) => p.quantidade <= (p.estoqueMinimo || 0)
+      (p) => p.estoque <= (p.estoqueMinimo || 0)
     );
 
     return {
@@ -106,18 +106,20 @@ export const useProducts = () => {
     setDeletingProduct(product);
   }, []);
 
-  const handleConfirmDelete = useCallback(async (product: TProdutoWithCategoria) => {
-    try {
-      await fetch("/api/produto/delete", {
-        method: "DELETE",
-        body: JSON.stringify({ id: product.id }),
-      });
-      setProducts((prev) => prev.filter((p) => p.id !== product.id));
-      console.log("Produto excluído:", product);
-    } catch (error) {
-      console.error("Erro ao excluir produto:", error);
-    }
-  }, []);
+  const handleConfirmDelete = useCallback(
+    async (product: TProdutoWithCategoria) => {
+      try {
+        await fetch("/api/produto/delete", {
+          method: "DELETE",
+          body: JSON.stringify({ id: product.id }),
+        });
+        setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      } catch (error) {
+        console.error("Erro ao excluir produto:", error);
+      }
+    },
+    []
+  );
 
   const handleCloseDeleteModal = useCallback(() => {
     setDeletingProduct(null);

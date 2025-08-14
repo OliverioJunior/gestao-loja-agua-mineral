@@ -19,7 +19,7 @@ export class ClienteValidator {
     this.validateAddress(data.endereco);
     this.validateCity(data.cidade);
     this.validateState(data.estado);
-    this.validateCEP(data.CEP);
+    this.validateCEP(data.cep);
     return { data, validate: true };
   }
 
@@ -30,7 +30,7 @@ export class ClienteValidator {
     this.validateAddress(data.endereco);
     this.validateCity(data.cidade);
     this.validateState(data.estado);
-    this.validateCEP(data.CEP);
+    this.validateCEP(data.cep);
     this.validateAllField(data);
 
     return { data, validate: true };
@@ -61,8 +61,8 @@ export class ClienteValidator {
       this.validateState(data.estado);
     }
 
-    if (data.CEP !== undefined) {
-      this.validateCEP(data.CEP);
+    if (data.cep !== undefined) {
+      this.validateCEP(data.cep);
     }
 
     this.validateAtLeastOneField(data);
@@ -139,8 +139,7 @@ export class ClienteValidator {
       "endereco",
       "cidade",
       "estado",
-      "CEP",
-      "aniversario",
+      "cep",
     ];
 
     const hasAtLeastOneField = fields.some(
@@ -164,8 +163,7 @@ export class ClienteValidator {
       "endereco",
       "cidade",
       "estado",
-      "CEP",
-      "aniversario",
+      "cep",
     ];
 
     fields.forEach((field) => {

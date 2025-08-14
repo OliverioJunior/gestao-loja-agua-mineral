@@ -44,7 +44,7 @@ export class ClienteService {
 
       const exists = await this.clienteRepository.existsById(id);
       if (!exists) {
-        throw new ClienteNotFoundError("Cliente não encontrado");
+        throw new ClienteNotFoundError(id.toString());
       }
 
       // Verificar se email já existe (se estiver sendo atualizado)
@@ -56,7 +56,7 @@ export class ClienteService {
           const existingClient = await this.clienteRepository.findByEmail(
             data.email
           );
-          if (existingClient && existingClient.id !== Number(id)) {
+          if (existingClient && existingClient.id !== id) {
             throw new ClienteConflictError("email", data.email);
           }
         }
@@ -71,7 +71,7 @@ export class ClienteService {
           const existingClient = await this.clienteRepository.findByTelefone(
             data.telefone
           );
-          if (existingClient && existingClient.id !== Number(id)) {
+          if (existingClient && existingClient.id !== id) {
             throw new ClienteConflictError("telefone", data.telefone);
           }
         }
@@ -92,7 +92,7 @@ export class ClienteService {
 
       const exists = await this.clienteRepository.existsById(id);
       if (!exists) {
-        throw new ClienteNotFoundError(id);
+        throw new ClienteNotFoundError(id.toString());
       }
 
       return await this.clienteRepository.delete(id);
@@ -107,7 +107,7 @@ export class ClienteService {
 
       const cliente = await this.clienteRepository.findById(id);
       if (!cliente) {
-        throw new ClienteNotFoundError(id);
+        throw new ClienteNotFoundError(id.toString());
       }
 
       return cliente;

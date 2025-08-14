@@ -32,8 +32,6 @@ export function ClientTable({
             <TableHead>Cliente</TableHead>
             <TableHead>Contato</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-center">Pedidos</TableHead>
-            <TableHead>Total de Vendas</TableHead>
             <TableHead>Data de Criação</TableHead>
             <TableHead>Última Atualização</TableHead>
             <TableHead className="text-center">Ações</TableHead>

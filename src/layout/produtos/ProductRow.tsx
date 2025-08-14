@@ -41,7 +41,7 @@ export function ProductRow({ product, onView, onEdit, onDelete }: IProductRow) {
       <TableCell className="py-4 px-6">
         <div className="space-y-1">
           <Badge className={`${getStatusColor(product.ativo)} border`}>
-            {product.quantidade}
+            {product.estoque}
           </Badge>
           {product.promocao && (
             <Badge className=" text-purple-800 border-none text-xs">

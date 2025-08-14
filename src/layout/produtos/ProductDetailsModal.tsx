@@ -88,8 +88,12 @@ export function ProductDetailsModal({
         ...product,
         precoCusto: formatCurrency((product.precoCusto / 100).toString()),
         precoVenda: formatCurrency((product.precoVenda / 100).toString()),
-        precoRevenda: product.precoRevenda ? formatCurrency((product.precoRevenda / 100).toString()) : "",
-        precoPromocao: product.precoPromocao ? formatCurrency((product.precoPromocao / 100).toString()) : "",
+        precoRevenda: product.precoRevenda
+          ? formatCurrency((product.precoRevenda / 100).toString())
+          : "",
+        precoPromocao: product.precoPromocao
+          ? formatCurrency((product.precoPromocao / 100).toString())
+          : "",
       });
       setEditMode(openInEditMode); // Set edit mode based on prop
     }
@@ -105,7 +109,7 @@ export function ProductDetailsModal({
   if (!product || !formData) return null;
 
   const stockStatus = getStockStatus(
-    product.quantidade,
+    product.estoque,
     product.estoqueMinimo || 0
   );
 
@@ -284,13 +288,13 @@ export function ProductDetailsModal({
                       <Input
                         type="number"
                         min="0"
-                        value={formData.quantidade}
+                        value={formData.estoque}
                         className="w-full"
                         onChange={(e) =>
                           formData &&
                           setFormData({
                             ...formData,
-                            quantidade: parseInt(e.target.value || "0"),
+                            estoque: parseInt(e.target.value || "0"),
                           })
                         }
                         placeholder="0"
@@ -321,7 +325,7 @@ export function ProductDetailsModal({
                 ) : (
                   <div className="mt-1">
                     <p className="text-lg font-semibold text-foreground">
-                      {product.quantidade} unidades
+                      {product.estoque} unidades
                     </p>
                     <Badge
                       className={`${stockStatus.color} border text-xs mt-1`}
@@ -513,10 +517,18 @@ export function ProductDetailsModal({
                   // Cancelar edição - resetar dados e sair do modo edição
                   setFormData({
                     ...product,
-                    precoCusto: formatCurrency((product.precoCusto / 100).toString()),
-                    precoVenda: formatCurrency((product.precoVenda / 100).toString()),
-                    precoRevenda: product.precoRevenda ? formatCurrency((product.precoRevenda / 100).toString()) : "",
-                    precoPromocao: product.precoPromocao ? formatCurrency((product.precoPromocao / 100).toString()) : "",
+                    precoCusto: formatCurrency(
+                      (product.precoCusto / 100).toString()
+                    ),
+                    precoVenda: formatCurrency(
+                      (product.precoVenda / 100).toString()
+                    ),
+                    precoRevenda: product.precoRevenda
+                      ? formatCurrency((product.precoRevenda / 100).toString())
+                      : "",
+                    precoPromocao: product.precoPromocao
+                      ? formatCurrency((product.precoPromocao / 100).toString())
+                      : "",
                   });
                   setEditMode(false);
                 } else {
@@ -524,10 +536,18 @@ export function ProductDetailsModal({
                   setEditMode(true);
                   setFormData({
                     ...product,
-                    precoCusto: formatCurrency((product.precoCusto / 100).toString()),
-                    precoVenda: formatCurrency((product.precoVenda / 100).toString()),
-                    precoRevenda: product.precoRevenda ? formatCurrency((product.precoRevenda / 100).toString()) : "",
-                    precoPromocao: product.precoPromocao ? formatCurrency((product.precoPromocao / 100).toString()) : "",
+                    precoCusto: formatCurrency(
+                      (product.precoCusto / 100).toString()
+                    ),
+                    precoVenda: formatCurrency(
+                      (product.precoVenda / 100).toString()
+                    ),
+                    precoRevenda: product.precoRevenda
+                      ? formatCurrency((product.precoRevenda / 100).toString())
+                      : "",
+                    precoPromocao: product.precoPromocao
+                      ? formatCurrency((product.precoPromocao / 100).toString())
+                      : "",
                   });
                 }
               }}

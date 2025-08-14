@@ -20,7 +20,7 @@ export async function decrypt(session: string | undefined = "") {
     });
     return payload;
   } catch (error) {
-    console.log("Failed to verify session", error);
+    console.error("Failed to verify session", error);
   }
 }
 export async function createSession(email: string) {
@@ -45,9 +45,9 @@ export async function deleteSession() {
 export async function getSession() {
   const cookieStore = await cookies();
   const session = cookieStore.get("session")?.value;
-  
+
   if (!session) return null;
-  
+
   return await decrypt(session);
 }
 

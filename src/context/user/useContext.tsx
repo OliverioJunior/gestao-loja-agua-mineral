@@ -28,7 +28,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setUsers(data);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         return [];
       });
   }, []);

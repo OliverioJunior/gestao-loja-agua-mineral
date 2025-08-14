@@ -22,7 +22,6 @@ import { ClientDetailsModalProps } from "./types";
 import {
   getStatusColor,
   getStatusText,
-  formatCurrency,
   formatDate,
   formatPhone,
 } from "./client-utils";
@@ -35,7 +34,7 @@ export function ClientDetailsModal({
 }: ClientDetailsModalProps) {
   if (!client) return null;
 
-  const StatusIcon = client.status === "ativo" ? CheckCircle : XCircle;
+  const StatusIcon = client.status === "ATIVO" ? CheckCircle : XCircle;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -60,7 +59,7 @@ export function ClientDetailsModal({
                   <User className="h-4 w-4" />
                   Nome Completo
                 </div>
-                <div className="font-medium">{client.name}</div>
+                <div className="font-medium">{client.nome}</div>
               </div>
 
               <div className="space-y-2">
@@ -76,7 +75,9 @@ export function ClientDetailsModal({
                   <Phone className="h-4 w-4" />
                   Telefone
                 </div>
-                <div className="font-medium">{formatPhone(client.phone)}</div>
+                <div className="font-medium">
+                  {formatPhone(client.telefone)}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -103,9 +104,9 @@ export function ClientDetailsModal({
                 Endereço Completo
               </div>
               <div className="font-medium">
-                {client.address}
+                {client.endereco}
                 <br />
-                {client.city}, {client.state} - {client.zipCode}
+                {client.cidade}, {client.estado} - {client.cep}
               </div>
             </div>
           </div>
@@ -123,7 +124,7 @@ export function ClientDetailsModal({
                   Total de Pedidos
                 </div>
                 <div className="text-2xl font-bold text-blue-600">
-                  {client.totalOrders}
+                  {client._count.pedidos}
                 </div>
               </div>
 
@@ -133,7 +134,7 @@ export function ClientDetailsModal({
                   Total de Vendas
                 </div>
                 <div className="text-2xl font-bold text-green-600">
-                  {formatCurrency(client.totalSales)}
+                  {client.estado}
                 </div>
               </div>
             </div>
@@ -152,7 +153,7 @@ export function ClientDetailsModal({
                   Data de Criação
                 </div>
                 <div className="font-medium">
-                  {formatDate(client.createdAt)}
+                  {formatDate(client.createdAt.toString())}
                 </div>
               </div>
 
@@ -162,7 +163,7 @@ export function ClientDetailsModal({
                   Última Atualização
                 </div>
                 <div className="font-medium">
-                  {formatDate(client.updatedAt)}
+                  {formatDate(client.updatedAt.toString())}
                 </div>
               </div>
             </div>

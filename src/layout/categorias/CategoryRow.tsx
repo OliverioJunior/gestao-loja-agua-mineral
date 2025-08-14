@@ -31,7 +31,7 @@ export function CategoryRow({
             <Tag className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <p className="font-medium text-slate-200">{category.name}</p>
+            <p className="font-medium text-slate-200">{category.nome}</p>
             <p className="text-sm text-slate-400">{category.description}</p>
           </div>
         </div>
@@ -98,7 +98,7 @@ export function CategoryRow({
                 <AlertDialogDescription className="text-slate-400">
                   Tem certeza que deseja excluir a categoria{" "}
                   <span className="font-medium text-slate-200">
-                    {category.name}
+                    {category.nome}
                   </span>
                   ? Esta ação não pode ser desfeita.
                 </AlertDialogDescription>

@@ -1,13 +1,15 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/infrastructure/generated/prisma";
 import {
   IClienteRepository,
   TCliente,
   CreateClienteInput,
   UpdateClienteInput,
+  TClienteWithCount,
 } from "./cliente.entity";
+import { prisma } from "@/infrastructure";
 
 export class ClienteRepository implements IClienteRepository {
-  constructor(private db: PrismaClient) {}
+  constructor(private readonly db: PrismaClient = prisma) {}
 
   async create(data: CreateClienteInput): Promise<TCliente> {
     return await this.db.cliente.create({
@@ -34,9 +36,18 @@ export class ClienteRepository implements IClienteRepository {
     });
   }
 
-  async findAll(): Promise<TCliente[]> {
+  async findAll(): Promise<TClienteWithCount[]> {
     return await this.db.cliente.findMany({
-      orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: {
+            pedidos: {
+              where: { status: "ENTREGUE" },
+            },
+          },
+        },
+      },
+      orderBy: { nome: "asc" },
     });
   }
 
@@ -47,20 +58,20 @@ export class ClienteRepository implements IClienteRepository {
   }
 
   async findByTelefone(telefone: string): Promise<TCliente | null> {
-    return await this.db.cliente.findUnique({
-      where: { phone: telefone },
+    return await this.db.cliente.findFirst({
+      where: { telefone: telefone },
     });
   }
 
   async findByNome(nome: string): Promise<TCliente[]> {
     return await this.db.cliente.findMany({
       where: {
-        name: {
+        nome: {
           contains: nome,
           mode: "insensitive",
         },
       },
-      orderBy: { name: "asc" },
+      orderBy: { nome: "asc" },
     });
   }
 
@@ -80,7 +91,7 @@ export class ClienteRepository implements IClienteRepository {
 
   async existsByTelefone(telefone: string): Promise<boolean> {
     const count = await this.db.cliente.count({
-      where: { phone: telefone },
+      where: { telefone: telefone },
     });
     return count > 0;
   }

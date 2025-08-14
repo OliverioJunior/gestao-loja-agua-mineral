@@ -18,7 +18,6 @@ import { ClientRowProps } from "./types";
 import {
   getStatusColor,
   getStatusText,
-  formatCurrency,
   formatDate,
   formatPhone,
 } from "./client-utils";
@@ -36,18 +35,18 @@ export function ClientRow({
     setIsDeleteDialogOpen(false);
   };
 
-  const StatusIcon = client.status === "ativo" ? CheckCircle : XCircle;
+  const StatusIcon = client.status === "ATIVO" ? CheckCircle : XCircle;
 
   return (
     <TableRow className="hover:bg-muted/50">
       <TableCell>
-        <div className="font-medium">{client.name}</div>
+        <div className="font-medium">{client.nome}</div>
         <div className="text-sm text-muted-foreground">{client.email}</div>
       </TableCell>
       <TableCell>
-        <div>{formatPhone(client.phone)}</div>
+        <div>{formatPhone(client.telefone)}</div>
         <div className="text-sm text-muted-foreground">
-          {client.city}, {client.state}
+          {client.cidade}, {client.estado}
         </div>
       </TableCell>
       <TableCell>
@@ -60,20 +59,12 @@ export function ClientRow({
           {getStatusText(client.status)}
         </div>
       </TableCell>
-      <TableCell className="text-center">
-        <div className="font-medium">{client.totalOrders}</div>
-        <div className="text-sm text-muted-foreground">pedidos</div>
-      </TableCell>
-      <TableCell>
-        <div className="font-medium">{formatCurrency(client.totalSales)}</div>
-        <div className="text-sm text-muted-foreground">total de vendas</div>
-      </TableCell>
       <TableCell className="text-sm text-muted-foreground">
-        <div>{formatDate(client.createdAt)}</div>
+        <div>{formatDate(client.createdAt.toString())}</div>
         <div className="text-xs">Criado</div>
       </TableCell>
       <TableCell className="text-sm text-muted-foreground">
-        <div>{formatDate(client.updatedAt)}</div>
+        <div>{formatDate(client.updatedAt.toString())}</div>
         <div className="text-xs">Atualizado</div>
       </TableCell>
       <TableCell>
@@ -111,7 +102,7 @@ export function ClientRow({
               <AlertDialogHeader>
                 <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Tem certeza que deseja excluir o cliente &quot;{client.name}
+                  Tem certeza que deseja excluir o cliente &quot;{client.nome}
                   &quot;? Esta ação não pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>

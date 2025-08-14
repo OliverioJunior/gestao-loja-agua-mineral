@@ -136,7 +136,7 @@ export class ProdutoValidator {
       "precoRevenda",
       "marca",
       "precoPromocao",
-      "quantidade",
+      "estoque",
     ];
 
     fields.forEach((field) => {

@@ -1,17 +1,14 @@
-export interface IClient {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  status: "ativo" | "inativo";
+import { Cliente, Status } from "@/infrastructure/generated/prisma";
+import {
+  CreateClienteInput,
+  TClienteWithCount,
+} from "@/core/cliente/cliente.entity";
+
+export type IClient = Cliente;
+
+export interface IClientWithStats extends Cliente {
   totalOrders: number;
   totalSales: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface IClientStats {
@@ -27,36 +24,36 @@ export interface ClientFiltersProps {
   filterStatus: string;
   onFilterStatusChange: (value: string) => void;
   onAddClient: (clientData: {
-    name: string;
+    nome: string;
     email: string;
-    phone: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    status: "ativo" | "inativo";
+    telefone: string;
+    endereco: string;
+    cidade: string;
+    estado: string;
+    cep: string;
+    status: Status;
   }) => void;
 }
 
 export interface ClientTableProps {
-  clients: IClient[];
-  onView: (client: IClient) => void;
-  onEdit: (client: IClient) => void;
-  onDelete: (client: IClient) => void;
+  clients: TClienteWithCount[];
+  onView: (client: TClienteWithCount) => void;
+  onEdit: (client: TClienteWithCount) => void;
+  onDelete: (client: TClienteWithCount) => void;
 }
 
 export interface ClientRowProps {
-  client: IClient;
-  onView: (client: IClient) => void;
-  onEdit: (client: IClient) => void;
-  onDelete: (client: IClient) => void;
+  client: TClienteWithCount;
+  onView: (client: TClienteWithCount) => void;
+  onEdit: (client: TClienteWithCount) => void;
+  onDelete: (client: TClienteWithCount) => void;
 }
 
 export interface ClientDetailsModalProps {
-  client: IClient | null;
+  client: TClienteWithCount | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (client: IClient) => void;
+  onEdit: (client: TClienteWithCount) => void;
 }
 
 export interface ClientStatsCardsProps {
@@ -66,14 +63,7 @@ export interface ClientStatsCardsProps {
 export interface AddClientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (clientData: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    status: "ativo" | "inativo";
-  }) => void;
+  onSubmit: (
+    clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
+  ) => void;
 }

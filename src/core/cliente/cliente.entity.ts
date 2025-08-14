@@ -1,6 +1,11 @@
 import { Cliente } from "@/infrastructure/generated/prisma";
 
 export type TCliente = Cliente;
+export type TClienteWithCount = TCliente & {
+  _count: {
+    pedidos: number;
+  };
+};
 
 export type CreateClienteInput = Omit<
   TCliente,

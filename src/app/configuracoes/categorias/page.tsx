@@ -78,7 +78,6 @@ export default function CategoriasPage() {
 
       if (response.ok) {
         setCategories(categories.filter((c) => c.id !== category.id));
-        console.log("Categoria excluída:", category);
       } else {
         console.error("Erro ao excluir categoria");
       }
@@ -104,7 +103,6 @@ export default function CategoriasPage() {
         const newCategoryData = await response.json();
 
         setCategories([...newCategoryData]);
-        console.log("Nova categoria adicionada:", newCategoryData);
       } else {
         console.error("Erro ao adicionar categoria");
       }

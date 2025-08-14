@@ -28,7 +28,7 @@ export async function signin(formData: FormData) {
       throw new Error(data.message || "Login failed");
     }
   } catch (err) {
-    console.log("Signin error:", err);
+    console.error("Signin error:", err);
     throw err;
   }
 }

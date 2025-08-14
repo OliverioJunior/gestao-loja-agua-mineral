@@ -77,10 +77,9 @@ export function AddProductModal({
         body: JSON.stringify(formData),
       });
       const data = await response.json();
-      console.log(data);
       onAdd(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       handleClose();
     }

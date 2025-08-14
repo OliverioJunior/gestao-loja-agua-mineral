@@ -14,70 +14,121 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui";
-import { Plus } from "lucide-react";
+import { Plus, AlertCircle } from "lucide-react";
 import { AddClientModalProps } from "./types";
+import { Status } from "@/infrastructure/generated/prisma";
 
-export function AddClientModal({ isOpen, onClose, onSubmit }: AddClientModalProps) {
-  const [formData, setFormData] = useState({
-    name: "",
+export function AddClientModal({
+  isOpen,
+  onClose,
+  onSubmit,
+}: AddClientModalProps) {
+  const [formData, setFormData] = useState<{
+    nome: string;
+    email: string;
+    telefone: string;
+    endereco: string;
+    cidade: string;
+    estado: string;
+    cep: string;
+    aniversario: string;
+    status: Status;
+  }>({
+    nome: "",
     email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    status: "ativo" as "ativo" | "inativo",
+    telefone: "",
+    endereco: "",
+    cidade: "",
+    estado: "",
+    cep: "",
+    aniversario: "",
+    status: Status.ATIVO,
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      status: "ativo",
-    });
-    onClose();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const submitData = {
+        ...formData,
+        aniversario: formData.aniversario
+          ? new Date(formData.aniversario)
+          : null,
+      };
+      onSubmit(submitData);
+
+      // Reset form
+      setFormData({
+        nome: "",
+        email: "",
+        telefone: "",
+        endereco: "",
+        cidade: "",
+        estado: "",
+        cep: "",
+        aniversario: "",
+        status: Status.ATIVO,
+      });
+      onClose();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Erro ao criar cliente"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setFormData({
-      name: "",
+      nome: "",
       email: "",
-      phone: "",
-      address: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      status: "ativo",
+      telefone: "",
+      endereco: "",
+      cidade: "",
+      estado: "",
+      cep: "",
+      aniversario: "",
+      status: Status.ATIVO,
     });
+    setError(null);
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
             Adicionar Novo Cliente
           </DialogTitle>
         </DialogHeader>
+
+        {error && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nome Completo *</Label>
+              <Label htmlFor="nome">Nome Completo *</Label>
               <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                id="nome"
+                value={formData.nome}
+                onChange={(e) =>
+                  setFormData({ ...formData, nome: e.target.value })
+                }
                 placeholder="Digite o nome completo"
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -86,93 +137,132 @@ export function AddClientModal({ isOpen, onClose, onSubmit }: AddClientModalProp
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 placeholder="Digite o e-mail"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefone *</Label>
+              <Label htmlFor="telefone">Telefone *</Label>
               <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                id="telefone"
+                value={formData.telefone}
+                onChange={(e) =>
+                  setFormData({ ...formData, telefone: e.target.value })
+                }
                 placeholder="(11) 99999-9999"
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value: "ativo" | "inativo") =>
-                  setFormData({ ...formData, status: value })
+              <Label htmlFor="aniversario">Data de Aniversário</Label>
+              <Input
+                id="aniversario"
+                type="date"
+                value={formData.aniversario}
+                onChange={(e) =>
+                  setFormData({ ...formData, aniversario: e.target.value })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="inativo">Inativo</SelectItem>
-                </SelectContent>
-              </Select>
+                disabled={loading}
+              />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Endereço *</Label>
+            <Label htmlFor="endereco">Endereço *</Label>
             <Input
-              id="address"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              id="endereco"
+              value={formData.endereco}
+              onChange={(e) =>
+                setFormData({ ...formData, endereco: e.target.value })
+              }
               placeholder="Digite o endereço completo"
               required
+              disabled={loading}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="city">Cidade *</Label>
+              <Label htmlFor="cidade">Cidade *</Label>
               <Input
-                id="city"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                id="cidade"
+                value={formData.cidade}
+                onChange={(e) =>
+                  setFormData({ ...formData, cidade: e.target.value })
+                }
                 placeholder="Digite a cidade"
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="state">Estado *</Label>
+              <Label htmlFor="estado">Estado *</Label>
               <Input
-                id="state"
-                value={formData.state}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                id="estado"
+                value={formData.estado}
+                onChange={(e) =>
+                  setFormData({ ...formData, estado: e.target.value })
+                }
                 placeholder="SP"
                 maxLength={2}
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="zipCode">CEP *</Label>
+              <Label htmlFor="cep">CEP *</Label>
               <Input
-                id="zipCode"
-                value={formData.zipCode}
-                onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+                id="cep"
+                value={formData.cep}
+                onChange={(e) =>
+                  setFormData({ ...formData, cep: e.target.value })
+                }
                 placeholder="00000-000"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value: Status) =>
+                setFormData({ ...formData, status: value })
+              }
+              disabled={loading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={Status.ATIVO}>Ativo</SelectItem>
+                <SelectItem value={Status.INATIVO}>Inativo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleCancel}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={loading}
+            >
               Cancelar
             </Button>
-            <Button type="submit">Criar Cliente</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Criando..." : "Criar Cliente"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
