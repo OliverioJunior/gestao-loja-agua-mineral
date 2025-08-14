@@ -51,3 +51,10 @@ node_modules/
 
 # documentation
 /_docs
+/CONFIG-README.md
+/development-data.json
+/system-config.json
+/technical-documentation.md
+/prisma/seed.ts
+
+
