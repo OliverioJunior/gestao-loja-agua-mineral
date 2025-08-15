@@ -12,9 +12,10 @@ export class Product {
   }
   validationData() {
     if (this.action === "create")
-      ProdutoValidator.validateCreateInput(this.data);
+      return ProdutoValidator.validateCreateInput(this.data).data;
+
     if (this.action === "update")
-      ProdutoValidator.validateUpdateInput(this.data);
+      return ProdutoValidator.validateUpdateInput(this.data).data;
     return ProdutoValidator.validateInput(this.data).data;
   }
 }

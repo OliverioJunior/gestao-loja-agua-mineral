@@ -33,18 +33,20 @@ export async function middleware(request: NextRequest) {
     const session = await decrypt(sessionCookie);
 
     if (!session || !session.email) {
-      // Se a sessão é inválida, redirecionar para login
-
-      return NextResponse.redirect(new URL("/login", request.url));
+      // Se a sessão é inválida, limpar cookie e redirecionar para login
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.delete("session");
+      return response;
     }
 
     // Se chegou até aqui, a sessão é válida
-
     return NextResponse.next();
   } catch (error) {
-    // Se houve erro ao descriptografar, redirecionar para login
+    // Se houve erro ao descriptografar, limpar cookie e redirecionar para login
     console.error("[MIDDLEWARE] Erro ao validar sessão:", error);
-    return NextResponse.redirect(new URL("/login", request.url));
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete("session");
+    return response;
   }
 }
 
