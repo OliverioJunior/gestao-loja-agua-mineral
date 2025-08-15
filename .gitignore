@@ -51,12 +51,4 @@ node_modules/
 
 # documentation
 /_docs
-/CONFIG-README.md
-/development-data.json
-/system-config.json
-/technical-documentation.md
-/prisma/seed.ts
-/src/core/item/readme.md
-/src/core/pedidos/readme.md
-/src/core/vendas/readme.md
 
