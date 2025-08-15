@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { IProductStats, IFiltrosProdutos } from "@/layout/produtos";
-import { TProdutoWithCategoria } from "@/core/produto/produto.entity";
+import {
+  TProdutoWithCategoria,
+  CreateProdutoInput,
+} from "@/core/produto/produto.entity";
 
 export const useProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,9 +86,7 @@ export const useProducts = () => {
   }, []);
 
   const handleAddProduct = useCallback(
-    async (
-      productData: Omit<TProdutoWithCategoria, "id" | "createdAt" | "updatedAt">
-    ) => {
+    async (productData: CreateProdutoInput) => {
       try {
         const response = await fetch("/api/produto/create", {
           method: "POST",
@@ -94,18 +95,19 @@ export const useProducts = () => {
           },
           body: JSON.stringify(productData),
         });
-        
+
         if (!response.ok) {
           throw new Error("Erro ao criar produto");
         }
-        
+
         const newProduct = await response.json();
-        
+
         // Recarregar a lista de produtos para garantir sincronização
         const updatedResponse = await fetch("/api/produto");
         const updatedProducts = await updatedResponse.json();
         setProducts(updatedProducts);
-        
+
+        setIsAddModalOpen(false);
         return newProduct;
       } catch (error) {
         console.error("Erro ao adicionar produto:", error);
@@ -113,6 +115,14 @@ export const useProducts = () => {
       }
     },
     []
+  );
+
+  // Wrapper function for AddProductModal
+  const handleAddProductFromModal = useCallback(
+    async (productData: CreateProdutoInput): Promise<void> => {
+      await handleAddProduct(productData);
+    },
+    [handleAddProduct]
   );
 
   const handleEdit = useCallback((product: TProdutoWithCategoria) => {
@@ -197,7 +207,7 @@ export const useProducts = () => {
 
     // Handlers
     handleProductClick,
-    handleAddProduct,
+    handleAddProduct: handleAddProductFromModal,
     handleEdit,
     handleSaveEdit,
     handleDelete,

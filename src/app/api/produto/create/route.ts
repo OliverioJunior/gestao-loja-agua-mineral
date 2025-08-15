@@ -48,17 +48,17 @@ export async function POST(req: NextRequest) {
     produtoData.precoPromocao = produtoData.precoPromocao
       ? convertBrazilianCurrencyToCents(produtoData.precoPromocao)
       : null;
-    
+
     // Converter campos numéricos
     produtoData.estoque = Number(produtoData.estoque || 0);
     produtoData.estoqueMinimo = Number(produtoData.estoqueMinimo || 0);
-    
+
     // Garantir que campos opcionais sejam tratados corretamente
     if (!produtoData.descricao) produtoData.descricao = null;
     if (!produtoData.marca) produtoData.marca = null;
     if (!produtoData.categoriaId) produtoData.categoriaId = null;
 
-    const data = new Product(produtoData).validationData();
+    const data = new Product(produtoData, "create").validationData();
 
     const produto = await produtoService.create(data);
 

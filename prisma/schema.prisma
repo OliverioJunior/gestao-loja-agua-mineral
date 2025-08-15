@@ -9,9 +9,11 @@ datasource db {
 }
 
 enum StatusPedido {
-  CANCELADO
-  ENTREGUE
   PENDENTE
+  CONFIRMADO
+  PREPARANDO
+  ENTREGUE
+  CANCELADO
 }
 
 enum Status {
