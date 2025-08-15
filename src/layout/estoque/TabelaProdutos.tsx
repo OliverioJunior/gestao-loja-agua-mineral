@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { FiltrosPesquisa } from "./FiltrosPesquisa";
-import { IProduto, ProdutoRow } from "./ProdutoRow";
+import { ProdutoRow } from "./ProdutoRow";
+import { IProdutoEstoque } from "@/hooks/produtos";
 import {
   Table,
   TableBody,
@@ -13,17 +14,15 @@ import {
 } from "@/shared/components/ui";
 
 interface ITabelaProduto {
-  produtos: IProduto[];
-  onView: (produto: IProduto) => void;
-  onEdit: (produto: IProduto) => void;
-  onDelete: (produto: IProduto) => void;
+  produtos: IProdutoEstoque[];
+  onView: (produto: IProdutoEstoque) => void;
+  onEdit: (produto: IProdutoEstoque) => void;
 }
 
 export function TabelaProdutos({
   produtos,
   onView,
   onEdit,
-  onDelete,
 }: ITabelaProduto) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
@@ -83,7 +82,6 @@ export function TabelaProdutos({
                   produto={produto}
                   onView={onView}
                   onEdit={onEdit}
-                  onDelete={onDelete}
                 />
               ))}
             </TableBody>

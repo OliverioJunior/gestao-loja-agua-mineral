@@ -1,12 +1,14 @@
 import { Button, TableCell, TableRow } from "@/shared/components/ui";
-import { Package, Eye, Edit3, Trash2 } from "lucide-react";
+import { Package, Eye, Edit3 } from "lucide-react";
+import { IProdutoEstoque } from "@/hooks/produtos";
 
 interface IProdutoRow {
-  produto: IProduto;
-  onView: (produto: IProduto) => void;
-  onEdit: (produto: IProduto) => void;
-  onDelete: (produto: IProduto) => void;
+  produto: IProdutoEstoque;
+  onView: (produto: IProdutoEstoque) => void;
+  onEdit: (produto: IProdutoEstoque) => void;
 }
+
+// Manter interface local para compatibilidade
 export interface IProduto {
   id: number;
   nome: string;
@@ -17,7 +19,7 @@ export interface IProduto {
   status: string;
   ultimaMovimentacao: string;
 }
-export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
+export function ProdutoRow({ produto, onView, onEdit }: IProdutoRow) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ok":
@@ -80,11 +82,13 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
           <span className={`font-medium ${getStatusColor(produto.status)}`}>
             {produto.estoque}
           </span>
-          <span className="text-slate-400 text-sm">/ min {produto.minimo}</span>
+          <span className="text-slate-400 text-sm">
+            / min {produto.estoqueMinimo}
+          </span>
         </div>
       </TableCell>
       <TableCell className="py-4 px-6 text-white font-medium">
-        R$ {produto.preco.toFixed(2)}
+        R$ {(produto.precoVenda / 100).toFixed(2)}
       </TableCell>
       <TableCell className="py-4 px-6">
         <span
@@ -117,15 +121,6 @@ export function ProdutoRow({ produto, onView, onEdit, onDelete }: IProdutoRow) {
             name="Edit"
           >
             <Edit3 className="w-4 h-4" />
-          </Button>
-          <Button
-            variant={"ghost"}
-            onClick={() => onDelete(produto)}
-            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-            aria-label="Delete"
-            name="Delete"
-          >
-            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </TableCell>
