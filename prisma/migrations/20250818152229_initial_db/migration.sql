@@ -1,8 +1,11 @@
 -- CreateEnum
-CREATE TYPE "public"."StatusPedido" AS ENUM ('CANCELADO', 'ENTREGUE', 'PENDENTE');
+CREATE TYPE "public"."StatusPedido" AS ENUM ('PENDENTE', 'CONFIRMADO', 'PREPARANDO', 'ENTREGUE', 'CANCELADO');
 
 -- CreateEnum
 CREATE TYPE "public"."Status" AS ENUM ('ATIVO', 'INATIVO');
+
+-- CreateEnum
+CREATE TYPE "public"."TiposEndereco" AS ENUM ('RESIDENCIAL', 'COMERCIAL', 'APARTAMENTO', 'OUTRO');
 
 -- CreateTable
 CREATE TABLE "public"."users" (
@@ -61,17 +64,31 @@ CREATE TABLE "public"."clientes" (
     "aniversario" DATE,
     "email" VARCHAR(255) NOT NULL,
     "telefone" VARCHAR(20) NOT NULL,
-    "endereco" TEXT NOT NULL,
-    "cidade" VARCHAR(100) NOT NULL,
-    "estado" VARCHAR(2) NOT NULL,
-    "cep" VARCHAR(9) NOT NULL,
     "status" "public"."Status" NOT NULL DEFAULT 'ATIVO',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "criado_por_id" UUID NOT NULL,
     "atualizado_por_id" UUID NOT NULL,
+    "endereco_id" UUID NOT NULL,
 
     CONSTRAINT "clientes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Endereco" (
+    "id" UUID NOT NULL,
+    "clienteId" UUID NOT NULL,
+    "logradouro" VARCHAR(255) NOT NULL,
+    "numero" VARCHAR(10) NOT NULL,
+    "complemento" VARCHAR(100),
+    "bairro" VARCHAR(100) NOT NULL,
+    "cidade" VARCHAR(100) NOT NULL,
+    "estado" VARCHAR(2) NOT NULL,
+    "cep" VARCHAR(9) NOT NULL,
+    "tipo" "public"."TiposEndereco" NOT NULL DEFAULT 'RESIDENCIAL',
+    "principal" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "Endereco_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -83,6 +100,7 @@ CREATE TABLE "public"."pedidos" (
     "status" "public"."StatusPedido" NOT NULL DEFAULT 'PENDENTE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "endereco_id" UUID NOT NULL,
     "criado_por_id" UUID NOT NULL,
     "atualizado_por_id" UUID NOT NULL,
 
@@ -147,6 +165,9 @@ CREATE UNIQUE INDEX "clientes_email_key" ON "public"."clientes"("email");
 CREATE UNIQUE INDEX "clientes_telefone_key" ON "public"."clientes"("telefone");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "clientes_endereco_id_key" ON "public"."clientes"("endereco_id");
+
+-- CreateIndex
 CREATE INDEX "clientes_email_idx" ON "public"."clientes"("email");
 
 -- CreateIndex
@@ -154,6 +175,15 @@ CREATE INDEX "clientes_telefone_idx" ON "public"."clientes"("telefone");
 
 -- CreateIndex
 CREATE INDEX "clientes_status_idx" ON "public"."clientes"("status");
+
+-- CreateIndex
+CREATE INDEX "Endereco_clienteId_idx" ON "public"."Endereco"("clienteId");
+
+-- CreateIndex
+CREATE INDEX "Endereco_cep_idx" ON "public"."Endereco"("cep");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Endereco_logradouro_numero_cidade_bairro_clienteId_key" ON "public"."Endereco"("logradouro", "numero", "cidade", "bairro", "clienteId");
 
 -- CreateIndex
 CREATE INDEX "pedidos_cliente_id_idx" ON "public"."pedidos"("cliente_id");
@@ -195,6 +225,9 @@ ALTER TABLE "public"."categorias" ADD CONSTRAINT "categorias_criadoPorId_fkey" F
 ALTER TABLE "public"."categorias" ADD CONSTRAINT "categorias_atualizadoPorId_fkey" FOREIGN KEY ("atualizadoPorId") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "public"."clientes" ADD CONSTRAINT "clientes_endereco_id_fkey" FOREIGN KEY ("endereco_id") REFERENCES "public"."Endereco"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "public"."clientes" ADD CONSTRAINT "clientes_criado_por_id_fkey" FOREIGN KEY ("criado_por_id") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -202,6 +235,9 @@ ALTER TABLE "public"."clientes" ADD CONSTRAINT "clientes_atualizado_por_id_fkey"
 
 -- AddForeignKey
 ALTER TABLE "public"."pedidos" ADD CONSTRAINT "pedidos_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "public"."clientes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."pedidos" ADD CONSTRAINT "pedidos_endereco_id_fkey" FOREIGN KEY ("endereco_id") REFERENCES "public"."Endereco"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."pedidos" ADD CONSTRAINT "pedidos_criado_por_id_fkey" FOREIGN KEY ("criado_por_id") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

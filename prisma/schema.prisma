@@ -108,28 +108,54 @@ model Cliente {
   aniversario DateTime? @db.Date
   email       String    @unique @db.VarChar(255)
   telefone    String    @unique @db.VarChar(20)
-  endereco    String    @db.Text
-  cidade      String    @db.VarChar(100)
-  estado      String    @db.VarChar(2)
-  cep         String    @db.VarChar(9)
   status      Status    @default(ATIVO)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
   // Relacionamentos
-  pedidos Pedido[]
-  vendas  Vendas[]
+  pedidos  Pedido[]
+  vendas   Vendas[]
+  endereco Endereco @relation(fields: [enderecoId], references: [id])
 
   // Auditoria
   criadoPor       User   @relation("ClienteCreatedBy", fields: [criadoPorId], references: [id])
   criadoPorId     String @map("criado_por_id") @db.Uuid
   atualizadoPor   User   @relation("ClienteUpdatedBy", fields: [atualizadoPorId], references: [id])
   atualizadoPorId String @map("atualizado_por_id") @db.Uuid
+  enderecoId      String @unique @map("endereco_id") @db.Uuid
 
   @@index([email])
   @@index([telefone])
   @@index([status])
   @@map("clientes")
+}
+
+enum TiposEndereco {
+  RESIDENCIAL
+  COMERCIAL
+  APARTAMENTO
+  OUTRO
+}
+
+model Endereco {
+  id          String        @id @default(uuid()) @db.Uuid
+  clienteId   String        @db.Uuid
+  logradouro  String        @db.VarChar(255)
+  numero      String        @db.VarChar(10)
+  complemento String?       @db.VarChar(100)
+  bairro      String        @db.VarChar(100)
+  cidade      String        @db.VarChar(100)
+  estado      String        @db.VarChar(2)
+  cep         String        @db.VarChar(9)
+  tipo        TiposEndereco @default(RESIDENCIAL)
+  principal   Boolean       @default(false)
+
+  Pedido  Pedido[]
+  Cliente Cliente?
+
+  @@unique([logradouro, numero, cidade, bairro, clienteId])
+  @@index([clienteId])
+  @@index([cep])
 }
 
 model Pedido {
@@ -142,15 +168,16 @@ model Pedido {
   updatedAt DateTime     @updatedAt @map("updated_at")
 
   // Relacionamentos
-  cliente Cliente  @relation(fields: [clienteId], references: [id])
-  itens   Item[]
-  vendas  Vendas[]
-
+  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+  itens           Item[]
+  vendas          Vendas[]
+  endereco        Endereco @relation(fields: [enderecoId], references: [id])
+  enderecoId      String   @map("endereco_id") @db.Uuid
   // Auditoria
-  criadoPor       User   @relation("PedidoCreatedBy", fields: [criadoPorId], references: [id])
-  criadoPorId     String @map("criado_por_id") @db.Uuid
-  atualizadoPor   User   @relation("PedidoUpdatedBy", fields: [atualizadoPorId], references: [id])
-  atualizadoPorId String @map("atualizado_por_id") @db.Uuid
+  criadoPor       User     @relation("PedidoCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String   @map("criado_por_id") @db.Uuid
+  atualizadoPor   User     @relation("PedidoUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String   @map("atualizado_por_id") @db.Uuid
 
   @@index([clienteId])
   @@index([status])
