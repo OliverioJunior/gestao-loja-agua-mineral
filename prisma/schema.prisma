@@ -115,14 +115,14 @@ model Cliente {
   // Relacionamentos
   pedidos  Pedido[]
   vendas   Vendas[]
-  endereco Endereco @relation(fields: [enderecoId], references: [id])
+  endereco Endereco? @relation(fields: [enderecoId], references: [id])
 
   // Auditoria
-  criadoPor       User   @relation("ClienteCreatedBy", fields: [criadoPorId], references: [id])
-  criadoPorId     String @map("criado_por_id") @db.Uuid
-  atualizadoPor   User   @relation("ClienteUpdatedBy", fields: [atualizadoPorId], references: [id])
-  atualizadoPorId String @map("atualizado_por_id") @db.Uuid
-  enderecoId      String @unique @map("endereco_id") @db.Uuid
+  criadoPor       User?   @relation("ClienteCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String? @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?   @relation("ClienteUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String? @map("atualizado_por_id") @db.Uuid
+  enderecoId      String? @unique @map("endereco_id") @db.Uuid
 
   @@index([email])
   @@index([telefone])
