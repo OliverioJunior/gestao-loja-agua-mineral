@@ -20,17 +20,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Verificar se há uma sessão válida
-  const sessionCookie = request.cookies.get("session")?.value;
-
-  if (!sessionCookie) {
-    // Se não há sessão, redirecionar para login
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
   try {
-    // Tentar descriptografar e validar a sessão
+    // Verificar se há uma sessão válida
+    const sessionCookie = request.cookies.get("session")?.value;
     const session = await decrypt(sessionCookie);
+
+    if (!sessionCookie) {
+      // Se não há sessão, redirecionar para login
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
 
     if (!session || !session.email) {
       // Se a sessão é inválida, limpar cookie e redirecionar para login
