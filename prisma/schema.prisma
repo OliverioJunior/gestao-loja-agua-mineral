@@ -176,8 +176,8 @@ model Pedido {
   // Auditoria
   criadoPor       User     @relation("PedidoCreatedBy", fields: [criadoPorId], references: [id])
   criadoPorId     String   @map("criado_por_id") @db.Uuid
-  atualizadoPor   User     @relation("PedidoUpdatedBy", fields: [atualizadoPorId], references: [id])
-  atualizadoPorId String   @map("atualizado_por_id") @db.Uuid
+  atualizadoPor   User?    @relation("PedidoUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String?  @map("atualizado_por_id") @db.Uuid
 
   @@index([clienteId])
   @@index([status])
@@ -187,7 +187,7 @@ model Pedido {
 
 model Item {
   id         String   @id @default(uuid()) @db.Uuid
-  pedidoId   String   @map("pedido_id") @db.Uuid
+  pedidoId   String?  @map("pedido_id") @db.Uuid
   produtoId  String   @map("produto_id") @db.Uuid
   quantidade Int
   preco      Int
@@ -195,14 +195,14 @@ model Item {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
-  pedido  Pedido  @relation(fields: [pedidoId], references: [id])
+  pedido  Pedido? @relation(fields: [pedidoId], references: [id])
   produto Produto @relation(fields: [produtoId], references: [id])
 
   // Auditoria
-  criadoPor       User   @relation("ItemCreatedBy", fields: [criadoPorId], references: [id])
-  criadoPorId     String @map("criado_por_id") @db.Uuid
-  atualizadoPor   User   @relation("ItemUpdatedBy", fields: [atualizadoPorId], references: [id])
-  atualizadoPorId String @map("atualizado_por_id") @db.Uuid
+  criadoPor       User    @relation("ItemCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String  @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?   @relation("ItemUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String? @map("atualizado_por_id") @db.Uuid
 
   @@index([pedidoId])
   @@index([produtoId])
