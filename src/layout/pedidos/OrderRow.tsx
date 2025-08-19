@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Button,
   Badge,
@@ -26,7 +25,6 @@ import {
   canCancelOrder,
   getNextStatus,
 } from "./order-utils";
-import { OrderDetailsModal } from "./OrderDetailsModal";
 
 export function OrderRow({
   order,
@@ -36,10 +34,7 @@ export function OrderRow({
   onAdvanceStatus,
   onCancelOrder,
 }: OrderRowProps) {
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
   const handleView = () => {
-    setIsDetailsModalOpen(true);
     onView(order);
   };
 
@@ -57,8 +52,7 @@ export function OrderRow({
   };
 
   return (
-    <>
-      <tr className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+    <tr className="border-b border-border/50 hover:bg-muted/30 transition-colors">
         {/* Número do Pedido */}
         <td className="px-4 py-3">
           <div className="font-medium text-foreground">{order.numero}</div>
@@ -227,13 +221,5 @@ export function OrderRow({
           </div>
         </td>
       </tr>
-
-      <OrderDetailsModal
-        order={order}
-        isOpen={isDetailsModalOpen}
-        onClose={() => setIsDetailsModalOpen(false)}
-        onEdit={onEdit}
-      />
-    </>
   );
 }

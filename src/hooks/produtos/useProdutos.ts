@@ -112,7 +112,6 @@ export function useProdutos() {
 
   const atualizarEstoque = async (produtoId: string, novoEstoque: number) => {
     try {
-      console.log({ produtoId, novoEstoque });
       const response = await fetch(`/api/produto/update`, {
         method: "PUT",
         headers: {
@@ -123,7 +122,7 @@ export function useProdutos() {
           estoque: novoEstoque,
         }),
       });
-      console.log({ response: await response.json() });
+
       if (!response.ok) {
         throw new Error("Erro ao atualizar estoque");
       }

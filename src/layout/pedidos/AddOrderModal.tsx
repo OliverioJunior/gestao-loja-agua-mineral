@@ -28,77 +28,15 @@ import {
   MapPin,
   CreditCard,
 } from "lucide-react";
-import {
-  AddOrderModalProps,
-  ICliente,
-  IProduto,
-  IPedidoItem,
-  ICreatePedido,
-} from "./types";
+import { AddOrderModalProps, IPedidoItem, ICreatePedido } from "./types";
 import { formatCurrency } from "./order-utils";
-
-// Dados mockados para demonstração
-const mockClientes: ICliente[] = [
-  {
-    id: "1",
-    nome: "João Silva",
-    email: "joao@email.com",
-    telefone: "11999999999",
-    endereco: {
-      logradouro: "Rua das Flores",
-      numero: "123",
-      complemento: "",
-      bairro: "Centro",
-      cidade: "São Paulo",
-      estado: "SP",
-      cep: "01234-567",
-    },
-    status: "ativo",
-  },
-  {
-    id: "2",
-    nome: "Maria Santos",
-    email: "maria@email.com",
-    telefone: "11888888888",
-    endereco: {
-      logradouro: "Av. Principal",
-      numero: "456",
-      complemento: "Apto 101",
-      bairro: "Vila Nova",
-      cidade: "São Paulo",
-      estado: "SP",
-      cep: "01234-890",
-    },
-    status: "ativo",
-  },
-];
-
-const mockProdutos: IProduto[] = [
-  {
-    id: "1",
-    nome: "Água Mineral 500ml",
-    categoria: "Água",
-    ativo: true,
-    precoCusto: 100,
-    precoVenda: 250,
-    quantidade: 100,
-    estoqueMinimo: 10,
-    promocao: false,
-  },
-  {
-    id: "2",
-    nome: "Água Mineral 1L",
-    categoria: "Água",
-    quantidade: 50,
-    estoqueMinimo: 5,
-    precoVenda: 400, // R$ 4,00 em centavos
-    ativo: true,
-    precoCusto: 200,
-    promocao: false,
-  },
-];
+import { useClientes } from "@/hooks/clientes/useClientes";
+import { useProdutos } from "@/hooks/produtos/useProdutos";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
+  const { clients: clientes } = useClientes();
+  const { produtos } = useProdutos();
+
   const [formData, setFormData] = useState({
     clienteId: "",
     tipoEntrega: "balcao" as "balcao" | "entrega",
@@ -121,7 +59,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const [selectedProduto, setSelectedProduto] = useState("");
   const [quantidade, setQuantidade] = useState(1);
 
-  const selectedCliente = mockClientes.find((c) => c.id === formData.clienteId);
+  const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
 
   // Preencher endereço automaticamente quando cliente for selecionado
   useEffect(() => {
@@ -129,20 +67,20 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
       setFormData((prev) => ({
         ...prev,
         enderecoEntrega: {
-          logradouro: selectedCliente.endereco.logradouro,
-          numero: selectedCliente.endereco.numero,
-          complemento: selectedCliente.endereco.complemento || "",
-          bairro: selectedCliente.endereco.bairro,
-          cidade: selectedCliente.endereco.cidade,
-          estado: selectedCliente.endereco.estado,
-          cep: selectedCliente.endereco.cep,
+          logradouro: selectedCliente.endereco?.logradouro || "",
+          numero: selectedCliente.endereco?.numero || "",
+          complemento: selectedCliente.endereco?.complemento || "",
+          bairro: selectedCliente.endereco?.bairro || "",
+          cidade: selectedCliente.endereco?.cidade || "",
+          estado: selectedCliente.endereco?.estado || "",
+          cep: selectedCliente.endereco?.cep || "",
         },
       }));
     }
   }, [selectedCliente, formData.tipoEntrega]);
 
   const handleAddItem = () => {
-    const produto = mockProdutos.find((p) => p.id === selectedProduto);
+    const produto = produtos.find((p) => p.id === selectedProduto);
     if (!produto || quantidade <= 0) return;
 
     const existingItemIndex = itens.findIndex(
@@ -273,7 +211,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="grid gap-2">
                   <Label htmlFor="cliente">Cliente *</Label>
                   <Select
                     value={formData.clienteId}
@@ -282,19 +220,23 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um cliente" />
+                      <SelectValue placeholder="Selecione um cliente">
+                        {clientes
+                          .find((c) => c.id === formData.clienteId)
+                          ?.nome.split(" ")[0] || "Nenhum"}
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
-                      {mockClientes.map((cliente) => (
+                    <SelectContent sideOffset={5} align="start">
+                      {clientes.map((cliente) => (
                         <SelectItem key={cliente.id} value={cliente.id}>
-                          {cliente.nome} - {cliente.telefone}
+                          {cliente.nome}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div>
+                <div className="grid gap-2">
                   <Label htmlFor="tipoEntrega">Tipo de Entrega *</Label>
                   <Select
                     value={formData.tipoEntrega}
@@ -495,11 +437,14 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       <SelectValue placeholder="Selecione um produto" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockProdutos.map((produto) => (
-                        <SelectItem key={produto.id} value={produto.id}>
-                          {produto.nome} - {formatCurrency(produto.precoVenda)}
-                        </SelectItem>
-                      ))}
+                      {produtos
+                        .filter((p) => p.ativo)
+                        .map((produto) => (
+                          <SelectItem key={produto.id} value={produto.id}>
+                            {produto.nome} -{" "}
+                            {formatCurrency(produto.precoVenda)}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -587,13 +532,13 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <CreditCard className="h-4 w-4" />
+                <CreditCard className="h-4 w-4 " />
                 Pagamento e Observações
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                <div className="grid gap-2">
                   <Label htmlFor="formaPagamento">Forma de Pagamento *</Label>
                   <Select
                     value={formData.formaPagamento}
@@ -620,28 +565,31 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="desconto">Desconto</Label>
-                  <Input
-                    id="desconto"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.desconto / 100}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        desconto: Math.round(
-                          parseFloat(e.target.value || "0") * 100
-                        ),
-                      }))
-                    }
-                    placeholder="0,00"
-                  />
+                <div className="flex flex-col items-end  ">
+                  <div className="grid gap-2 ">
+                    <Label htmlFor="desconto">Desconto</Label>
+                    <Input
+                      id="desconto"
+                      type="number"
+                      step="0.01"
+                      className="w-20"
+                      min="0"
+                      value={formData.desconto / 100}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          desconto: Math.round(
+                            parseFloat(e.target.value || "0") * 100
+                          ),
+                        }))
+                      }
+                      placeholder="0,00"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
+              <div className="mt-4 grid gap-4">
                 <Label htmlFor="observacoes">Observações</Label>
                 <Textarea
                   id="observacoes"

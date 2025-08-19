@@ -2,15 +2,15 @@ import { IPedido } from "./types";
 
 export const getStatusColor = (status: IPedido["status"]) => {
   switch (status) {
-    case "pendente":
+    case "PENDENTE":
       return "bg-yellow-500/20 text-yellow-600 border-yellow-500/30";
-    case "confirmado":
+    case "CONFIRMADO":
       return "bg-blue-500/20 text-blue-600 border-blue-500/30";
-    case "preparando":
+    case "PREPARANDO":
       return "bg-orange-500/20 text-orange-600 border-orange-500/30";
-    case "entregue":
+    case "ENTREGUE":
       return "bg-green-500/20 text-green-600 border-green-500/30";
-    case "cancelado":
+    case "CANCELADO":
       return "bg-red-500/20 text-red-600 border-red-500/30";
     default:
       return "bg-gray-500/20 text-gray-600 border-gray-500/30";
@@ -19,15 +19,15 @@ export const getStatusColor = (status: IPedido["status"]) => {
 
 export const getStatusText = (status: IPedido["status"]) => {
   switch (status) {
-    case "pendente":
+    case "PENDENTE":
       return "Pendente";
-    case "confirmado":
+    case "CONFIRMADO":
       return "Confirmado";
-    case "preparando":
+    case "PREPARANDO":
       return "Preparando";
-    case "entregue":
+    case "ENTREGUE":
       return "Entregue";
-    case "cancelado":
+    case "CANCELADO":
       return "Cancelado";
     default:
       return "Indefinido";
@@ -115,21 +115,21 @@ export const getNextStatus = (
   currentStatus: IPedido["status"]
 ): IPedido["status"] | null => {
   switch (currentStatus) {
-    case "pendente":
-      return "confirmado";
-    case "confirmado":
-      return "preparando";
-    case "preparando":
-      return "entregue";
+    case "PENDENTE":
+      return "CONFIRMADO";
+    case "CONFIRMADO":
+      return "PREPARANDO";
+    case "PREPARANDO":
+      return "ENTREGUE";
     default:
       return null;
   }
 };
 
 export const canAdvanceStatus = (status: IPedido["status"]) => {
-  return ["pendente", "confirmado", "preparando"].includes(status);
+  return ["PENDENTE", "CONFIRMADO", "PREPARANDO"].includes(status);
 };
 
 export const canCancelOrder = (status: IPedido["status"]) => {
-  return ["pendente", "confirmado"].includes(status);
+  return ["PENDENTE", "CONFIRMADO"].includes(status);
 };

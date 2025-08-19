@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui";
 import { Search, Plus, Download } from "lucide-react";
-import { OrderFiltersProps } from "./types";
+import { ICreatePedido, OrderFiltersProps } from "./types";
 import { AddOrderModal } from "./AddOrderModal";
 
 export function OrderFilters({
@@ -21,8 +21,8 @@ export function OrderFilters({
 }: OrderFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleAddOrder = () => {
-    onAddOrder();
+  const handleAddOrder = (order: ICreatePedido) => {
+    onAddOrder(order);
     setIsAddModalOpen(false);
   };
 
