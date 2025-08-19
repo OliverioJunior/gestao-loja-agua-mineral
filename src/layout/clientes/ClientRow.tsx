@@ -1,8 +1,4 @@
-import {
-  TableCell,
-  TableRow,
-  Button,
-} from "@/shared/components/ui";
+import { TableCell, TableRow, Button } from "@/shared/components/ui";
 import { Eye, Edit, Trash2, CheckCircle, XCircle } from "lucide-react";
 import { ClientRowProps } from "./types";
 import {
@@ -18,7 +14,6 @@ export function ClientRow({
   onEdit,
   onDelete,
 }: ClientRowProps) {
-
   const StatusIcon = client.status === "ATIVO" ? CheckCircle : XCircle;
 
   return (
@@ -30,7 +25,7 @@ export function ClientRow({
       <TableCell>
         <div>{formatPhone(client.telefone)}</div>
         <div className="text-sm text-muted-foreground">
-          {client.cidade}, {client.estado}
+          {client.endereco?.cidade}, {client.endereco?.estado}
         </div>
       </TableCell>
       <TableCell>

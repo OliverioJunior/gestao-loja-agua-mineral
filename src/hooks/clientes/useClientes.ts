@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { IClientStats } from "@/layout/clientes/types";
 import {
   CreateClienteInput,
+  TClienteWithAdressAndCount,
   TClienteWithCount,
   UpdateClienteInput,
 } from "@/core/cliente/cliente.entity";
@@ -9,12 +10,11 @@ import {
 export const useClientes = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
-  const [clients, setClients] = useState<TClienteWithCount[]>([]);
+  const [clients, setClients] = useState<TClienteWithAdressAndCount[]>([]);
   const [selectedClient, setSelectedClient] =
-    useState<TClienteWithCount | null>(null);
-  const [editingClient, setEditingClient] = useState<TClienteWithCount | null>(
-    null
-  );
+    useState<TClienteWithAdressAndCount | null>(null);
+  const [editingClient, setEditingClient] =
+    useState<TClienteWithAdressAndCount | null>(null);
   const [deletingClient, setDeletingClient] =
     useState<TClienteWithCount | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -84,14 +84,15 @@ export const useClientes = () => {
   }, [clients]);
 
   // Handlers
-  const handleClientClick = useCallback((client: TClienteWithCount) => {
-    setSelectedClient(client);
-  }, []);
+  const handleClientClick = useCallback(
+    (client: TClienteWithAdressAndCount) => {
+      setSelectedClient(client);
+    },
+    []
+  );
 
   const handleAddClient = useCallback(
-    async (
-      clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
-    ) => {
+    async (clientData: Partial<CreateClienteInput>) => {
       try {
         setError(null);
         const response = await fetch("/api/cliente/create", {
@@ -121,7 +122,7 @@ export const useClientes = () => {
     []
   );
 
-  const handleEdit = useCallback((client: TClienteWithCount) => {
+  const handleEdit = useCallback((client: TClienteWithAdressAndCount) => {
     setEditingClient(client);
     setSelectedClient(null);
   }, []);

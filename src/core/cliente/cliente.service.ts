@@ -4,6 +4,7 @@ import {
   CreateClienteInput,
   UpdateClienteInput,
   TCliente,
+  TClienteWithAdressAndCount,
 } from "./cliente.entity";
 import { ClienteNotFoundError, ClienteConflictError } from "./cliente.errors";
 import { ClienteValidator } from "./cliente.validator";
@@ -33,6 +34,7 @@ export class ClienteService {
 
       return await this.clienteRepository.create(data);
     } catch (error) {
+      console.error(error);
       return ErrorHandler.handleRepositoryError(error, "criação de cliente");
     }
   }
@@ -116,7 +118,7 @@ export class ClienteService {
     }
   }
 
-  async findAll(): Promise<TCliente[]> {
+  async findAll(): Promise<TClienteWithAdressAndCount[]> {
     try {
       return await this.clienteRepository.findAll();
     } catch (error) {

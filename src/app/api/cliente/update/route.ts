@@ -5,6 +5,10 @@ import { StatusCode } from "@/core/error";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/shared/lib/user";
 import { Client } from "@/core/cliente/cliente";
+import { EnderecoService } from "@/core/endereco/endereco.service";
+import { EnderecoRepository } from "@/core/endereco/endereco.repository";
+import { prisma } from "@/infrastructure";
+import { Endereco } from "@/core/endereco/endereco";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -16,30 +20,58 @@ export async function PUT(req: NextRequest) {
         { status: StatusCode.UNAUTHORIZED }
       );
     }
-
-    const clienteService = new ClienteService(new ClienteRepository());
     const body = await req.json();
-    const { id, ...clienteToUpdate } = body;
+    const sucess = await prisma.$transaction(async (tx) => {
+      const clienteService = new ClienteService(new ClienteRepository(tx));
+      const enderecoService = new EnderecoService(new EnderecoRepository(tx));
 
-    if (!id) {
-      return NextResponse.json(
-        { message: "ID do cliente é obrigatório" },
-        { status: StatusCode.BAD_REQUEST }
+      const {
+        id,
+        endereco,
+        enderecoId,
+        cidade,
+        estado,
+        numero,
+        cep,
+        ...clienteToUpdate
+      } = body;
+
+      if (!id) {
+        return NextResponse.json(
+          { message: "ID do cliente é obrigatório" },
+          { status: StatusCode.BAD_REQUEST }
+        );
+      }
+      const enderecoToUpdate = {
+        id: enderecoId,
+        cidade,
+        estado,
+        numero,
+        cep,
+        logradouro: endereco,
+      };
+      clienteToUpdate.atualizadoPorId = currentUser.id;
+      if (clienteToUpdate.aniversario) {
+        clienteToUpdate.aniversario = new Date(clienteToUpdate.aniversario);
+      }
+
+      const data = Client.update(clienteToUpdate);
+
+      const enderecoData = Endereco.update(enderecoToUpdate);
+      const cliente = await clienteService.update(id, data);
+      const { id: idEndereco } = enderecoToUpdate;
+      const enderecoUpdated = await enderecoService.update(
+        idEndereco,
+        enderecoData
       );
-    }
 
-    clienteToUpdate.atualizadoPorId = currentUser.id;
+      return {
+        ...cliente,
+        endereco: enderecoUpdated,
+      };
+    });
 
-    // Converter data de aniversário se fornecida
-    if (clienteToUpdate.aniversario) {
-      clienteToUpdate.aniversario = new Date(clienteToUpdate.aniversario);
-    }
-
-    const data = new Client(clienteToUpdate, "update").validationData();
-
-    const cliente = await clienteService.update(id, data);
-
-    return NextResponse.json(cliente);
+    return NextResponse.json(sucess);
   } catch (error) {
     console.error(error);
     return NextResponse.json(

@@ -11,29 +11,20 @@ export class ClienteValidator {
   private static readonly PHONE_REGEX = /^\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}$/;
   private static readonly ZIP_CODE_REGEX = /^\d{5}-?\d{3}$/;
 
-  static validateInput(data: TCliente): { data: TCliente; validate: boolean } {
+  static validateInput(data: TCliente) {
     this.validateAllField(data);
     this.validateNome(data.nome);
     this.validateEmail(data.email);
     this.validateTelefone(data.telefone);
-    this.validateAddress(data.endereco);
-    this.validateCity(data.cidade);
-    this.validateState(data.estado);
-    this.validateCEP(data.cep);
-    return { data, validate: true };
+    return data;
   }
 
   static validateCreateInput(data: CreateClienteInput) {
     this.validateNome(data.nome);
     this.validateEmail(data.email);
     this.validateTelefone(data.telefone);
-    this.validateAddress(data.endereco);
-    this.validateCity(data.cidade);
-    this.validateState(data.estado);
-    this.validateCEP(data.cep);
     this.validateAllField(data);
-
-    return { data, validate: true };
+    return data;
   }
 
   static validateUpdateInput(data: UpdateClienteInput) {
@@ -49,25 +40,9 @@ export class ClienteValidator {
       this.validateTelefone(data.telefone);
     }
 
-    if (data.endereco !== undefined) {
-      this.validateAddress(data.endereco);
-    }
-
-    if (data.cidade !== undefined) {
-      this.validateCity(data.cidade);
-    }
-
-    if (data.estado !== undefined) {
-      this.validateState(data.estado);
-    }
-
-    if (data.cep !== undefined) {
-      this.validateCEP(data.cep);
-    }
-
     this.validateAtLeastOneField(data);
 
-    return { update: true, data };
+    return data;
   }
 
   static validateId(id: string) {
@@ -104,42 +79,14 @@ export class ClienteValidator {
     }
   }
 
-  private static validateAddress(address: string) {
-    if (!address?.trim()) {
-      throw new ClienteValidation("address", address, "address_required");
-    }
-  }
-
-  private static validateCity(city: string) {
-    if (!city?.trim()) {
-      throw new ClienteValidation("city", city, "city_required");
-    }
-  }
-
-  private static validateState(state: string) {
-    if (!state?.trim()) {
-      throw new ClienteValidation("state", state, "state_required");
-    }
-  }
-
-  private static validateCEP(zipCode: string) {
-    if (!zipCode?.trim()) {
-      throw new ClienteValidation("zipCode", zipCode, "zipCode_required");
-    }
-    if (!this.ZIP_CODE_REGEX.test(zipCode.trim())) {
-      throw new ClienteValidation("zipCode", zipCode, "zipCode_invalid");
-    }
-  }
-
   private static validateAtLeastOneField(data: UpdateClienteInput) {
     const fields = [
       "nome",
       "email",
       "telefone",
-      "endereco",
-      "cidade",
-      "estado",
-      "cep",
+      "aniversario",
+      "status",
+      "atualizadoPorId",
     ];
 
     const hasAtLeastOneField = fields.some(
@@ -160,10 +107,7 @@ export class ClienteValidator {
       "nome",
       "email",
       "telefone",
-      "endereco",
-      "cidade",
-      "estado",
-      "cep",
+      "criadoPorId",
     ];
 
     fields.forEach((field) => {

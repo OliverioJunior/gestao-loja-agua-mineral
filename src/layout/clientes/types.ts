@@ -1,7 +1,7 @@
 import { Cliente } from "@/infrastructure/generated/prisma";
 import {
   CreateClienteInput,
-  TClienteWithCount,
+  TClienteWithAdressAndCount,
 } from "@/core/cliente/cliente.entity";
 
 export type IClient = Cliente;
@@ -23,30 +23,28 @@ export interface ClientFiltersProps {
   onSearchChange: (value: string) => void;
   filterStatus: string;
   onFilterStatusChange: (value: string) => void;
-  onAddClient: (
-    clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
-  ) => Promise<void>;
+  onAddClient: (clientData: Partial<CreateClienteInput>) => Promise<void>;
 }
 
 export interface ClientTableProps {
-  clients: TClienteWithCount[];
-  onView: (client: TClienteWithCount) => void;
-  onEdit: (client: TClienteWithCount) => void;
-  onDelete: (client: TClienteWithCount) => void;
+  clients: TClienteWithAdressAndCount[];
+  onView: (client: TClienteWithAdressAndCount) => void;
+  onEdit: (client: TClienteWithAdressAndCount) => void;
+  onDelete: (client: TClienteWithAdressAndCount) => void;
 }
 
 export interface ClientRowProps {
-  client: TClienteWithCount;
-  onView: (client: TClienteWithCount) => void;
-  onEdit: (client: TClienteWithCount) => void;
-  onDelete: (client: TClienteWithCount) => void;
+  client: TClienteWithAdressAndCount;
+  onView: (client: TClienteWithAdressAndCount) => void;
+  onEdit: (client: TClienteWithAdressAndCount) => void;
+  onDelete: (client: TClienteWithAdressAndCount) => void;
 }
 
 export interface ClientDetailsModalProps {
-  client: TClienteWithCount | null;
+  client: TClienteWithAdressAndCount | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (client: TClienteWithCount) => void;
+  onEdit: (client: TClienteWithAdressAndCount) => void;
 }
 
 export interface ClientStatsCardsProps {
@@ -56,7 +54,5 @@ export interface ClientStatsCardsProps {
 export interface AddClientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (
-    clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
-  ) => Promise<void>;
+  onSubmit: (clientData: Partial<CreateClienteInput>) => Promise<void>;
 }

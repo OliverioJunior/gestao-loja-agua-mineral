@@ -1,22 +1,21 @@
-import { TCliente } from "./cliente.entity";
+import {
+  CreateClienteInput,
+  TCliente,
+  UpdateClienteInput,
+} from "./cliente.entity";
 import { ClienteValidator } from "./cliente.validator";
 
-type TAction = "create" | "update";
-
 export class Client {
-  private data: TCliente;
-  private action: TAction | undefined;
-  
-  constructor(data: TCliente, action?: TAction) {
-    this.data = data;
-    this.action = action;
+  constructor(private readonly data: TCliente) {}
+  static create(input: CreateClienteInput) {
+    return ClienteValidator.validateCreateInput(input);
   }
-  
-  validationData() {
-    if (this.action === "create")
-      ClienteValidator.validateCreateInput(this.data);
-    if (this.action === "update")
-      ClienteValidator.validateUpdateInput(this.data);
-    return ClienteValidator.validateInput(this.data).data;
+  static update(input: UpdateClienteInput) {
+    return ClienteValidator.validateUpdateInput(input);
+  }
+
+  getData(): TCliente {
+    const validatedData = ClienteValidator.validateInput(this.data);
+    return { ...validatedData };
   }
 }

@@ -104,9 +104,10 @@ export function ClientDetailsModal({
                 Endereço Completo
               </div>
               <div className="font-medium">
-                {client.endereco}
+                {client.endereco!.logradouro} - {client.endereco!.numero}
                 <br />
-                {client.cidade}, {client.estado} - {client.cep}
+                {client.endereco!.cidade}, {client.endereco!.estado} -{" "}
+                {client.endereco!.cep}
               </div>
             </div>
           </div>
@@ -134,7 +135,7 @@ export function ClientDetailsModal({
                   Total de Vendas
                 </div>
                 <div className="text-2xl font-bold text-green-600">
-                  {client.estado}
+                  {client._count.pedidos}
                 </div>
               </div>
             </div>

@@ -15,11 +15,14 @@ import {
   SelectValue,
 } from "@/shared/components/ui";
 import { Edit, AlertCircle } from "lucide-react";
-import { TClienteWithCount, UpdateClienteInput } from "@/core/cliente/cliente.entity";
+import {
+  TClienteWithAdressAndCount,
+  UpdateClienteInput,
+} from "@/core/cliente/cliente.entity";
 import { Status } from "@/infrastructure/generated/prisma";
 
 interface EditClientModalProps {
-  client: TClienteWithCount | null;
+  client: TClienteWithAdressAndCount | null;
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (clientData: UpdateClienteInput) => Promise<void>;
@@ -41,6 +44,8 @@ export function EditClientModal({
     cep: string;
     aniversario: string;
     status: Status;
+    numero: string;
+    enderecoId: string;
   }>({
     nome: "",
     email: "",
@@ -50,7 +55,9 @@ export function EditClientModal({
     estado: "",
     cep: "",
     aniversario: "",
+    numero: "",
     status: Status.ATIVO,
+    enderecoId: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,14 +69,16 @@ export function EditClientModal({
         nome: client.nome,
         email: client.email,
         telefone: client.telefone,
-        endereco: client.endereco,
-        cidade: client.cidade,
-        estado: client.estado,
-        cep: client.cep,
+        endereco: client.endereco?.logradouro || "",
+        cidade: client.endereco?.cidade || "",
+        estado: client.endereco?.estado || "",
+        cep: client.endereco?.cep || "",
+        numero: client.endereco?.numero || "",
         aniversario: client.aniversario
-          ? new Date(client.aniversario).toISOString().split('T')[0]
+          ? new Date(client.aniversario).toISOString().split("T")[0]
           : "",
         status: client.status,
+        enderecoId: client.endereco?.id || "",
       });
     }
   }, [client]);
@@ -191,6 +200,19 @@ export function EditClientModal({
                 setFormData({ ...formData, endereco: e.target.value })
               }
               placeholder="Digite o endereço completo"
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="numero">Número *</Label>
+            <Input
+              id="numero"
+              value={formData.numero}
+              onChange={(e) =>
+                setFormData({ ...formData, numero: e.target.value })
+              }
+              placeholder="Digite o número"
               required
               disabled={loading}
             />

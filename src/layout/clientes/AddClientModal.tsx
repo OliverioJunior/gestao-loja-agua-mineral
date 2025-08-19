@@ -27,22 +27,26 @@ export function AddClientModal({
     nome: string;
     email: string;
     telefone: string;
-    endereco: string;
+    logradouro: string;
     cidade: string;
     estado: string;
     cep: string;
     aniversario: string;
     status: Status;
+    numero: string;
+    bairro: string;
   }>({
     nome: "",
     email: "",
     telefone: "",
-    endereco: "",
+    logradouro: "",
     cidade: "",
     estado: "",
     cep: "",
     aniversario: "",
+    numero: "",
     status: Status.ATIVO,
+    bairro: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,12 +71,14 @@ export function AddClientModal({
         nome: "",
         email: "",
         telefone: "",
-        endereco: "",
+        logradouro: "",
         cidade: "",
         estado: "",
         cep: "",
         aniversario: "",
         status: Status.ATIVO,
+        numero: "",
+        bairro: "",
       });
     } catch (error) {
       console.error("Erro ao criar cliente:", error);
@@ -90,12 +96,14 @@ export function AddClientModal({
       nome: "",
       email: "",
       telefone: "",
-      endereco: "",
+      logradouro: "",
       cidade: "",
       estado: "",
       cep: "",
       aniversario: "",
       status: Status.ATIVO,
+      numero: "",
+      bairro: "",
     });
     setError(null);
     onClose();
@@ -181,9 +189,9 @@ export function AddClientModal({
             <Label htmlFor="endereco">Endereço *</Label>
             <Input
               id="endereco"
-              value={formData.endereco}
+              value={formData.logradouro}
               onChange={(e) =>
-                setFormData({ ...formData, endereco: e.target.value })
+                setFormData({ ...formData, logradouro: e.target.value })
               }
               placeholder="Digite o endereço completo"
               required
@@ -228,6 +236,32 @@ export function AddClientModal({
                   setFormData({ ...formData, cep: e.target.value })
                 }
                 placeholder="00000-000"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="numero">Número *</Label>
+              <Input
+                id="numero"
+                value={formData.numero}
+                onChange={(e) =>
+                  setFormData({ ...formData, numero: e.target.value })
+                }
+                placeholder="Digite o número"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="bairro">Bairro *</Label>
+              <Input
+                id="bairro"
+                value={formData.bairro}
+                onChange={(e) =>
+                  setFormData({ ...formData, bairro: e.target.value })
+                }
+                placeholder="Digite o bairro"
                 required
                 disabled={loading}
               />

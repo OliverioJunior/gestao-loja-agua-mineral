@@ -4,12 +4,12 @@ import {
   TCliente,
   CreateClienteInput,
   UpdateClienteInput,
-  TClienteWithCount,
+  TClienteWithAdressAndCount,
 } from "./cliente.entity";
-import { prisma } from "@/infrastructure";
+import { prisma, PrismaTransaction } from "@/infrastructure";
 
 export class ClienteRepository implements IClienteRepository {
-  constructor(private readonly db: PrismaClient = prisma) {}
+  constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
   async create(data: CreateClienteInput): Promise<TCliente> {
     return await this.db.cliente.create({
@@ -21,6 +21,17 @@ export class ClienteRepository implements IClienteRepository {
     return await this.db.cliente.update({
       where: { id },
       data,
+      include: {
+        _count: {
+          select: {
+            pedidos: {
+              where: {
+                status: "ENTREGUE",
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -36,9 +47,10 @@ export class ClienteRepository implements IClienteRepository {
     });
   }
 
-  async findAll(): Promise<TClienteWithCount[]> {
+  async findAll(): Promise<TClienteWithAdressAndCount[]> {
     return await this.db.cliente.findMany({
       include: {
+        endereco: true,
         _count: {
           select: {
             pedidos: {
@@ -47,6 +59,7 @@ export class ClienteRepository implements IClienteRepository {
           },
         },
       },
+
       orderBy: { nome: "asc" },
     });
   }

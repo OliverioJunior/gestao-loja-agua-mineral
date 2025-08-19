@@ -24,9 +24,7 @@ export function ClientFilters({
 }: ClientFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleAddClient = async (
-    clientData: Omit<CreateClienteInput, "criadoPorId" | "atualizadoPorId">
-  ) => {
+  const handleAddClient = async (clientData: Partial<CreateClienteInput>) => {
     onAddClient(clientData);
     setIsAddModalOpen(false);
   };
