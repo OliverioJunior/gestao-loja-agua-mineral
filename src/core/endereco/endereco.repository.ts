@@ -5,10 +5,10 @@ import {
   TEndereco,
   UpdateEnderecoInput,
 } from "./endereco.entity";
-import { prisma } from "@/infrastructure";
+import { prisma, PrismaTransaction } from "@/infrastructure";
 
 export class EnderecoRepository implements IEnderecoRepository {
-  constructor(private readonly db: PrismaClient = prisma) {}
+  constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
   async create(data: CreateEnderecoInput): Promise<TEndereco> {
     return await this.db.endereco.create({
