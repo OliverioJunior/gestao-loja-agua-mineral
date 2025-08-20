@@ -11,7 +11,6 @@ datasource db {
 enum StatusPedido {
   PENDENTE
   CONFIRMADO
-  PREPARANDO
   ENTREGUE
   CANCELADO
 }
@@ -159,25 +158,28 @@ model Endereco {
 }
 
 model Pedido {
-  id        String       @id @default(uuid()) @db.Uuid
-  clienteId String       @map("cliente_id") @db.Uuid
-  data      DateTime     @default(now())
-  total     Int
-  status    StatusPedido @default(PENDENTE)
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  id             String       @id @default(uuid()) @db.Uuid
+  clienteId      String       @map("cliente_id") @db.Uuid
+  data           DateTime     @default(now())
+  total          Int
+  desconto       Int?
+  formaPagamento String       @default("dinheiro")
+  taxaEntrega    Int?         @map("taxa_entrega")
+  status         StatusPedido @default(PENDENTE)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
 
   // Relacionamentos
-  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+  cliente         Cliente?  @relation(fields: [clienteId], references: [id])
   itens           Item[]
   vendas          Vendas[]
-  endereco        Endereco @relation(fields: [enderecoId], references: [id])
-  enderecoId      String   @map("endereco_id") @db.Uuid
+  endereco        Endereco? @relation(fields: [enderecoId], references: [id])
+  enderecoId      String?   @map("endereco_id") @db.Uuid
   // Auditoria
-  criadoPor       User     @relation("PedidoCreatedBy", fields: [criadoPorId], references: [id])
-  criadoPorId     String   @map("criado_por_id") @db.Uuid
-  atualizadoPor   User?    @relation("PedidoUpdatedBy", fields: [atualizadoPorId], references: [id])
-  atualizadoPorId String?  @map("atualizado_por_id") @db.Uuid
+  criadoPor       User      @relation("PedidoCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String    @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?     @relation("PedidoUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String?   @map("atualizado_por_id") @db.Uuid
 
   @@index([clienteId])
   @@index([status])
@@ -195,8 +197,8 @@ model Item {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
-  pedido  Pedido? @relation(fields: [pedidoId], references: [id])
-  produto Produto @relation(fields: [produtoId], references: [id])
+  pedido  Pedido?  @relation(fields: [pedidoId], references: [id])
+  produto Produto? @relation(fields: [produtoId], references: [id])
 
   // Auditoria
   criadoPor       User    @relation("ItemCreatedBy", fields: [criadoPorId], references: [id])
