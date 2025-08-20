@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
   Separator,
+  Checkbox,
 } from "@/shared/components/ui";
 import {
   Plus,
@@ -56,6 +57,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   });
 
   const [itens, setItens] = useState<IPedidoItem[]>([]);
+  const [revenda, setRevenda] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState("");
   const [quantidade, setQuantidade] = useState(1);
 
@@ -83,28 +85,22 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     const produto = produtos.find((p) => p.id === selectedProduto);
     if (!produto || quantidade <= 0) return;
 
-    const existingItemIndex = itens.findIndex(
-      (item) => item.produtoId === produto.id
-    );
-
-    if (existingItemIndex >= 0) {
-      // Atualizar quantidade do item existente
-      const newItens = [...itens];
-      newItens[existingItemIndex].quantidade += quantidade;
-      setItens(newItens);
-    } else {
-      // Adicionar novo item
-      const newItem: IPedidoItem = {
-        id: "uuidv4()",
-        subtotal: produto.precoVenda * quantidade,
-        produtoId: produto.id,
-        produtoNome: produto.nome,
-        produtoPreco: produto.precoVenda,
-        quantidade,
-        precoUnitario: produto.precoVenda,
-      };
-      setItens([...itens, newItem]);
-    }
+    const newItem: IPedidoItem = {
+      id: produto.id,
+      subtotal: revenda
+        ? (produto.precoRevenda || 0) * quantidade
+        : (produto.precoVenda || 0) * quantidade,
+      produtoId: produto.id,
+      produtoNome: produto.nome,
+      produtoPreco: revenda
+        ? produto.precoRevenda || 0
+        : produto.precoVenda || 0,
+      quantidade,
+      precoUnitario: revenda
+        ? produto.precoRevenda || 0
+        : produto.precoVenda || 0,
+    };
+    setItens([...itens, newItem]);
 
     setSelectedProduto("");
     setQuantidade(1);
@@ -155,10 +151,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
       itens: itens.map((item) => ({
         produtoId: item.produtoId,
         produtoNome: item.produtoNome,
-        produtoPreco: item.produtoPreco,
         quantidade: item.quantidade,
         precoUnitario: item.precoUnitario,
-        observacoes: item.observacoes,
+        subtotal: item.subtotal,
       })),
     };
 
@@ -427,6 +422,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Adicionar Item */}
+
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Select
@@ -442,11 +438,25 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         .map((produto) => (
                           <SelectItem key={produto.id} value={produto.id}>
                             {produto.nome} -{" "}
-                            {formatCurrency(produto.precoVenda)}
+                            {formatCurrency(
+                              revenda
+                                ? produto.precoRevenda || 0
+                                : produto.precoVenda || 0
+                            )}
                           </SelectItem>
                         ))}
                     </SelectContent>
                   </Select>
+                  <div className="flex items-center gap-2 mt-4">
+                    <Checkbox
+                      id="terms"
+                      checked={revenda}
+                      onCheckedChange={(e) => {
+                        setRevenda(e as boolean);
+                      }}
+                    />
+                    <Label htmlFor="terms">Revenda</Label>
+                  </div>
                 </div>
                 <div className="w-24">
                   <Input
@@ -459,6 +469,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                     placeholder="Qtd"
                   />
                 </div>
+
                 <Button
                   type="button"
                   onClick={handleAddItem}
