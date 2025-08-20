@@ -1,20 +1,21 @@
-import { Item, Pedido, Produto } from "@/infrastructure/generated/prisma";
+import { Item, Prisma } from "@/infrastructure/generated/prisma";
 
 export type TItem = Item;
 
-export type TItemWithRelations = Item & {
-  pedido: Pedido;
-  produto: Produto;
-};
+export type TItemWithRelations = Prisma.ItemGetPayload<{
+  include: {
+    pedido: true;
+    produto: {
+      include: {
+        categoria: true;
+      };
+    };
+  };
+}>;
 
-export type CreateItemInput = Omit<
-  TItem,
-  "id" | "createdAt" | "updatedAt"
->;
+export type CreateItemInput = Omit<TItem, "id" | "createdAt" | "updatedAt">;
 
-export type UpdateItemInput = Partial<
-  Omit<CreateItemInput, "pedidoId" | "produtoId">
->;
+export type UpdateItemInput = Partial<Omit<CreateItemInput, "produtoId">>;
 
 export interface IItemRepository {
   create(data: CreateItemInput): Promise<TItem>;
