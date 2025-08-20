@@ -1,6 +1,6 @@
 import { Vendas, Prisma } from "@/infrastructure/generated/prisma";
 
-export type TVenda = Vendas;
+export type TVendas = Vendas;
 
 export const vendaWithRelationsInclude = {
   cliente: true,
@@ -33,28 +33,22 @@ export type TVendaComplete = Prisma.VendasGetPayload<{
 }>;
 
 export type CreateVendaInput = Omit<
-  TVenda,
+  TVendas,
   "id" | "createdAt" | "updatedAt" | "data"
-> & {
-  // Campos adicionais para criação
-  formaPagamento?: "dinheiro" | "cartao_debito" | "cartao_credito" | "pix";
-  observacoes?: string;
-  desconto?: number;
-  troco?: number;
-};
+>;
 
 export type UpdateVendaInput = Partial<
   Omit<CreateVendaInput, "clienteId" | "pedidoId">
 >;
 
 export interface IVendaRepository {
-  create(data: CreateVendaInput): Promise<TVenda>;
-  update(id: string, data: UpdateVendaInput): Promise<TVenda>;
-  delete(id: string): Promise<TVenda>;
+  create(data: CreateVendaInput): Promise<TVendas>;
+  update(id: string, data: UpdateVendaInput): Promise<TVendas>;
+  delete(id: string): Promise<TVendas>;
   findAll(): Promise<TVendaWithRelations[]>;
   findById(id: string): Promise<TVendaComplete | null>;
   findByClienteId(clienteId: string): Promise<TVendaWithRelations[]>;
-  findByPedidoId(pedidoId: string): Promise<TVenda | null>;
+  findByPedidoId(pedidoId: string): Promise<TVendas | null>;
   findByDateRange(
     startDate: Date,
     endDate: Date
@@ -98,36 +92,3 @@ export type FormaPagamentoVenda =
   | "cartao_debito"
   | "cartao_credito"
   | "pix";
-
-export interface IVendaStats {
-  totalVendas: number;
-  faturamentoDiario: number;
-  faturamentoMensal: number;
-  faturamentoAnual: number;
-  ticketMedio: number;
-  vendasPorFormaPagamento: {
-    dinheiro: number;
-    cartao_debito: number;
-    cartao_credito: number;
-    pix: number;
-  };
-  crescimentoMensal: number;
-  metaMensal?: number;
-  percentualMeta?: number;
-}
-
-export interface ITopCliente {
-  clienteId: string;
-  nomeCliente: string;
-  totalCompras: number;
-  quantidadeCompras: number;
-  ultimaCompra: Date;
-}
-
-export interface IVendaMensal {
-  mes: number;
-  nomesMes: string;
-  totalVendas: number;
-  faturamento: number;
-  crescimento: number;
-}
