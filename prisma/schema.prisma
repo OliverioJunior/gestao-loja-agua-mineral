@@ -225,10 +225,10 @@ model Vendas {
   pedido  Pedido  @relation(fields: [pedidoId], references: [id])
 
   // Auditoria
-  criadoPor       User   @relation("VendasCreatedBy", fields: [criadoPorId], references: [id])
-  criadoPorId     String @map("criado_por_id") @db.Uuid
-  atualizadoPor   User   @relation("VendasUpdatedBy", fields: [atualizadoPorId], references: [id])
-  atualizadoPorId String @map("atualizado_por_id") @db.Uuid
+  criadoPor       User    @relation("VendasCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String  @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?   @relation("VendasUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String? @map("atualizado_por_id") @db.Uuid
 
   @@index([clienteId])
   @@index([pedidoId])
