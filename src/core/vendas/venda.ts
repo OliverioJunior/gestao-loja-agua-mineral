@@ -1,34 +1,20 @@
-import { TVenda } from "./venda.entity";
+import { CreateVendaInput, TVendas, UpdateVendaInput } from "./venda.entity";
 import { VendaValidator } from "./venda.validator";
 
-type TAction = "create" | "update";
-
 export class Venda {
-  private data: TVenda;
-  private action: TAction | undefined;
-
-  constructor(data: TVenda, action?: TAction) {
+  constructor(private readonly data: TVendas) {
     this.data = data;
-    this.action = action;
   }
 
-  validationData() {
-    if (this.action === "create") {
-      VendaValidator.validateCreateInput(this.data);
-    }
-    if (this.action === "update") {
-      VendaValidator.validateUpdateInput(this.data);
-    }
-    return VendaValidator.validateInput(this.data).data;
+  static create(data: CreateVendaInput) {
+    return VendaValidator.validateCreateInput(data);
+  }
+  static update(data: UpdateVendaInput) {
+    return VendaValidator.validateUpdateInput(data);
   }
 
-  getData(): TVenda {
-    return this.data;
-  }
-
-  updateTotal(novoTotal: number): void {
-    VendaValidator.validateUpdateInput({ total: novoTotal });
-    this.data.total = novoTotal;
+  getData(): TVendas {
+    return VendaValidator.validateInput(this.data);
   }
 
   getFormattedTotal(): string {
@@ -44,11 +30,6 @@ export class Venda {
 
   getFormattedDateTime(): string {
     return this.data.data.toLocaleString("pt-BR");
-  }
-
-  getFormaPagamentoText(): string {
-    // Simulado - seria necessário adicionar campo no schema
-    return "Não informado";
   }
 
   getFormaPagamentoIcon(): string {

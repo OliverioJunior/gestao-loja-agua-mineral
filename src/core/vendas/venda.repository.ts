@@ -1,45 +1,38 @@
-import { PrismaClient } from "@/infrastructure/generated/prisma";
-import { prisma } from "@/infrastructure";
+import { prisma, PrismaTransaction, PrismaClient } from "@/infrastructure";
 import {
   IVendaRepository,
   CreateVendaInput,
   UpdateVendaInput,
-  TVenda,
+  TVendas,
   TVendaWithRelations,
   TVendaComplete,
 } from "./venda.entity";
 
 export class VendaRepository implements IVendaRepository {
-  constructor(private readonly db: PrismaClient = prisma) {}
+  constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
-  async create(data: CreateVendaInput): Promise<TVenda> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.vendas.create({
-        data: {
-          clienteId: data.clienteId,
-          pedidoId: data.pedidoId,
-          total: data.total,
-          criadoPorId: data.criadoPorId,
-          atualizadoPorId: data.atualizadoPorId,
-        },
-      });
+  async create(data: CreateVendaInput): Promise<TVendas> {
+    return await this.db.vendas.create({
+      data: {
+        clienteId: data.clienteId,
+        pedidoId: data.pedidoId,
+        total: data.total,
+        criadoPorId: data.criadoPorId,
+        atualizadoPorId: data.atualizadoPorId,
+      },
     });
   }
 
-  async update(id: string, data: UpdateVendaInput): Promise<TVenda> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.vendas.update({
-        where: { id },
-        data,
-      });
+  async update(id: string, data: UpdateVendaInput): Promise<TVendas> {
+    return await this.db.vendas.update({
+      where: { id },
+      data,
     });
   }
 
-  async delete(id: string): Promise<TVenda> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.vendas.delete({
-        where: { id },
-      });
+  async delete(id: string): Promise<TVendas> {
+    return await this.db.vendas.delete({
+      where: { id },
     });
   }
 
@@ -86,7 +79,7 @@ export class VendaRepository implements IVendaRepository {
     });
   }
 
-  async findByPedidoId(pedidoId: string): Promise<TVenda | null> {
+  async findByPedidoId(pedidoId: string): Promise<TVendas | null> {
     return await this.db.vendas.findFirst({
       where: { pedidoId },
     });
@@ -127,7 +120,10 @@ export class VendaRepository implements IVendaRepository {
     return !!venda;
   }
 
-  async calculateTotalByPeriod(startDate: Date, endDate: Date): Promise<number> {
+  async calculateTotalByPeriod(
+    startDate: Date,
+    endDate: Date
+  ): Promise<number> {
     const result = await this.db.vendas.aggregate({
       where: {
         data: {
@@ -158,12 +154,20 @@ export class VendaRepository implements IVendaRepository {
   }> {
     // Datas para cálculos
     const hoje = new Date();
-    const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-    const fimHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 1);
-    
+    const inicioHoje = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate()
+    );
+    const fimHoje = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate() + 1
+    );
+
     const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-    
+
     const inicioAno = new Date(hoje.getFullYear(), 0, 1);
     const fimAno = new Date(hoje.getFullYear() + 1, 0, 0);
 
@@ -171,13 +175,22 @@ export class VendaRepository implements IVendaRepository {
     const totalVendas = await this.db.vendas.count();
 
     // Faturamento diário
-    const faturamentoDiario = await this.calculateTotalByPeriod(inicioHoje, fimHoje);
+    const faturamentoDiario = await this.calculateTotalByPeriod(
+      inicioHoje,
+      fimHoje
+    );
 
     // Faturamento mensal
-    const faturamentoMensal = await this.calculateTotalByPeriod(inicioMes, fimMes);
+    const faturamentoMensal = await this.calculateTotalByPeriod(
+      inicioMes,
+      fimMes
+    );
 
     // Faturamento anual
-    const faturamentoAnual = await this.calculateTotalByPeriod(inicioAno, fimAno);
+    const faturamentoAnual = await this.calculateTotalByPeriod(
+      inicioAno,
+      fimAno
+    );
 
     // Ticket médio
     const ticketMedio = totalVendas > 0 ? faturamentoAnual / totalVendas : 0;
@@ -200,12 +213,14 @@ export class VendaRepository implements IVendaRepository {
     };
   }
 
-  async getTopClientes(limit: number = 10): Promise<{
-    clienteId: string;
-    nomeCliente: string;
-    totalCompras: number;
-    quantidadeCompras: number;
-  }[]> {
+  async getTopClientes(limit: number = 10): Promise<
+    {
+      clienteId: string;
+      nomeCliente: string;
+      totalCompras: number;
+      quantidadeCompras: number;
+    }[]
+  > {
     const result = await this.db.vendas.groupBy({
       by: ["clienteId"],
       _sum: {
@@ -248,11 +263,13 @@ export class VendaRepository implements IVendaRepository {
     });
   }
 
-  async getVendasByMonth(year: number): Promise<{
-    mes: number;
-    totalVendas: number;
-    faturamento: number;
-  }[]> {
+  async getVendasByMonth(year: number): Promise<
+    {
+      mes: number;
+      totalVendas: number;
+      faturamento: number;
+    }[]
+  > {
     const result = await this.db.vendas.groupBy({
       by: ["data"],
       where: {
@@ -270,7 +287,9 @@ export class VendaRepository implements IVendaRepository {
     });
 
     // Agrupar por mês
-    const vendasPorMes: { [key: number]: { totalVendas: number; faturamento: number } } = {};
+    const vendasPorMes: {
+      [key: number]: { totalVendas: number; faturamento: number };
+    } = {};
 
     result.forEach((item) => {
       const mes = item.data.getMonth() + 1; // getMonth() retorna 0-11

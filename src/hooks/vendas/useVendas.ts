@@ -23,13 +23,13 @@ export function useVendas() {
     }
   }, []);
   const createVendas = useCallback(
-    async (venda: CreateVendaInput) => {
+    async (venda: CreateVendaInput["pedidoId"]) => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch("/api/venda", {
+        const response = await fetch("/api/vendas/create", {
           method: "POST",
-          body: JSON.stringify(venda),
+          body: JSON.stringify({ pedidoId: venda }),
         });
         if (!response.ok) {
           throw new Error("Erro ao criar venda");

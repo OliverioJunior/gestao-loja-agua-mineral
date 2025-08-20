@@ -34,7 +34,7 @@ export type TVendaComplete = Prisma.VendasGetPayload<{
 
 export type CreateVendaInput = Omit<
   TVendas,
-  "id" | "createdAt" | "updatedAt" | "data"
+  "id" | "createdAt" | "updatedAt" | "data" | "atualizadoPorId"
 >;
 
 export type UpdateVendaInput = Partial<
