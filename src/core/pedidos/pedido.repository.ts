@@ -1,5 +1,5 @@
 import { PrismaClient, StatusPedido } from "@/infrastructure/generated/prisma";
-import { prisma } from "@/infrastructure";
+import { prisma, PrismaTransaction } from "@/infrastructure";
 import {
   IPedidoRepository,
   CreatePedidoInput,
@@ -10,42 +10,36 @@ import {
 } from "./pedido.entity";
 
 export class PedidoRepository implements IPedidoRepository {
-  constructor(private readonly db: PrismaClient = prisma) {}
+  constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
   async create(data: CreatePedidoInput): Promise<TPedido> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.pedido.create({
-        data: {
-          clienteId: data.clienteId,
-          total: data.total,
-          status: data.status,
-          criadoPorId: data.criadoPorId,
-          atualizadoPorId: data.atualizadoPorId,
-        },
-      });
+    return await this.db.pedido.create({
+      data: {
+        clienteId: data.clienteId,
+        total: data.total,
+        status: data.status,
+        criadoPorId: data.criadoPorId,
+        atualizadoPorId: data.atualizadoPorId,
+        enderecoId: data.enderecoId,
+      },
     });
   }
 
   async update(id: string, data: UpdatePedidoInput): Promise<TPedido> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.pedido.update({
-        where: { id },
-        data,
-      });
+    return await this.db.pedido.update({
+      where: { id },
+      data,
     });
   }
 
   async delete(id: string): Promise<TPedido> {
-    return await this.db.$transaction(async (prisma) => {
-      // Primeiro, deletar todos os itens relacionados
-      await prisma.item.deleteMany({
-        where: { pedidoId: id },
-      });
+    await this.db.item.deleteMany({
+      where: { pedidoId: id },
+    });
 
-      // Depois, deletar o pedido
-      return await prisma.pedido.delete({
-        where: { id },
-      });
+    // Depois, deletar o pedido
+    return await this.db.pedido.delete({
+      where: { id },
     });
   }
 
@@ -126,7 +120,10 @@ export class PedidoRepository implements IPedidoRepository {
     return !!pedido;
   }
 
-  async calculateTotalByPeriod(startDate: Date, endDate: Date): Promise<number> {
+  async calculateTotalByPeriod(
+    startDate: Date,
+    endDate: Date
+  ): Promise<number> {
     const result = await this.db.pedido.aggregate({
       where: {
         data: {
@@ -146,6 +143,8 @@ export class PedidoRepository implements IPedidoRepository {
   async getStatistics(): Promise<{
     total: number;
     pendentes: number;
+    confirmados: number;
+    preparando: number;
     entregues: number;
     cancelados: number;
     faturamentoMensal: number;
@@ -160,15 +159,28 @@ export class PedidoRepository implements IPedidoRepository {
 
     // Calcular faturamento do mês atual
     const currentMonth = new Date();
-    const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+    const startOfMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    );
 
-    const faturamentoMensal = await this.calculateTotalByPeriod(startOfMonth, endOfMonth);
+    const faturamentoMensal = await this.calculateTotalByPeriod(
+      startOfMonth,
+      endOfMonth
+    );
 
     // Processar contadores
     const stats = {
       total: 0,
       pendentes: 0,
+      confirmados: 0,
+      preparando: 0,
       entregues: 0,
       cancelados: 0,
       faturamentoMensal,
@@ -179,6 +191,9 @@ export class PedidoRepository implements IPedidoRepository {
       switch (item.status) {
         case "PENDENTE":
           stats.pendentes = item._count.id;
+          break;
+        case "CONFIRMADO":
+          stats.confirmados = item._count.id;
           break;
         case "ENTREGUE":
           stats.entregues = item._count.id;
@@ -218,15 +233,17 @@ export class PedidoRepository implements IPedidoRepository {
     });
   }
 
-  async updateStatus(id: string, status: StatusPedido, userId: string): Promise<TPedido> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.pedido.update({
-        where: { id },
-        data: {
-          status,
-          atualizadoPorId: userId,
-        },
-      });
+  async updateStatus(
+    id: string,
+    status: StatusPedido,
+    userId: string
+  ): Promise<TPedido> {
+    return await this.db.pedido.update({
+      where: { id },
+      data: {
+        status,
+        atualizadoPorId: userId,
+      },
     });
   }
 }

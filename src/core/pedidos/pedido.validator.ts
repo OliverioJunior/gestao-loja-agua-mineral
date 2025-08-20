@@ -14,10 +14,14 @@ export class PedidoValidator {
   private static readonly MIN_TOTAL = 0.01;
   private static readonly VALID_STATUS: StatusPedido[] = [
     "PENDENTE",
+    "CONFIRMADO",
     "ENTREGUE",
     "CANCELADO",
   ];
-  private static readonly VALID_TIPO_ENTREGA: TipoEntrega[] = ["balcao", "entrega"];
+  private static readonly VALID_TIPO_ENTREGA: TipoEntrega[] = [
+    "balcao",
+    "entrega",
+  ];
   private static readonly VALID_FORMA_PAGAMENTO: FormaPagamento[] = [
     "dinheiro",
     "cartao_debito",
@@ -26,7 +30,6 @@ export class PedidoValidator {
   ];
 
   static validateInput(data: TPedido): { data: TPedido; validate: boolean } {
-    this.validateAllFields(data);
     this.validateClienteId(data.clienteId);
     this.validateTotal(data.total);
     this.validateStatus(data.status);
@@ -36,24 +39,19 @@ export class PedidoValidator {
   static validateCreateInput(data: CreatePedidoInput) {
     this.validateClienteId(data.clienteId);
     this.validateTotal(data.total);
-    this.validateStatus(data.status);
-    
-    if (data.tipoEntrega !== undefined) {
-      this.validateTipoEntrega(data.tipoEntrega);
-    }
-    
+
     if (data.formaPagamento !== undefined) {
       this.validateFormaPagamento(data.formaPagamento);
     }
-    
+
     if (data.desconto !== undefined) {
       this.validateDesconto(data.desconto);
     }
-    
+
     if (data.taxaEntrega !== undefined) {
       this.validateTaxaEntrega(data.taxaEntrega);
     }
-    
+
     this.validateAllFields(data);
     return { data, validate: true };
   }
@@ -66,19 +64,19 @@ export class PedidoValidator {
     if (data.status !== undefined) {
       this.validateStatus(data.status);
     }
-    
+
     if (data.tipoEntrega !== undefined) {
       this.validateTipoEntrega(data.tipoEntrega);
     }
-    
+
     if (data.formaPagamento !== undefined) {
       this.validateFormaPagamento(data.formaPagamento);
     }
-    
+
     if (data.desconto !== undefined) {
       this.validateDesconto(data.desconto);
     }
-    
+
     if (data.taxaEntrega !== undefined) {
       this.validateTaxaEntrega(data.taxaEntrega);
     }
@@ -99,7 +97,8 @@ export class PedidoValidator {
     newStatus: StatusPedido
   ) {
     const validTransitions: Record<StatusPedido, StatusPedido[]> = {
-      PENDENTE: ["ENTREGUE", "CANCELADO"],
+      PENDENTE: ["CONFIRMADO", "CANCELADO"],
+      CONFIRMADO: ["ENTREGUE", "CANCELADO"],
       ENTREGUE: [], // Pedido entregue não pode mudar de status
       CANCELADO: [], // Pedido cancelado não pode mudar de status
     };
@@ -165,7 +164,11 @@ export class PedidoValidator {
 
   private static validateTipoEntrega(tipoEntrega: TipoEntrega) {
     if (!this.VALID_TIPO_ENTREGA.includes(tipoEntrega)) {
-      throw new PedidoValidation("tipoEntrega", tipoEntrega, "tipo_entrega_invalid");
+      throw new PedidoValidation(
+        "tipoEntrega",
+        tipoEntrega,
+        "tipo_entrega_invalid"
+      );
     }
   }
 
@@ -187,7 +190,11 @@ export class PedidoValidator {
 
   private static validateTaxaEntrega(taxaEntrega: number) {
     if (typeof taxaEntrega !== "number" || taxaEntrega < 0) {
-      throw new PedidoValidation("taxaEntrega", taxaEntrega, "taxa_entrega_invalid");
+      throw new PedidoValidation(
+        "taxaEntrega",
+        taxaEntrega,
+        "taxa_entrega_invalid"
+      );
     }
   }
 
@@ -218,12 +225,15 @@ export class PedidoValidator {
       "total",
       "status",
       "criadoPorId",
-      "atualizadoPorId",
     ];
 
     requiredFields.forEach((field) => {
-      if (data[field] === undefined || data[field] === null) {
-        throw new PedidoValidation("pedido", data[field], "all_fields_required");
+      if (data[field] === undefined) {
+        throw new PedidoValidation(
+          "pedido",
+          data[field],
+          "all_fields_required"
+        );
       }
     });
   }

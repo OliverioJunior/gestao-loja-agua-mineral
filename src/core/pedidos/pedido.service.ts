@@ -39,18 +39,6 @@ export class PedidoService {
     try {
       PedidoValidator.validateCreateInput(data);
 
-      // Verificar se o cliente existe e está ativo - delegado ao ClienteService
-      await this.validateClienteExists(data.clienteId);
-
-      // Verificar se cliente já possui pedido ativo (regra de negócio)
-      await this.validateClienteNaoTemPedidoAtivo(data.clienteId);
-
-      // Validar desconto vs total se fornecido
-      if (data.desconto && data.desconto > 0) {
-        PedidoValidator.validateDescontoVsTotal(data.desconto, data.total);
-      }
-
-      // Criar o pedido
       const pedido = await this.pedidoRepository.create(data);
 
       return pedido;
@@ -74,14 +62,20 @@ export class PedidoService {
 
       // Validar transição de status se fornecida
       if (data.status !== undefined) {
-        PedidoValidator.validateStatusTransition(existingPedido.status, data.status);
+        PedidoValidator.validateStatusTransition(
+          existingPedido.status,
+          data.status
+        );
       }
 
       // Validar desconto vs total se fornecido
       if (data.desconto !== undefined && data.total !== undefined) {
         PedidoValidator.validateDescontoVsTotal(data.desconto, data.total);
       } else if (data.desconto !== undefined) {
-        PedidoValidator.validateDescontoVsTotal(data.desconto, existingPedido.total);
+        PedidoValidator.validateDescontoVsTotal(
+          data.desconto,
+          existingPedido.total
+        );
       } else if (data.total !== undefined && existingPedido.total) {
         const desconto = 0; // Assumir desconto zero se não fornecido
         PedidoValidator.validateDescontoVsTotal(desconto, data.total);
@@ -179,10 +173,11 @@ export class PedidoService {
   async getStatistics(): Promise<IPedidoStats> {
     try {
       const stats = await this.pedidoRepository.getStatistics();
-      
+
       // Calcular ticket médio
-      const ticketMedio = stats.entregues > 0 ? stats.faturamentoMensal / stats.entregues : 0;
-      
+      const ticketMedio =
+        stats.entregues > 0 ? stats.faturamentoMensal / stats.entregues : 0;
+
       return {
         ...stats,
         ticketMedio,
@@ -195,7 +190,11 @@ export class PedidoService {
     }
   }
 
-  async updateStatus(id: string, status: StatusPedido, userId: string): Promise<TPedido> {
+  async updateStatus(
+    id: string,
+    status: StatusPedido,
+    userId: string
+  ): Promise<TPedido> {
     try {
       PedidoValidator.validateId(id);
       PedidoValidator.validateStatus(status);
@@ -238,7 +237,7 @@ export class PedidoService {
 
       const totalItens = await this.calculateTotal(pedidoId);
       PedidoValidator.validateTotalVsItens(pedido.total, totalItens);
-      
+
       return true;
     } catch (error) {
       return ErrorHandler.handleRepositoryError(
@@ -270,8 +269,12 @@ export class PedidoService {
     }
   }
 
-  private async validateClienteNaoTemPedidoAtivo(clienteId: string): Promise<void> {
-    const pedidoAtivo = await this.pedidoRepository.findActivePedidoByCliente(clienteId);
+  private async validateClienteNaoTemPedidoAtivo(
+    clienteId: string
+  ): Promise<void> {
+    const pedidoAtivo = await this.pedidoRepository.findActivePedidoByCliente(
+      clienteId
+    );
 
     if (pedidoAtivo) {
       throw new PedidoConflictError(
@@ -281,7 +284,9 @@ export class PedidoService {
     }
   }
 
-  private async validatePedidoPodeSerModificado(status: StatusPedido): Promise<void> {
+  private async validatePedidoPodeSerModificado(
+    status: StatusPedido
+  ): Promise<void> {
     if (status !== "PENDENTE") {
       throw new PedidoBusinessRulesError(
         `Pedido com status ${status} não pode ser modificado`,
@@ -291,7 +296,9 @@ export class PedidoService {
     }
   }
 
-  private async validatePedidoPodeSerDeletado(status: StatusPedido): Promise<void> {
+  private async validatePedidoPodeSerDeletado(
+    status: StatusPedido
+  ): Promise<void> {
     if (status === "ENTREGUE") {
       throw new PedidoBusinessRulesError(
         "Pedido entregue não pode ser deletado",

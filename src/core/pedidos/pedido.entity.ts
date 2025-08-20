@@ -62,6 +62,8 @@ export interface IPedidoRepository {
   getStatistics(): Promise<{
     total: number;
     pendentes: number;
+    confirmados: number;
+    preparando: number;
     entregues: number;
     cancelados: number;
     faturamentoMensal: number;
@@ -83,6 +85,8 @@ export type FormaPagamento =
 export interface IPedidoStats {
   total: number;
   pendentes: number;
+  confirmados: number;
+  preparando: number;
   entregues: number;
   cancelados: number;
   faturamentoMensal: number;
