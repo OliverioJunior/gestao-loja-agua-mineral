@@ -13,7 +13,7 @@ import {
 } from "./item.errors";
 import { ItemValidator } from "./item.validator";
 import { PrismaClient } from "@/infrastructure/generated/prisma";
-import { prisma } from "@/infrastructure";
+import { prisma, PrismaTransaction } from "@/infrastructure";
 import { ProdutoService } from "../produto/produto.service";
 import { ProdutoRepository } from "../produto/produto.repository";
 
@@ -22,36 +22,17 @@ export class ItemService {
 
   constructor(
     private itemRepository: IItemRepository,
-    private readonly db: PrismaClient = prisma
+    private readonly db: PrismaClient | PrismaTransaction = prisma
   ) {
     // Inicializar ProdutoService para delegar operações de produto
-    this.produtoService = new ProdutoService(new ProdutoRepository());
+    this.produtoService = new ProdutoService(new ProdutoRepository(this.db));
   }
 
   async create(data: CreateItemInput): Promise<TItem> {
     try {
       ItemValidator.validateCreateInput(data);
-
-      // Verificar se o produto existe e está ativo
-      await this.validateProdutoExists(data.produtoId);
-
-      // Verificar se o pedido existe e está em status válido
-      await this.validatePedidoExists(data.pedidoId);
-
-      // Verificar se já existe um item para este produto no pedido
-      await this.validateDuplicateItem(data.pedidoId, data.produtoId);
-
-      // Validar estoque disponível
-      await this.validateStockAvailability(data.produtoId, data.quantidade);
-
-      // Validar preço do item vs preço do produto
-      await this.validateItemPrice(data.produtoId, data.preco);
-
       // Criar o item
       const item = await this.itemRepository.create(data);
-
-      // Atualizar estoque do produto
-      await this.updateProductStock(data.produtoId, data.quantidade);
 
       return item;
     } catch (error) {
@@ -112,7 +93,7 @@ export class ItemService {
       }
 
       // Verificar se o pedido ainda permite alterações
-      await this.validatePedidoCanBeModified(existingItem.pedidoId);
+      await this.validatePedidoCanBeModified(existingItem.pedidoId!);
 
       const deletedItem = await this.itemRepository.delete(id);
 

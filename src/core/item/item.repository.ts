@@ -1,5 +1,5 @@
 import { PrismaClient } from "@/infrastructure/generated/prisma";
-import { prisma } from "@/infrastructure";
+import { prisma, PrismaTransaction } from "@/infrastructure";
 import {
   IItemRepository,
   CreateItemInput,
@@ -9,30 +9,24 @@ import {
 } from "./item.entity";
 
 export class ItemRepository implements IItemRepository {
-  constructor(private readonly db: PrismaClient = prisma) {}
+  constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
   async create(data: CreateItemInput): Promise<TItem> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.item.create({
-        data,
-      });
+    return await this.db.item.create({
+      data,
     });
   }
 
   async update(id: string, data: UpdateItemInput): Promise<TItem> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.item.update({
-        where: { id },
-        data,
-      });
+    return await this.db.item.update({
+      where: { id },
+      data,
     });
   }
 
   async delete(id: string): Promise<TItem> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.item.delete({
-        where: { id },
-      });
+    return await this.db.item.delete({
+      where: { id },
     });
   }
 
@@ -142,15 +136,13 @@ export class ItemRepository implements IItemRepository {
     produtoId: string,
     quantidadeReduzir: number
   ): Promise<void> {
-    await this.db.$transaction(async (prisma) => {
-      await prisma.produto.update({
-        where: { id: produtoId },
-        data: {
-          estoque: {
-            decrement: quantidadeReduzir,
-          },
+    await this.db.produto.update({
+      where: { id: produtoId },
+      data: {
+        estoque: {
+          decrement: quantidadeReduzir,
         },
-      });
+      },
     });
   }
 
@@ -158,15 +150,13 @@ export class ItemRepository implements IItemRepository {
     produtoId: string,
     quantidadeRestaurar: number
   ): Promise<void> {
-    await this.db.$transaction(async (prisma) => {
-      await prisma.produto.update({
-        where: { id: produtoId },
-        data: {
-          estoque: {
-            increment: quantidadeRestaurar,
-          },
+    await this.db.produto.update({
+      where: { id: produtoId },
+      data: {
+        estoque: {
+          increment: quantidadeRestaurar,
         },
-      });
+      },
     });
   }
 }

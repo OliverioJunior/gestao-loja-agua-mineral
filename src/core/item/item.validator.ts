@@ -1,9 +1,5 @@
 import { BusinessRulesError } from "../error/domain.errors";
-import {
-  CreateItemInput,
-  TItem,
-  UpdateItemInput,
-} from "./item.entity";
+import { CreateItemInput, TItem, UpdateItemInput } from "./item.entity";
 import { ItemValidation } from "./item.errors";
 
 export class ItemValidator {
@@ -12,7 +8,7 @@ export class ItemValidator {
 
   static validateInput(data: TItem): { data: TItem; validate: boolean } {
     this.validateAllFields(data);
-    this.validatePedidoId(data.pedidoId);
+
     this.validateProdutoId(data.produtoId);
     this.validateQuantidade(data.quantidade);
     this.validatePreco(data.preco);
@@ -20,7 +16,6 @@ export class ItemValidator {
   }
 
   static validateCreateInput(data: CreateItemInput) {
-    this.validatePedidoId(data.pedidoId);
     this.validateProdutoId(data.produtoId);
     this.validateQuantidade(data.quantidade);
     this.validatePreco(data.preco);
@@ -115,18 +110,14 @@ export class ItemValidator {
   }
 
   private static validateAtLeastOneField(data: UpdateItemInput) {
-    const fields = ["quantidade", "preco"];
+    const fields = ["quantidade", "preco", "pedidoId"];
 
     const hasAtLeastOneField = fields.some(
       (field) => data[field as keyof UpdateItemInput] !== undefined
     );
 
     if (!hasAtLeastOneField) {
-      throw new ItemValidation(
-        "item",
-        data,
-        "at_least_one_field"
-      );
+      throw new ItemValidation("item", data, "at_least_one_field");
     }
   }
 
@@ -141,12 +132,8 @@ export class ItemValidator {
     ];
 
     requiredFields.forEach((field) => {
-      if (data[field] === undefined || data[field] === null) {
-        throw new ItemValidation(
-          "item",
-          data[field],
-          "all_fields_required"
-        );
+      if (data[field] === undefined) {
+        throw new ItemValidation("item", data[field], "all_fields_required");
       }
     });
   }
