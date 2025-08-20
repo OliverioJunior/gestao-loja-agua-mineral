@@ -1,5 +1,5 @@
 import { PrismaClient } from "@/infrastructure/generated/prisma";
-import { prisma } from "@/infrastructure";
+import { prisma, PrismaTransaction } from "@/infrastructure";
 import {
   IProdutoRepository,
   CreateProdutoInput,
@@ -8,36 +8,30 @@ import {
 } from "./produto.entity";
 
 export class ProdutoRepository implements IProdutoRepository {
-  constructor(private readonly db: PrismaClient = prisma) {}
+  constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
   async create(data: CreateProdutoInput): Promise<TProduto> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.produto.create({
-        data,
-        include: {
-          categoria: true,
-        },
-      });
+    return await this.db.produto.create({
+      data,
+      include: {
+        categoria: true,
+      },
     });
   }
 
   async update(id: string, data: UpdateProdutoInput): Promise<TProduto> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.produto.update({
-        where: { id },
-        data,
-        include: {
-          categoria: true, // Inclui os dados da categoria relacionada
-        },
-      });
+    return await this.db.produto.update({
+      where: { id },
+      data,
+      include: {
+        categoria: true, // Inclui os dados da categoria relacionada
+      },
     });
   }
 
   async delete(id: string): Promise<TProduto> {
-    return await this.db.$transaction(async (prisma) => {
-      return await prisma.produto.delete({
-        where: { id },
-      });
+    return await this.db.produto.delete({
+      where: { id },
     });
   }
 
