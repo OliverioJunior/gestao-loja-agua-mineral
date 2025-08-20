@@ -37,15 +37,15 @@ export interface IPedido {
   id: string;
   numero: string;
   cliente: IClientePedido;
-  status: 'pendente' | 'confirmado' | 'preparando' | 'entregue' | 'cancelado';
-  tipoEntrega: 'balcao' | 'entrega';
+  status: "PENDENTE" | "CONFIRMADO" | "ENTREGUE" | "CANCELADO";
+  tipoEntrega: "balcao" | "entrega";
   enderecoEntrega?: IEndereco;
   observacoes?: string;
   itens: IPedidoItemCompleto[];
   desconto: number;
   taxaEntrega: number;
   total: number;
-  formaPagamento: 'dinheiro' | 'cartao_debito' | 'cartao_credito' | 'pix';
+  formaPagamento: "dinheiro" | "cartao_debito" | "cartao_credito" | "pix";
   dataPedido: Date;
   dataEntrega?: Date;
 }
@@ -58,31 +58,30 @@ export interface IPedidoItem {
   quantidade: number;
   precoUnitario: number;
   subtotal: number;
-  observacoes?: string;
 }
 
 export interface ICreatePedido {
   clienteId: string;
-  tipoEntrega: 'balcao' | 'entrega';
+  tipoEntrega: "balcao" | "entrega";
   enderecoEntrega?: IEndereco;
   observacoes?: string;
   itens: Array<{
     produtoId: string;
     produtoNome: string;
-    produtoPreco: number;
     quantidade: number;
     precoUnitario: number;
     observacoes?: string;
   }>;
   desconto?: number;
   taxaEntrega?: number;
-  formaPagamento: 'dinheiro' | 'cartao_debito' | 'cartao_credito' | 'pix';
+  formaPagamento: "dinheiro" | "cartao_debito" | "cartao_credito" | "pix";
 }
 
 export interface IPedidoStats {
   total: number;
   pendentes: number;
   confirmados: number;
+  preparando: number;
   entregues: number;
   cancelados: number;
   faturamentoMensal: number;
@@ -93,7 +92,7 @@ export interface OrderFiltersProps {
   statusFilter: string;
   onSearchChange: (term: string) => void;
   onStatusChange: (status: string) => void;
-  onAddOrder: () => void;
+  onAddOrder: (order: ICreatePedido) => void;
 }
 
 export interface OrderTableProps {
@@ -101,7 +100,7 @@ export interface OrderTableProps {
   onView: (order: IPedido) => void;
   onEdit: (order: IPedido) => void;
   onDelete: (orderId: string) => void;
-  onAdvanceStatus?: (orderId: string, status: IPedido['status']) => void;
+  onAdvanceStatus?: (orderId: string, status: IPedido["status"]) => void;
   onCancelOrder?: (orderId: string) => void;
 }
 
@@ -110,7 +109,7 @@ export interface OrderRowProps {
   onView: (order: IPedido) => void;
   onEdit: (order: IPedido) => void;
   onDelete: (orderId: string) => void;
-  onAdvanceStatus?: (orderId: string, status: IPedido['status']) => void;
+  onAdvanceStatus?: (orderId: string, status: IPedido["status"]) => void;
   onCancelOrder?: (orderId: string) => void;
 }
 
@@ -131,13 +130,31 @@ export interface AddOrderModalProps {
   onAdd: (order: ICreatePedido) => void;
 }
 
+export interface EditOrderModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (order: ICreatePedido) => void;
+  order: IPedido | null;
+}
+
+export interface StatusTransitionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (
+    orderId: string,
+    newStatus: IPedido["status"],
+    observacoes?: string
+  ) => Promise<void>;
+  order: IPedido | null;
+}
+
 export interface ICliente {
   id: string;
   nome: string;
   email: string;
   telefone: string;
   endereco: IEndereco;
-  status: 'ativo' | 'inativo';
+  status: "ativo" | "inativo";
 }
 
 export interface IProduto {

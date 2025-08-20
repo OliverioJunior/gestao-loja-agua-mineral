@@ -20,3 +20,4 @@ export * from "./sonner";
 export * from "./separator";
 export * from "./table";
 export * from "./textarea";
+export * from "./checkbox";
