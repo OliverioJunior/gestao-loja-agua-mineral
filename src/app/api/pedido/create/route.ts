@@ -4,8 +4,8 @@ import { PedidoRepository } from "@/core/pedidos/pedido.repository";
 import { getCurrentUser } from "@/shared/lib/user";
 import { CreatePedidoInput } from "@/core/pedidos/pedido.entity";
 import { StatusCode } from "@/core/error";
-
-const pedidoService = new PedidoService(new PedidoRepository());
+import { ItemRepository, ItemService } from "@/core/item";
+import { prisma } from "@/infrastructure";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,32 +19,50 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validar campos obrigatórios
-    if (!body.clienteId || !body.total || !body.status) {
-      return NextResponse.json(
-        { error: "Campos obrigatórios: clienteId, total, status" },
-        { status: 400 }
-      );
-    }
+    const { itens, ...pedidoData } = body;
 
-    // Preparar dados para criação
-    const pedidoData: CreatePedidoInput = {
-      clienteId: body.clienteId,
-      total: Number(body.total),
-      status: body.status,
-      criadoPorId: currentUser.id,
-      atualizadoPorId: currentUser.id,
-      tipoEntrega: body.tipoEntrega,
-      formaPagamento: body.formaPagamento,
-      enderecoEntrega: body.enderecoEntrega,
-      observacoes: body.observacoes,
-      desconto: body.desconto ? Number(body.desconto) : 0,
-      taxaEntrega: body.taxaEntrega ? Number(body.taxaEntrega) : 0,
-    };
+    const success = await prisma.$transaction(async (tx) => {
+      const pedidoService = new PedidoService(new PedidoRepository(tx));
+      const itensService = new ItemService(new ItemRepository(tx));
+      const itensCreated = [];
+      for (const item of itens) {
+        const itemToCreate = {
+          produtoId: item.produtoId,
+          quantidade: item.quantidade,
+          preco: item.precoUnitario,
+          criadoPorId: currentUser.id,
+          atualizadoPorId: null,
+          pedidoId: null,
+        };
+        const itemCreated = await itensService.create(itemToCreate);
+        itensCreated.push(itemCreated);
+      }
+      const total =
+        itensCreated.reduce((acc, item) => {
+          return acc + item.preco * item.quantidade;
+        }, 0) -
+        pedidoData.desconto +
+        pedidoData.taxaEntrega;
+      const pedidoToCreate: CreatePedidoInput = {
+        ...pedidoData,
+        total,
+        data: new Date(),
+        status: "PENDENTE",
+        criadoPorId: currentUser.id,
+        atualizadoPorId: null,
+      };
+      const pedidoCreated = await pedidoService.create(pedidoToCreate);
 
-    const pedido = await pedidoService.create(pedidoData);
+      for (const item of itensCreated) {
+        await itensService.update(item.id, {
+          pedidoId: pedidoCreated.id,
+        });
+      }
 
-    return NextResponse.json(pedido, { status: 201 });
+      return { itens: pedidoCreated };
+    });
+
+    return NextResponse.json(success, { status: 201 });
   } catch (error) {
     console.error("Erro ao criar pedido:", error);
 
