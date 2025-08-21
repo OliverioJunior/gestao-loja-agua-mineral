@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-// import { decrypt } from "@/shared/lib/session";
+import { decrypt } from "@/shared/lib/session";
 
 // Rotas que não precisam de autenticação
 const publicRoutes = ["/login", "/api/auth/signin"];
@@ -20,32 +20,32 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // try {
-  //   // Verificar se há uma sessão válida
-  //   const sessionCookie = request.cookies.get("session")?.value;
-  //   const session = await decrypt(sessionCookie);
+  try {
+    // Verificar se há uma sessão válida
+    const sessionCookie = request.cookies.get("session")?.value;
+    const session = await decrypt(sessionCookie);
 
-  //   if (!sessionCookie) {
-  //     // Se não há sessão, redirecionar para login
-  //     return NextResponse.redirect(new URL("/login", request.url));
-  //   }
+    if (!sessionCookie) {
+      // Se não há sessão, redirecionar para login
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
 
-  //   if (!session || !session.email) {
-  //     // Se a sessão é inválida, limpar cookie e redirecionar para login
-  //     const response = NextResponse.redirect(new URL("/login", request.url));
-  //     response.cookies.delete("session");
-  //     return response;
-  //   }
+    if (!session || !session.email) {
+      // Se a sessão é inválida, limpar cookie e redirecionar para login
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.delete("session");
+      return response;
+    }
 
-  //   // Se chegou até aqui, a sessão é válida
-  //   return NextResponse.next();
-  // } catch (error) {
-  //   // Se houve erro ao descriptografar, limpar cookie e redirecionar para login
-  //   console.error("[MIDDLEWARE] Erro ao validar sessão:", error);
-  //   const response = NextResponse.redirect(new URL("/login", request.url));
-  //   response.cookies.delete("session");
-  //   return response;
-  // }
+    // Se chegou até aqui, a sessão é válida
+    return NextResponse.next();
+  } catch (error) {
+    // Se houve erro ao descriptografar, limpar cookie e redirecionar para login
+    console.error("[MIDDLEWARE] Erro ao validar sessão:", error);
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete("session");
+    return response;
+  }
 
   return NextResponse.next();
 }
