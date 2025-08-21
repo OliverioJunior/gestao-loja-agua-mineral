@@ -25,7 +25,7 @@ export function ClientTable({
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border max-md:max-w-[300px] max-md:overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>

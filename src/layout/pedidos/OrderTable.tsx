@@ -35,7 +35,7 @@ export function OrderTable({
   }
 
   return (
-    <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg overflow-hidden">
+    <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg overflow-hidden max-md:max-w-[300px] max-md:overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="border-b border-border/50 bg-muted/30">

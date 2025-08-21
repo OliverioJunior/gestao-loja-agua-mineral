@@ -19,11 +19,7 @@ interface ITabelaProduto {
   onEdit: (produto: IProdutoEstoque) => void;
 }
 
-export function TabelaProdutos({
-  produtos,
-  onView,
-  onEdit,
-}: ITabelaProduto) {
+export function TabelaProdutos({ produtos, onView, onEdit }: ITabelaProduto) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
   const filteredProdutos = produtos.filter((produto) => {
@@ -48,7 +44,7 @@ export function TabelaProdutos({
         setSearchTerm={setSearchTerm}
       />
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="max-md:max-w-[300px] max-md:overflow-x-auto">
           <Table className="w-full">
             <TableHeader className="bg-slate-700/30 border-b border-slate-700/50">
               <TableRow>

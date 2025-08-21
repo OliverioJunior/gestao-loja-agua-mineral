@@ -25,7 +25,7 @@ export function ProductTable({
 }: ProductTableProps) {
   return (
     <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="max-md:max-w-[300px] max-md:overflow-x-auto">
         <Table className="w-full">
           <TableHeader className="bg-slate-700/30 border-b border-slate-700/50">
             <TableRow>
