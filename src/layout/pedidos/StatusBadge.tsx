@@ -1,8 +1,8 @@
 import { CheckCircle, XCircle, Clock, Package, Truck } from "lucide-react";
-import { IPedido } from "./types";
+import { StatusPedido } from "@/core/pedidos/pedido.entity";
 
 interface StatusBadgeProps {
-  status: IPedido["status"];
+  status: StatusPedido;
   size?: "sm" | "md" | "lg";
   showIcon?: boolean;
 }
@@ -84,11 +84,11 @@ export function StatusBadge({
 
 // Componente para mostrar a progressão do status
 interface StatusProgressProps {
-  currentStatus: IPedido["status"];
+  currentStatus: StatusPedido;
   size?: "sm" | "md";
 }
 
-const statusOrder: IPedido["status"][] = ["PENDENTE", "CONFIRMADO", "ENTREGUE"];
+const statusOrder: StatusPedido[] = ["PENDENTE", "CONFIRMADO", "ENTREGUE"];
 
 export function StatusProgress({
   currentStatus,
@@ -145,7 +145,7 @@ export function StatusProgress({
 }
 
 // Hook para obter informações do status
-export function useStatusInfo(status: IPedido["status"]) {
+export function useStatusInfo(status: StatusPedido) {
   const config = statusConfig[status];
 
   return {

@@ -1,3 +1,5 @@
+import { TPedidoWithRelations } from "@/core/pedidos";
+
 export interface IEndereco {
   logradouro: string;
   numero: string;
@@ -18,7 +20,7 @@ export interface IClientePedido {
 
 export interface IProdutoPedido {
   id: string;
-  nome: string;
+  produtoId: string;
   categoria: string;
   estoque: number;
   minimo: number;
@@ -29,25 +31,9 @@ export interface IProdutoPedido {
 
 export interface IPedidoItemCompleto {
   produto: IProdutoPedido;
+  produtoId: string;
   quantidade: number;
   precoUnitario: number;
-}
-
-export interface IPedido {
-  id: string;
-  numero: string;
-  cliente: IClientePedido;
-  status: "PENDENTE" | "CONFIRMADO" | "ENTREGUE" | "CANCELADO";
-  tipoEntrega: "balcao" | "entrega";
-  enderecoEntrega?: IEndereco;
-  observacoes?: string;
-  itens: IPedidoItemCompleto[];
-  desconto: number;
-  taxaEntrega: number;
-  total: number;
-  formaPagamento: "dinheiro" | "cartao_debito" | "cartao_credito" | "pix";
-  dataPedido: Date;
-  dataEntrega?: Date;
 }
 
 export interface IPedidoItem {
@@ -96,28 +82,34 @@ export interface OrderFiltersProps {
 }
 
 export interface OrderTableProps {
-  orders: IPedido[];
-  onView: (order: IPedido) => void;
-  onEdit: (order: IPedido) => void;
+  orders: TPedidoWithRelations[];
+  onView: (order: TPedidoWithRelations) => void;
+  onEdit: (order: TPedidoWithRelations) => void;
   onDelete: (orderId: string) => void;
-  onAdvanceStatus?: (orderId: string, status: IPedido["status"]) => void;
+  onAdvanceStatus?: (
+    orderId: string,
+    status: TPedidoWithRelations["status"]
+  ) => void;
   onCancelOrder?: (orderId: string) => void;
 }
 
 export interface OrderRowProps {
-  order: IPedido;
-  onView: (order: IPedido) => void;
-  onEdit: (order: IPedido) => void;
+  order: TPedidoWithRelations;
+  onView: (order: TPedidoWithRelations) => void;
+  onEdit: (order: TPedidoWithRelations) => void;
   onDelete: (orderId: string) => void;
-  onAdvanceStatus?: (orderId: string, status: IPedido["status"]) => void;
+  onAdvanceStatus?: (
+    orderId: string,
+    status: TPedidoWithRelations["status"]
+  ) => void;
   onCancelOrder?: (orderId: string) => void;
 }
 
 export interface OrderDetailsModalProps {
-  order: IPedido | null;
+  order: TPedidoWithRelations | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (order: IPedido) => void;
+  onEdit: (order: TPedidoWithRelations) => void;
 }
 
 export interface OrderStatsCardsProps {
@@ -133,8 +125,8 @@ export interface AddOrderModalProps {
 export interface EditOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (order: ICreatePedido) => void;
-  order: IPedido | null;
+  onSave: (id: string, data: Partial<TPedidoWithRelations>) => void;
+  order: TPedidoWithRelations | null;
 }
 
 export interface StatusTransitionModalProps {
@@ -142,10 +134,10 @@ export interface StatusTransitionModalProps {
   onClose: () => void;
   onConfirm: (
     orderId: string,
-    newStatus: IPedido["status"],
+    newStatus: TPedidoWithRelations["status"],
     observacoes?: string
   ) => Promise<void>;
-  order: IPedido | null;
+  order: TPedidoWithRelations | null;
 }
 
 export interface ICliente {

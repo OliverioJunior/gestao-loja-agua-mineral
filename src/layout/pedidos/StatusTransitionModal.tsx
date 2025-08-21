@@ -28,8 +28,8 @@ import {
   Info,
   MessageSquare,
 } from "lucide-react";
-import { StatusTransitionModalProps, IPedido } from "./types";
-
+import { StatusTransitionModalProps } from "./types";
+import { StatusPedido } from "@/core/pedidos/pedido.entity";
 // Mapeamento de status para ícones, cores e descrições
 const statusConfig = {
   PENDENTE: {
@@ -67,7 +67,7 @@ const statusConfig = {
 };
 
 // Transições válidas para cada status
-const validTransitions: Record<IPedido["status"], IPedido["status"][]> = {
+const validTransitions: Record<StatusPedido, StatusPedido[]> = {
   PENDENTE: ["CONFIRMADO", "CANCELADO"],
   CONFIRMADO: ["ENTREGUE", "CANCELADO"],
   ENTREGUE: [],
@@ -107,9 +107,7 @@ export function StatusTransitionModal({
   onConfirm,
   order,
 }: StatusTransitionModalProps) {
-  const [selectedStatus, setSelectedStatus] = useState<IPedido["status"] | "">(
-    ""
-  );
+  const [selectedStatus, setSelectedStatus] = useState<StatusPedido | "">("");
   const [observacoes, setObservacoes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -119,7 +117,7 @@ export function StatusTransitionModal({
   const availableTransitions = validTransitions[currentStatus] || [];
   const CurrentIcon = statusConfig[currentStatus].icon;
   const SelectedIcon = selectedStatus
-    ? statusConfig[selectedStatus as IPedido["status"]].icon
+    ? statusConfig[selectedStatus as StatusPedido].icon
     : null;
 
   const handleConfirm = async () => {
@@ -127,11 +125,7 @@ export function StatusTransitionModal({
 
     setIsLoading(true);
     try {
-      await onConfirm(
-        order.id,
-        selectedStatus as IPedido["status"],
-        observacoes
-      );
+      await onConfirm(order.id, selectedStatus as StatusPedido, observacoes);
       handleClose();
     } catch (error) {
       console.error("Erro ao alterar status:", error);
@@ -287,7 +281,7 @@ export function StatusTransitionModal({
             <Select
               value={selectedStatus}
               onValueChange={(value) =>
-                setSelectedStatus(value as IPedido["status"])
+                setSelectedStatus(value as StatusPedido)
               }
             >
               <SelectTrigger className="h-11 bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-750">
@@ -350,24 +344,22 @@ export function StatusTransitionModal({
                 <div className="flex items-center gap-2">
                   <div
                     className={`p-1.5 rounded-full ${
-                      statusConfig[selectedStatus as IPedido["status"]].bgColor
+                      statusConfig[selectedStatus as StatusPedido].bgColor
                     } border ${
-                      statusConfig[selectedStatus as IPedido["status"]]
-                        .borderColor
+                      statusConfig[selectedStatus as StatusPedido].borderColor
                     }`}
                   >
                     {SelectedIcon && (
                       <SelectedIcon
                         className={`h-4 w-4 ${
-                          statusConfig[selectedStatus as IPedido["status"]]
-                            .color
+                          statusConfig[selectedStatus as StatusPedido].color
                         }`}
                       />
                     )}
                   </div>
                   <div>
                     <p className="font-medium text-sm text-gray-200">
-                      {statusConfig[selectedStatus as IPedido["status"]].label}
+                      {statusConfig[selectedStatus as StatusPedido].label}
                     </p>
                     <p className="text-xs text-gray-400">Novo</p>
                   </div>

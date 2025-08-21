@@ -1,25 +1,34 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { IPedido, IPedidoStats, ICreatePedido } from "@/layout/pedidos/types";
+import { IPedidoStats, ICreatePedido } from "@/layout/pedidos/types";
+import { TPedidoWithRelations } from "@/core/pedidos";
 
 export interface UsePedidosReturn {
-  pedidos: IPedido[];
+  pedidos: TPedidoWithRelations[];
   stats: IPedidoStats | null;
   loading: boolean;
   error: string | null;
   fetchPedidos: () => Promise<void>;
   fetchStats: () => Promise<void>;
   createPedido: (data: ICreatePedido) => Promise<boolean>;
-  updatePedido: (id: string, data: Partial<IPedido>) => Promise<boolean>;
-  updateStatus: (id: string, status: IPedido["status"]) => Promise<boolean>;
+  updatePedido: (
+    id: string,
+    data: Partial<TPedidoWithRelations>
+  ) => Promise<boolean>;
+  updateStatus: (
+    id: string,
+    status: TPedidoWithRelations["status"]
+  ) => Promise<boolean>;
   deletePedido: (id: string) => Promise<boolean>;
-  findByCliente: (clienteId: string) => Promise<IPedido[]>;
-  findByStatus: (status: IPedido["status"]) => Promise<IPedido[]>;
+  findByCliente: (clienteId: string) => Promise<TPedidoWithRelations[]>;
+  findByStatus: (
+    status: TPedidoWithRelations["status"]
+  ) => Promise<TPedidoWithRelations[]>;
 }
 
 export function usePedidos(): UsePedidosReturn {
-  const [pedidos, setPedidos] = useState<IPedido[]>([]);
+  const [pedidos, setPedidos] = useState<TPedidoWithRelations[]>([]);
   const [stats, setStats] = useState<IPedidoStats | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +43,7 @@ export function usePedidos(): UsePedidosReturn {
         throw new Error("Erro ao carregar pedidos");
       }
 
-      const data: IPedido[] = await response.json();
+      const data: TPedidoWithRelations[] = await response.json();
       setPedidos(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro desconhecido");
@@ -94,7 +103,10 @@ export function usePedidos(): UsePedidosReturn {
   );
 
   const updatePedido = useCallback(
-    async (id: string, data: Partial<IPedido>): Promise<boolean> => {
+    async (
+      id: string,
+      data: Partial<TPedidoWithRelations>
+    ): Promise<boolean> => {
       try {
         setLoading(true);
         setError(null);
@@ -128,7 +140,10 @@ export function usePedidos(): UsePedidosReturn {
   );
 
   const updateStatus = useCallback(
-    async (id: string, status: IPedido["status"]): Promise<boolean> => {
+    async (
+      id: string,
+      status: TPedidoWithRelations["status"]
+    ): Promise<boolean> => {
       try {
         setLoading(true);
         setError(null);
@@ -196,7 +211,7 @@ export function usePedidos(): UsePedidosReturn {
   );
 
   const findByCliente = useCallback(
-    async (clienteId: string): Promise<IPedido[]> => {
+    async (clienteId: string): Promise<TPedidoWithRelations[]> => {
       try {
         setError(null);
 
@@ -205,7 +220,7 @@ export function usePedidos(): UsePedidosReturn {
           throw new Error("Erro ao buscar pedidos do cliente");
         }
 
-        const data: IPedido[] = await response.json();
+        const data: TPedidoWithRelations[] = await response.json();
         return data;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Erro desconhecido");
@@ -216,7 +231,9 @@ export function usePedidos(): UsePedidosReturn {
   );
 
   const findByStatus = useCallback(
-    async (status: IPedido["status"]): Promise<IPedido[]> => {
+    async (
+      status: TPedidoWithRelations["status"]
+    ): Promise<TPedidoWithRelations[]> => {
       try {
         setError(null);
 
@@ -225,7 +242,7 @@ export function usePedidos(): UsePedidosReturn {
           throw new Error("Erro ao buscar pedidos por status");
         }
 
-        const data: IPedido[] = await response.json();
+        const data: TPedidoWithRelations[] = await response.json();
         return data;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Erro desconhecido");

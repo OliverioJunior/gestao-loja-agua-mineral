@@ -18,7 +18,6 @@ export class VendaRepository implements IVendaRepository {
         pedidoId: data.pedidoId,
         total: data.total,
         criadoPorId: data.criadoPorId,
-        atualizadoPorId: data.atualizadoPorId,
       },
     });
   }

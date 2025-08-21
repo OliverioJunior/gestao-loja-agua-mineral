@@ -183,6 +183,7 @@ export class PedidoService {
         ticketMedio,
       };
     } catch (error) {
+      console.error(error);
       return ErrorHandler.handleRepositoryError(
         error,
         "cálculo de estatísticas de pedidos"

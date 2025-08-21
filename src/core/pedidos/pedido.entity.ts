@@ -8,7 +8,20 @@ export type TPedido = Pedido;
 
 export const pedidoWithRelationsInclude = {
   cliente: true,
-  itens: true,
+  itens: {
+    select: {
+      id: true,
+      produtoId: true,
+      quantidade: true,
+      preco: true,
+      produto: {
+        select: {
+          nome: true,
+        },
+      },
+    },
+  },
+  endereco: true,
 } satisfies Prisma.PedidoInclude;
 
 export type TPedidoWithRelations = Prisma.PedidoGetPayload<{
@@ -56,7 +69,10 @@ export interface IPedidoRepository {
   findById(id: string): Promise<TPedidoComplete | null>;
   findByClienteId(clienteId: string): Promise<TPedidoWithRelations[]>;
   findByStatus(status: StatusPedido): Promise<TPedidoWithRelations[]>;
-  findByDateRange(startDate: Date, endDate: Date): Promise<TPedidoWithRelations[]>;
+  findByDateRange(
+    startDate: Date,
+    endDate: Date
+  ): Promise<TPedidoWithRelations[]>;
   existsById(id: string): Promise<boolean>;
   calculateTotalByPeriod(startDate: Date, endDate: Date): Promise<number>;
   getStatistics(): Promise<{
@@ -69,7 +85,11 @@ export interface IPedidoRepository {
     faturamentoMensal: number;
   }>;
   findActivePedidoByCliente(clienteId: string): Promise<TPedido | null>;
-  updateStatus(id: string, status: StatusPedido, userId: string): Promise<TPedido>;
+  updateStatus(
+    id: string,
+    status: StatusPedido,
+    userId: string
+  ): Promise<TPedido>;
 }
 
 // Enums e tipos auxiliares

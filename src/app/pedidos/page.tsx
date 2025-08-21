@@ -1,370 +1,196 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   OrderStatsCards,
   OrderFilters,
   OrderTable,
   OrderDetailsModal,
-  IPedido,
+  EditOrderModal,
+  StatusTransitionModal,
   IPedidoStats,
+  ICreatePedido,
 } from "@/layout/pedidos";
-
-// Dados mockados para demonstração
-const mockPedidos: IPedido[] = [
-  {
-    id: "1",
-    numero: "PED24010001",
-    cliente: {
-      id: "1",
-      nome: "João Silva",
-      email: "joao@email.com",
-      telefone: "11999999999",
-      endereco: {
-        logradouro: "Rua das Flores",
-        numero: "123",
-        bairro: "Centro",
-        cidade: "São Paulo",
-        estado: "SP",
-        cep: "01234-567",
-      },
-    },
-    itens: [
-      {
-        produto: {
-          id: "1",
-          nome: "Água Mineral 500ml",
-          categoria: "Água",
-          estoque: 100,
-          minimo: 10,
-          preco: 250,
-          status: "ativo",
-          ultimaMovimentacao: new Date(),
-        },
-        quantidade: 24,
-        precoUnitario: 250,
-      },
-    ],
-    tipoEntrega: "entrega",
-    enderecoEntrega: {
-      logradouro: "Rua das Flores",
-      numero: "123",
-      bairro: "Centro",
-      cidade: "São Paulo",
-      estado: "SP",
-      cep: "01234-567",
-    },
-    formaPagamento: "pix",
-    status: "pendente",
-    total: 6500, // R$ 65,00
-    desconto: 0,
-    taxaEntrega: 500, // R$ 5,00
-    observacoes: "Entregar pela manhã",
-    dataPedido: new Date("2024-01-15T10:30:00"),
-    dataEntrega: undefined,
-  },
-  {
-    id: "2",
-    numero: "PED24010002",
-    cliente: {
-      id: "2",
-      nome: "Maria Santos",
-      email: "maria@email.com",
-      telefone: "11888888888",
-      endereco: {
-        logradouro: "Av. Principal",
-        numero: "456",
-        bairro: "Jardim",
-        cidade: "São Paulo",
-        estado: "SP",
-        cep: "01234-890",
-      },
-    },
-    itens: [
-      {
-        produto: {
-          id: "2",
-          nome: "Água Mineral 1L",
-          categoria: "Água",
-          estoque: 50,
-          minimo: 5,
-          preco: 400,
-          status: "ativo",
-          ultimaMovimentacao: new Date(),
-        },
-        quantidade: 12,
-        precoUnitario: 400,
-      },
-    ],
-    tipoEntrega: "balcao",
-    formaPagamento: "cartao_credito",
-    status: "confirmado",
-    total: 4800, // R$ 48,00
-    desconto: 0,
-    taxaEntrega: 0,
-    observacoes: "",
-    dataPedido: new Date("2024-01-15T14:20:00"),
-    dataEntrega: undefined,
-  },
-  {
-    id: "3",
-    numero: "PED24010003",
-    cliente: {
-      id: "1",
-      nome: "João Silva",
-      email: "joao@email.com",
-      telefone: "11999999999",
-      endereco: {
-        logradouro: "Rua das Flores",
-        numero: "123",
-        bairro: "Centro",
-        cidade: "São Paulo",
-        estado: "SP",
-        cep: "01234-567",
-      },
-    },
-    itens: [
-      {
-        produto: {
-          id: "1",
-          nome: "Água Mineral 500ml",
-          categoria: "Água",
-          estoque: 100,
-          minimo: 10,
-          preco: 250,
-          status: "ativo",
-          ultimaMovimentacao: new Date(),
-        },
-        quantidade: 48,
-        precoUnitario: 250,
-      },
-    ],
-    tipoEntrega: "entrega",
-    enderecoEntrega: {
-      logradouro: "Rua das Flores",
-      numero: "123",
-      bairro: "Centro",
-      cidade: "São Paulo",
-      estado: "SP",
-      cep: "01234-567",
-    },
-    formaPagamento: "dinheiro",
-    status: "entregue",
-    total: 12500, // R$ 125,00
-    desconto: 0,
-    taxaEntrega: 500,
-    observacoes: "",
-    dataPedido: new Date("2024-01-14T09:15:00"),
-    dataEntrega: new Date("2024-01-14T16:30:00"),
-  },
-  {
-    id: "4",
-    numero: "PED24010004",
-    cliente: {
-      id: "2",
-      nome: "Maria Santos",
-      email: "maria@email.com",
-      telefone: "11888888888",
-      endereco: {
-        logradouro: "Av. Principal",
-        numero: "456",
-        bairro: "Jardim",
-        cidade: "São Paulo",
-        estado: "SP",
-        cep: "01234-890",
-      },
-    },
-    itens: [
-      {
-        produto: {
-          id: "1",
-          nome: "Água Mineral 500ml",
-          categoria: "Água",
-          estoque: 100,
-          minimo: 10,
-          preco: 250,
-          status: "ativo",
-          ultimaMovimentacao: new Date(),
-        },
-        quantidade: 12,
-        precoUnitario: 250,
-      },
-      {
-        produto: {
-          id: "2",
-          nome: "Água Mineral 1L",
-          categoria: "Água",
-          estoque: 50,
-          minimo: 5,
-          preco: 400,
-          status: "ativo",
-          ultimaMovimentacao: new Date(),
-        },
-        quantidade: 6,
-        precoUnitario: 400,
-      },
-    ],
-    tipoEntrega: "balcao",
-    formaPagamento: "cartao_debito",
-    status: "preparando",
-    total: 5400, // R$ 54,00
-    desconto: 0,
-    taxaEntrega: 0,
-    observacoes: "Cliente aguardando no balcão",
-    dataPedido: new Date("2024-01-15T16:45:00"),
-    dataEntrega: undefined,
-  },
-  {
-    id: "5",
-    numero: "PED24010005",
-    cliente: {
-      id: "1",
-      nome: "João Silva",
-      email: "joao@email.com",
-      telefone: "11999999999",
-      endereco: {
-        logradouro: "Rua das Flores",
-        numero: "123",
-        bairro: "Centro",
-        cidade: "São Paulo",
-        estado: "SP",
-        cep: "01234-567",
-      },
-    },
-    itens: [
-      {
-        produto: {
-          id: "2",
-          nome: "Água Mineral 1L",
-          categoria: "Água",
-          estoque: 50,
-          minimo: 5,
-          preco: 400,
-          status: "ativo",
-          ultimaMovimentacao: new Date(),
-        },
-        quantidade: 24,
-        precoUnitario: 400,
-      },
-    ],
-    tipoEntrega: "entrega",
-    enderecoEntrega: {
-      logradouro: "Rua das Flores",
-      numero: "123",
-      bairro: "Centro",
-      cidade: "São Paulo",
-      estado: "SP",
-      cep: "01234-567",
-    },
-    formaPagamento: "pix",
-    status: "cancelado",
-    total: 10100, // R$ 101,00
-    desconto: 300, // R$ 3,00
-    taxaEntrega: 500,
-    observacoes: "Cliente cancelou por motivos pessoais",
-    dataPedido: new Date("2024-01-13T11:20:00"),
-    dataEntrega: undefined,
-  },
-];
+import { usePedidos } from "@/hooks/pedidos/usePedidos";
+import { useVendas } from "@/hooks/vendas";
+import { TPedidoWithRelations } from "@/core/pedidos";
 
 export default function PedidosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("todos");
-  const [selectedOrder, setSelectedOrder] = useState<IPedido | null>(null);
-  const [orders, setOrders] = useState<IPedido[]>(mockPedidos);
+  const [selectedOrder, setSelectedOrder] =
+    useState<TPedidoWithRelations | null>(null);
+  const [, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<TPedidoWithRelations | null>(
+    null
+  );
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [statusOrder, setStatusOrder] = useState<TPedidoWithRelations | null>(
+    null
+  );
 
-  // Filtrar pedidos
+  const {
+    pedidos: orders,
+    stats: pedidoStats,
+    loading,
+    error,
+    updateStatus,
+    deletePedido,
+    createPedido,
+    updatePedido,
+  } = usePedidos();
+  const { createVendas } = useVendas();
+  // Optimized filtering with better search logic
   const filteredOrders = useMemo(() => {
+    if (!searchTerm && statusFilter === "todos") return orders;
+
+    const searchLower = searchTerm.toLowerCase();
     return orders.filter((order) => {
       const matchesSearch =
-        order.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.cliente.telefone.includes(searchTerm);
+        !searchTerm ||
+        order.endereco?.numero.toLowerCase().includes(searchLower) ||
+        order.cliente!.nome.toLowerCase().includes(searchLower) ||
+        order.cliente!.telefone.includes(searchTerm);
 
       const matchesStatus =
         statusFilter === "todos" || order.status === statusFilter;
-
       return matchesSearch && matchesStatus;
     });
   }, [orders, searchTerm, statusFilter]);
 
-  // Calcular estatísticas
-  const stats: IPedidoStats = useMemo(() => {
-    const total = orders.length;
-    const pendentes = orders.filter((o) => o.status === "pendente").length;
-    const confirmados = orders.filter((o) => o.status === "confirmado").length;
-    const entregues = orders.filter((o) => o.status === "entregue").length;
-    const cancelados = orders.filter((o) => o.status === "cancelado").length;
+  // Use stats from hook or fallback to default
+  const stats: IPedidoStats = pedidoStats || {
+    total: 0,
+    pendentes: 0,
+    confirmados: 0,
+    preparando: 0,
+    entregues: 0,
+    cancelados: 0,
+    faturamentoMensal: 0,
+  };
 
-    // Calcular faturamento do mês atual (apenas pedidos entregues)
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const faturamentoMensal = orders
-      .filter(
-        (o) =>
-          o.status === "entregue" &&
-          o.dataEntrega &&
-          o.dataEntrega.getMonth() === currentMonth &&
-          o.dataEntrega.getFullYear() === currentYear
-      )
-      .reduce((acc, order) => acc + order.total, 0);
-
-    return {
-      total,
-      pendentes,
-      confirmados,
-      entregues,
-      cancelados,
-      faturamentoMensal,
-    };
-  }, [orders]);
-
-  const handleViewOrder = (order: IPedido) => {
+  // Memoized event handlers to prevent unnecessary re-renders
+  const handleViewOrder = useCallback((order: TPedidoWithRelations) => {
     setSelectedOrder(order);
-  };
+  }, []);
 
-  const handleEditOrder = (order: IPedido) => {
-    // TODO: Implementar edição de pedido
-    console.log("Editar pedido:", order.id);
-  };
+  const handleEditOrder = useCallback(async (order: TPedidoWithRelations) => {
+    setEditingOrder(order);
+    setIsEditModalOpen(true);
+  }, []);
 
-  const handleDeleteOrder = (orderId: string) => {
-    setOrders((prev) => prev.filter((order) => order.id !== orderId));
-  };
+  const handleCloseEditModal = useCallback(() => {
+    setIsEditModalOpen(false);
+    setEditingOrder(null);
+  }, []);
 
-  const handleAdvanceStatus = (
-    orderId: string,
-    newStatus: IPedido["status"]
-  ) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId
-          ? {
-              ...order,
-              status: newStatus,
-              dataEntrega:
-                newStatus === "entregue" ? new Date() : order.dataEntrega,
-            }
-          : order
-      )
+  const handleSaveOrder = useCallback(
+    async (id: string, data: Partial<TPedidoWithRelations>) => {
+      const success = await updatePedido(id, data);
+      if (success) {
+        setIsEditModalOpen(false);
+        setEditingOrder(null);
+      } else if (error) {
+        console.error("Erro ao atualizar pedido:", error);
+      }
+    },
+    [updatePedido, error]
+  );
+
+  const handleDeleteOrder = useCallback(
+    async (orderId: string) => {
+      const success = await deletePedido(orderId);
+      if (!success && error) {
+        console.error("Erro ao deletar pedido:", error);
+      }
+    },
+    [deletePedido, error]
+  );
+
+  const handleAdvanceStatus = useCallback(
+    async (orderId: string) => {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        setStatusOrder(order);
+        setIsStatusModalOpen(true);
+      }
+    },
+    [orders]
+  );
+
+  const handleCancelOrder = useCallback(
+    async (orderId: string) => {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        setStatusOrder(order);
+        setIsStatusModalOpen(true);
+      }
+    },
+    [orders]
+  );
+
+  const handleCloseStatusModal = useCallback(() => {
+    setIsStatusModalOpen(false);
+    setStatusOrder(null);
+  }, []);
+
+  const handleConfirmStatusChange = useCallback(
+    async (orderId: string, newStatus: TPedidoWithRelations["status"]) => {
+      const success = await updateStatus(orderId, newStatus);
+      if (newStatus === "ENTREGUE") {
+        await createVendas(orderId);
+      }
+      if (!success && error) {
+        console.error("Erro ao atualizar status:", error);
+        throw new Error("Erro ao atualizar status");
+      }
+    },
+    [updateStatus, error, createVendas]
+  );
+  const handleCreateOrder = useCallback(
+    async (orderData: ICreatePedido) => {
+      const success = await createPedido(orderData);
+      if (success) {
+        setIsAddModalOpen(false);
+      } else if (error) {
+        console.error("Erro ao criar pedido:", error);
+      }
+    },
+    [createPedido, error]
+  );
+  const handleAddOrder = useCallback(
+    async (order: ICreatePedido) => {
+      handleCreateOrder(order);
+    },
+    [handleCreateOrder]
+  );
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedOrder(null);
+  }, []);
+
+  if (loading && orders.length === 0) {
+    return (
+      <div className="min-h-[calc(100dvh-93px)] container mx-auto p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando pedidos...</p>
+        </div>
+      </div>
     );
-  };
-
-  const handleCancelOrder = (orderId: string) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId ? { ...order, status: "cancelado" } : order
-      )
-    );
-  };
-
-  const handleAddOrder = () => {
-    // TODO: Implementar adição de pedido
-    console.log("Adicionar novo pedido");
-  };
+  }
 
   return (
     <div className="min-h-[calc(100dvh-93px)] container mx-auto p-6 space-y-6">
+      {/* Exibir erro se houver */}
+      {error && (
+        <div className="bg-destructive/15 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+          <p className="font-medium">Erro:</p>
+          <p>{error}</p>
+        </div>
+      )}
+
       {/* Cards de Estatísticas */}
       <OrderStatsCards stats={stats} />
 
@@ -388,11 +214,29 @@ export default function PedidosPage() {
       />
 
       {/* Modal de Detalhes */}
-      <OrderDetailsModal
-        order={selectedOrder}
-        isOpen={!!selectedOrder}
-        onClose={() => setSelectedOrder(null)}
-        onEdit={handleEditOrder}
+      {selectedOrder && (
+        <OrderDetailsModal
+          order={selectedOrder}
+          isOpen={true}
+          onClose={handleCloseModal}
+          onEdit={handleEditOrder}
+        />
+      )}
+
+      {/* Modal de Edição */}
+      <EditOrderModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleSaveOrder}
+        order={editingOrder}
+      />
+
+      {/* Modal de Transição de Status */}
+      <StatusTransitionModal
+        isOpen={isStatusModalOpen}
+        onClose={handleCloseStatusModal}
+        onConfirm={handleConfirmStatusChange}
+        order={statusOrder}
       />
     </div>
   );

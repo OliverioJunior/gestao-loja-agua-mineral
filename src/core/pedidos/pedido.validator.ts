@@ -53,7 +53,7 @@ export class PedidoValidator {
     }
 
     this.validateAllFields(data);
-    return { data, validate: true };
+    return data;
   }
 
   static validateUpdateInput(data: UpdatePedidoInput) {
@@ -82,7 +82,7 @@ export class PedidoValidator {
     }
 
     this.validateAtLeastOneField(data);
-    return { update: true, data };
+    return data;
   }
 
   static validateId(id: string) {

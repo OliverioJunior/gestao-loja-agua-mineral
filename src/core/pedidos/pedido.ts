@@ -1,25 +1,24 @@
-import { TPedido, StatusPedido } from "./pedido.entity";
+import {
+  TPedido,
+  StatusPedido,
+  CreatePedidoInput,
+  UpdatePedidoInput,
+} from "./pedido.entity";
 import { PedidoValidator } from "./pedido.validator";
-
-type TAction = "create" | "update";
 
 export class Pedido {
   private data: TPedido;
-  private action: TAction | undefined;
-  
-  constructor(data: TPedido, action?: TAction) {
+
+  constructor(data: TPedido) {
     this.data = data;
-    this.action = action;
   }
 
-  validationData() {
-    if (this.action === "create") {
-      PedidoValidator.validateCreateInput(this.data);
-    }
-    if (this.action === "update") {
-      PedidoValidator.validateUpdateInput(this.data);
-    }
-    return PedidoValidator.validateInput(this.data).data;
+  static create(data: CreatePedidoInput) {
+    return PedidoValidator.validateCreateInput(data);
+  }
+
+  static update(data: UpdatePedidoInput) {
+    PedidoValidator.validateUpdateInput(data);
   }
 
   getData(): TPedido {
@@ -74,9 +73,5 @@ export class Pedido {
       style: "currency",
       currency: "BRL",
     });
-  }
-
-  getFormattedDate(): string {
-    return this.data.data.toLocaleDateString("pt-BR");
   }
 }

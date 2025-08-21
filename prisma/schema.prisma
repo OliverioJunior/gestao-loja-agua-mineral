@@ -160,7 +160,7 @@ model Endereco {
 model Pedido {
   id             String       @id @default(uuid()) @db.Uuid
   clienteId      String       @map("cliente_id") @db.Uuid
-  data           DateTime     @default(now())
+  dataEntrega    DateTime?    @map("data_entrega")
   total          Int
   desconto       Int?
   formaPagamento String       @default("dinheiro")
@@ -183,7 +183,7 @@ model Pedido {
 
   @@index([clienteId])
   @@index([status])
-  @@index([data])
+  @@index([dataEntrega])
   @@map("pedidos")
 }
 

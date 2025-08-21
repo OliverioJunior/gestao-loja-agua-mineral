@@ -47,7 +47,20 @@ export class PedidoRepository implements IPedidoRepository {
     return await this.db.pedido.findMany({
       include: {
         cliente: true,
-        itens: true,
+        itens: {
+          select: {
+            id: true,
+            produtoId: true,
+            quantidade: true,
+            preco: true,
+            produto: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        },
+        endereco: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -76,7 +89,20 @@ export class PedidoRepository implements IPedidoRepository {
       where: { clienteId },
       include: {
         cliente: true,
-        itens: true,
+        itens: {
+          select: {
+            id: true,
+            produtoId: true,
+            quantidade: true,
+            preco: true,
+            produto: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        },
+        endereco: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -87,7 +113,20 @@ export class PedidoRepository implements IPedidoRepository {
       where: { status },
       include: {
         cliente: true,
-        itens: true,
+        itens: {
+          select: {
+            id: true,
+            produtoId: true,
+            quantidade: true,
+            preco: true,
+            produto: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        },
+        endereco: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -99,16 +138,29 @@ export class PedidoRepository implements IPedidoRepository {
   ): Promise<TPedidoWithRelations[]> {
     return await this.db.pedido.findMany({
       where: {
-        data: {
+        dataEntrega: {
           gte: startDate,
           lte: endDate,
         },
       },
       include: {
         cliente: true,
-        itens: true,
+        itens: {
+          select: {
+            id: true,
+            produtoId: true,
+            quantidade: true,
+            preco: true,
+            produto: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        },
+        endereco: true,
       },
-      orderBy: { data: "desc" },
+      orderBy: { dataEntrega: "desc" },
     });
   }
 
@@ -126,7 +178,7 @@ export class PedidoRepository implements IPedidoRepository {
   ): Promise<number> {
     const result = await this.db.pedido.aggregate({
       where: {
-        data: {
+        dataEntrega: {
           gte: startDate,
           lte: endDate,
         },
@@ -226,7 +278,20 @@ export class PedidoRepository implements IPedidoRepository {
     return await this.db.pedido.findMany({
       include: {
         cliente: true,
-        itens: true,
+        itens: {
+          select: {
+            id: true,
+            produtoId: true,
+            quantidade: true,
+            preco: true,
+            produto: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        },
+        endereco: true,
       },
       orderBy: { createdAt: "desc" },
       take: limit,

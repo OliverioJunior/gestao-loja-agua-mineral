@@ -1,13 +1,12 @@
-import { IPedido } from "./types";
+import { TPedidoWithRelations } from "@/core/pedidos";
 
-export const getStatusColor = (status: IPedido["status"]) => {
+export const getStatusColor = (status: TPedidoWithRelations["status"]) => {
   switch (status) {
     case "PENDENTE":
       return "bg-yellow-500/20 text-yellow-600 border-yellow-500/30";
     case "CONFIRMADO":
       return "bg-blue-500/20 text-blue-600 border-blue-500/30";
-    case "PREPARANDO":
-      return "bg-orange-500/20 text-orange-600 border-orange-500/30";
+
     case "ENTREGUE":
       return "bg-green-500/20 text-green-600 border-green-500/30";
     case "CANCELADO":
@@ -17,14 +16,13 @@ export const getStatusColor = (status: IPedido["status"]) => {
   }
 };
 
-export const getStatusText = (status: IPedido["status"]) => {
+export const getStatusText = (status: TPedidoWithRelations["status"]) => {
   switch (status) {
     case "PENDENTE":
       return "Pendente";
     case "CONFIRMADO":
       return "Confirmado";
-    case "PREPARANDO":
-      return "Preparando";
+
     case "ENTREGUE":
       return "Entregue";
     case "CANCELADO":
@@ -38,7 +36,9 @@ export const getDeliveryTypeText = (tipo: "balcao" | "entrega") => {
   return tipo === "balcao" ? "Balcão" : "Entrega";
 };
 
-export const getPaymentMethodText = (metodo: IPedido["formaPagamento"]) => {
+export const getPaymentMethodText = (
+  metodo: TPedidoWithRelations["formaPagamento"]
+) => {
   switch (metodo) {
     case "dinheiro":
       return "Dinheiro";
@@ -100,36 +100,35 @@ export const generateOrderNumber = () => {
 };
 
 export const calculateOrderTotal = (
-  itens: IPedido["itens"],
+  itens: TPedidoWithRelations["itens"],
   desconto = 0,
   taxaEntrega = 0
 ) => {
   const subtotal = itens.reduce(
-    (acc, item) => acc + item.precoUnitario * item.quantidade,
+    (acc, item) => acc + item.preco * item.quantidade,
     0
   );
   return subtotal - desconto + taxaEntrega;
 };
 
 export const getNextStatus = (
-  currentStatus: IPedido["status"]
-): IPedido["status"] | null => {
+  currentStatus: TPedidoWithRelations["status"]
+): TPedidoWithRelations["status"] | null => {
   switch (currentStatus) {
     case "PENDENTE":
       return "CONFIRMADO";
     case "CONFIRMADO":
-      return "PREPARANDO";
-    case "PREPARANDO":
       return "ENTREGUE";
+
     default:
       return null;
   }
 };
 
-export const canAdvanceStatus = (status: IPedido["status"]) => {
+export const canAdvanceStatus = (status: TPedidoWithRelations["status"]) => {
   return ["PENDENTE", "CONFIRMADO", "PREPARANDO"].includes(status);
 };
 
-export const canCancelOrder = (status: IPedido["status"]) => {
+export const canCancelOrder = (status: TPedidoWithRelations["status"]) => {
   return ["PENDENTE", "CONFIRMADO"].includes(status);
 };

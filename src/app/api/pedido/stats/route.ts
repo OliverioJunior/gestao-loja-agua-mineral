@@ -23,7 +23,11 @@ export async function GET() {
     console.error("Erro ao buscar estatísticas dos pedidos:", error);
 
     return NextResponse.json(
-      { error: "Erro interno do servidor" },
+      {
+        error: `${
+          error instanceof Error ? error.message : "Erro interno do servidor"
+        }`,
+      },
       { status: StatusCode.INTERNAL_SERVER_ERROR }
     );
   }
