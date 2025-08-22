@@ -7,6 +7,7 @@ export interface IProdutoEstoque {
   id: string;
   nome: string;
   categoria: string;
+  marca: string;
   estoque: number;
   estoqueMinimo: number;
   precoCusto: number;
@@ -42,6 +43,7 @@ export function useProdutos() {
         return {
           id: produto.id,
           nome: produto.nome,
+          marca: produto.marca || "Sem marca",
           categoria: produto.categoria?.nome || "Sem categoria",
           estoque: produto.estoque,
           estoqueMinimo,

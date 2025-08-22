@@ -13,6 +13,7 @@ export interface IProduto {
   id: number;
   nome: string;
   categoria: string;
+  marca: string;
   estoque: number;
   minimo: number;
   preco: number;
@@ -67,7 +68,9 @@ export function ProdutoRow({ produto, onView, onEdit }: IProdutoRow) {
             <Package className="w-5 h-5 text-blue-400" />
           </div>
           <div>
-            <p className="text-white font-medium">{produto.nome}</p>
+            <p className="text-white font-medium">
+              {produto.marca + " - " + produto.nome}
+            </p>
             <p className="text-slate-400 text-sm">
               ID: #{produto.id.toString().padStart(3, "0")}
             </p>
