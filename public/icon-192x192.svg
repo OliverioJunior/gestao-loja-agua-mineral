@@ -1,0 +1,27 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="96" cy="96" r="96" fill="#0ea5e9"/>
+  
+  <!-- Water Drop -->
+  <path d="M96 40C96 40 70 66 70 90C70 107.673 82.327 120 96 120C109.673 120 122 107.673 122 90C122 66 96 40 96 40Z" fill="white" opacity="0.9"/>
+  
+  <!-- Bottle Shape -->
+  <rect x="85" y="70" width="22" height="60" rx="3" fill="white" opacity="0.8"/>
+  <rect x="88" y="65" width="16" height="8" rx="2" fill="white" opacity="0.8"/>
+  
+  <!-- Water Level -->
+  <rect x="87" y="85" width="18" height="35" rx="2" fill="#0ea5e9" opacity="0.6"/>
+  
+  <!-- Bubbles -->
+  <circle cx="92" cy="95" r="2" fill="white" opacity="0.7"/>
+  <circle cx="100" cy="105" r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="95" cy="110" r="1" fill="white" opacity="0.7"/>
+  
+  <!-- Management Icon (Chart) -->
+  <rect x="60" y="140" width="72" height="30" rx="4" fill="white" opacity="0.9"/>
+  <rect x="65" y="155" width="8" height="10" fill="#0ea5e9"/>
+  <rect x="77" y="150" width="8" height="15" fill="#0ea5e9"/>
+  <rect x="89" y="145" width="8" height="20" fill="#0ea5e9"/>
+  <rect x="101" y="148" width="8" height="17" fill="#0ea5e9"/>
+  <rect x="113" y="152" width="8" height="13" fill="#0ea5e9"/>
+</svg>

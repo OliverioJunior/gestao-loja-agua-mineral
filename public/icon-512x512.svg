@@ -1,0 +1,41 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="#0ea5e9"/>
+  
+  <!-- Water Drop -->
+  <path d="M256 100C256 100 180 160 180 220C180 275.228 220.772 320 256 320C291.228 320 332 275.228 332 220C332 160 256 100 256 100Z" fill="white" opacity="0.9"/>
+  
+  <!-- Bottle Shape -->
+  <rect x="230" y="180" width="52" height="140" rx="8" fill="white" opacity="0.8"/>
+  <rect x="238" y="165" width="36" height="20" rx="4" fill="white" opacity="0.8"/>
+  
+  <!-- Water Level -->
+  <rect x="235" y="220" width="42" height="85" rx="4" fill="#0ea5e9" opacity="0.6"/>
+  
+  <!-- Bubbles -->
+  <circle cx="245" cy="240" r="4" fill="white" opacity="0.7"/>
+  <circle cx="265" cy="260" r="3" fill="white" opacity="0.7"/>
+  <circle cx="250" cy="280" r="2" fill="white" opacity="0.7"/>
+  <circle cx="270" cy="285" r="2" fill="white" opacity="0.7"/>
+  
+  <!-- Management Dashboard -->
+  <rect x="140" y="360" width="232" height="80" rx="12" fill="white" opacity="0.9"/>
+  
+  <!-- Chart Bars -->
+  <rect x="160" y="400" width="20" height="25" fill="#0ea5e9"/>
+  <rect x="190" y="390" width="20" height="35" fill="#0ea5e9"/>
+  <rect x="220" y="380" width="20" height="45" fill="#0ea5e9"/>
+  <rect x="250" y="385" width="20" height="40" fill="#0ea5e9"/>
+  <rect x="280" y="395" width="20" height="30" fill="#0ea5e9"/>
+  <rect x="310" y="375" width="20" height="50" fill="#0ea5e9"/>
+  <rect x="340" y="390" width="20" height="35" fill="#0ea5e9"/>
+  
+  <!-- Dashboard Icons -->
+  <circle cx="160" cy="375" r="3" fill="#0ea5e9"/>
+  <circle cx="180" cy="375" r="3" fill="#0ea5e9"/>
+  <circle cx="200" cy="375" r="3" fill="#0ea5e9"/>
+  
+  <!-- Text Lines (representing data) -->
+  <rect x="230" y="370" width="60" height="3" rx="1" fill="#0ea5e9" opacity="0.6"/>
+  <rect x="300" y="370" width="40" height="3" rx="1" fill="#0ea5e9" opacity="0.6"/>
+</svg>
