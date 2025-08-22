@@ -148,22 +148,10 @@ export function PWAManager() {
         body: "Esta é uma notificação de teste do sistema!",
         icon: "/icon-192x192.svg",
         badge: "/icon-192x192.svg",
-        vibrate: [100, 50, 100],
         data: {
           dateOfArrival: Date.now(),
           primaryKey: 1,
         },
-        actions: [
-          {
-            action: "explore",
-            title: "Ver Sistema",
-            icon: "/icon-192x192.svg",
-          },
-          {
-            action: "close",
-            title: "Fechar",
-          },
-        ],
       });
     }
   };
