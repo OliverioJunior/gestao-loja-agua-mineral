@@ -55,10 +55,10 @@ export function OrderRow({
       {/* Número do Pedido */}
       <td className="px-4 py-3">
         <div className="font-medium text-foreground">
-          {order.endereco?.numero || "N/A"}
+          {order.endereco?.numero}
         </div>
         <div className="text-xs text-muted-foreground">
-          {formatDate(new Date(order.dataEntrega || ""))}
+          {formatDate(new Date(order.createdAt))}
         </div>
       </td>
 
