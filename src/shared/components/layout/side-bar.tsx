@@ -8,8 +8,8 @@ import {
   Settings,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, redirect } from "next/navigation";
+
 interface ISideBar {
   sidebarOpen: boolean;
   closeSidebar: () => void;
@@ -42,37 +42,58 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
           <Button
             variant={pathname === "/" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
+            onClick={() => {
+              closeSidebar();
+              redirect("/");
+            }}
           >
             <TrendingUp className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            <Link href="/">Dashboard</Link>
+            Dashboard
           </Button>
+
           <Button
             variant={pathname === "/pedidos" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
+            onClick={() => {
+              closeSidebar();
+              redirect("/pedidos");
+            }}
           >
             <ShoppingCart className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            <Link href="/pedidos">Pedidos</Link>
+            Pedidos
           </Button>
           <Button
             variant={pathname === "/estoque" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
+            onClick={() => {
+              closeSidebar();
+              redirect("/estoque");
+            }}
           >
             <Package className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            <Link href="/estoque">Estoque</Link>
+            Estoque
           </Button>
           <Button
             variant={pathname === "/clientes" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
+            onClick={() => {
+              closeSidebar();
+              redirect("/clientes");
+            }}
           >
             <Users className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            <Link href="/clientes">Clientes</Link>
+            Clientes
           </Button>
           <Button
             variant={pathname === "/configuracoes" ? "secondary" : "ghost"}
             className="w-full justify-start text-[var(--sidebar-foreground)]"
+            onClick={() => {
+              closeSidebar();
+              redirect("/configuracoes");
+            }}
           >
             <Settings className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
-            <Link href="/configuracoes">Configurações</Link>
+            Configurações
           </Button>
         </nav>
       </aside>
