@@ -22,7 +22,6 @@ import {
   categoriaOptions,
   formaPagamentoOptions,
   formatDateForInput,
-  formatCurrencyInput,
   convertToCents,
   convertToReais,
   validateCurrency,
@@ -32,6 +31,7 @@ import {
   FormaPagamentoDespesa,
 } from "@/infrastructure/generated/prisma";
 import { toast } from "sonner";
+import { formatCurrency } from "../produtos/AddProductModal";
 
 export function EditDespesaModal({
   despesa,
@@ -125,7 +125,7 @@ export function EditDespesaModal({
   };
 
   const handleValueChange = (value: string) => {
-    const formatted = formatCurrencyInput(value);
+    const formatted = formatCurrency(value);
     setFormData((prev) => ({ ...prev, valor: formatted }));
   };
 

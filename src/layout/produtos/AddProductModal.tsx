@@ -18,7 +18,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 
 // Função para formatar valor monetário brasileiro
-const formatCurrency = (value: string): string => {
+export const formatCurrency = (value: string): string => {
   // Remove tudo que não é dígito
   const numericValue = value.replace(/\D/g, "");
 
