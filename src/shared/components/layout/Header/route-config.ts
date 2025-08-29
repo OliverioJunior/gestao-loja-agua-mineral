@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Settings, Users } from "lucide-react";
+import { LayoutDashboard, Package, Settings, Users, Receipt } from "lucide-react";
 import { RouteKey, HeaderDescriptionData } from "./types";
 
 export const ROUTE_CONFIG: Record<RouteKey, HeaderDescriptionData> = {
@@ -46,6 +46,13 @@ export const ROUTE_CONFIG: Record<RouteKey, HeaderDescriptionData> = {
     title: "Pedidos",
     description: "Acompanhe seus pedidos e clientes",
     icon: Package,
+    titleClassName: "text-2xl font-bold text-foreground",
+    descriptionClassName: "text-muted-foreground",
+  },
+  "/despesas": {
+    title: "Despesas",
+    description: "Gerencie e controle suas despesas empresariais",
+    icon: Receipt,
     titleClassName: "text-2xl font-bold text-foreground",
     descriptionClassName: "text-muted-foreground",
   },

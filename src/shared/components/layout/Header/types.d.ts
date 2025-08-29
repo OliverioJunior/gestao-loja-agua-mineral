@@ -5,7 +5,8 @@ export type RouteKey =
   | "/relatorios"
   | "/configuracoes"
   | "/clientes"
-  | "/pedidos";
+  | "/pedidos"
+  | "/despesas";
 
 export interface HeaderDescriptionData {
   title: string;
