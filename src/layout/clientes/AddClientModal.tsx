@@ -17,6 +17,7 @@ import {
 import { Plus, AlertCircle } from "lucide-react";
 import { AddClientModalProps } from "./types";
 import { Status } from "@/infrastructure/generated/prisma";
+import { toast } from "sonner";
 
 export function AddClientModal({
   isOpen,
@@ -82,8 +83,8 @@ export function AddClientModal({
       });
     } catch (error) {
       console.error("Erro ao criar cliente:", error);
-      setError(
-        error instanceof Error ? error.message : "Erro ao criar cliente"
+      toast.error(
+        `${error instanceof Error ? error.message : "Error ao criar cliente"}`
       );
     } finally {
       onClose();

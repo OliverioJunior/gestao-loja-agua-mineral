@@ -6,6 +6,7 @@ import {
   TClienteWithCount,
   UpdateClienteInput,
 } from "@/core/cliente/cliente.entity";
+import { toast } from "sonner";
 
 export const useClientes = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -105,7 +106,13 @@ export const useClientes = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Erro ao criar cliente");
+          toast.error(errorData.message || "Erro ao criar cliente", {
+            style: {
+              background: "red",
+              color: "white",
+            },
+          });
+          return errorData.message || "Erro ao criar cliente";
         }
 
         const newClient = await response.json();
@@ -116,7 +123,7 @@ export const useClientes = () => {
         setError(
           error instanceof Error ? error.message : "Erro ao criar cliente"
         );
-        throw error;
+        return error;
       }
     },
     []
