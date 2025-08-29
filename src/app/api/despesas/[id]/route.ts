@@ -16,10 +16,7 @@ const despesaRepository = new DespesaRepository(prisma);
 const despesaService = new DespesaService(despesaRepository);
 
 // GET - Buscar despesa por ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -29,7 +26,9 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop() || "";
+
     const result = await despesaService.getDespesaById(id);
 
     return NextResponse.json(result, { status: result.statusCode });
@@ -43,10 +42,7 @@ export async function GET(
 }
 
 // PUT - Atualizar despesa
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -56,7 +52,8 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop() || "";
     const body = await request.json();
 
     // Preparar dados de atualização
@@ -101,10 +98,7 @@ export async function PUT(
 }
 
 // DELETE - Excluir despesa
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -114,7 +108,8 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop() || "";
     const result = await despesaService.deleteDespesa(id);
 
     return NextResponse.json(result, { status: result.statusCode });
