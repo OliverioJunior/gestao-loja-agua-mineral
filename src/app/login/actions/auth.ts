@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
 export async function signin(formData: FormData) {
   // Validate form fields
@@ -25,7 +26,12 @@ export async function signin(formData: FormData) {
     if (data.success) {
       redirect("/");
     } else {
-      throw new Error(data.message || "Login failed");
+      toast.error(data.message || "Login failed", {
+        style: {
+          background: "red",
+          color: "white",
+        },
+      });
     }
   } catch (err) {
     console.error("Signin error:", err);

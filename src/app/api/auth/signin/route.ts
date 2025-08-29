@@ -19,16 +19,19 @@ export async function POST(req: NextRequest) {
     const verifyPassword = await argon2.verify(user.password, password);
     if (!verifyPassword) {
       return NextResponse.json({
-        message: "Signin failed",
+        message: "Usuario ou Senha incorreta ",
       });
     }
     await createSession(user.email);
-    return NextResponse.json({
-      message: "Signin successful",
-      success: true,
-    }, {
-      status: 200,
-    });
+    return NextResponse.json(
+      {
+        message: "Signin successful",
+        success: true,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch {
     return NextResponse.json({
       message: "Signin failed",
