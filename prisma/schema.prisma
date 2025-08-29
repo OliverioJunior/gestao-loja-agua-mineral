@@ -21,6 +21,27 @@ enum Status {
   INATIVO
 }
 
+enum CategoriaDespesa {
+  OPERACIONAL
+  ADMINISTRATIVA
+  MARKETING
+  MANUTENCAO
+  TRANSPORTE
+  FORNECEDORES
+  IMPOSTOS
+  OUTRAS
+}
+
+enum FormaPagamentoDespesa {
+  DINHEIRO
+  PIX
+  CARTAO_DEBITO
+  CARTAO_CREDITO
+  TRANSFERENCIA
+  BOLETO
+  CHEQUE
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Uuid
   name      String   @db.VarChar(255)
@@ -43,6 +64,8 @@ model User {
   categoriasAtualizadas Categoria[] @relation("CategoriaUpdatedBy")
   pedidosAtualizados    Pedido[]    @relation("PedidoUpdatedBy")
   itensAtualizados      Item[]      @relation("ItemUpdatedBy")
+  despesasCriadas       Despesa[]   @relation("DespesaCreatedBy")
+  despesasAtualizadas   Despesa[]   @relation("DespesaUpdatedBy")
   vendasAtualizadas     Vendas[]    @relation("VendasUpdatedBy")
 
   @@map("users")
@@ -235,4 +258,27 @@ model Vendas {
   @@index([pedidoId])
   @@index([data])
   @@map("vendas")
+}
+
+model Despesa {
+  id              String                 @id @default(uuid()) @db.Uuid
+  descricao       String                 @db.VarChar(255)
+  valor           Int                    // Valor em centavos
+  data            DateTime               @db.Date
+  categoria       CategoriaDespesa
+  formaPagamento  FormaPagamentoDespesa  @map("forma_pagamento")
+  observacoes     String?                @db.Text
+  createdAt       DateTime               @default(now()) @map("created_at")
+  updatedAt       DateTime               @updatedAt @map("updated_at")
+
+  // Auditoria
+  criadoPor       User    @relation("DespesaCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String  @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?   @relation("DespesaUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String? @map("atualizado_por_id") @db.Uuid
+
+  @@index([data])
+  @@index([categoria])
+  @@index([formaPagamento])
+  @@map("despesas")
 }
