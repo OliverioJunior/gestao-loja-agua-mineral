@@ -124,10 +124,6 @@ export const formaPagamentoOptions: FormaPagamentoOption[] = [
 ];
 
 // Validar valor monetário
-export const validateCurrency = (value: string): boolean => {
-  const regex = /^\d+([,.]\d{1,2})?$/;
-  return regex.test(value);
-};
 
 // Formatar valor para exibição no input
 export const formatCurrencyInput = (value: string): string => {
@@ -166,15 +162,23 @@ export interface MonthRange {
 // Obter o primeiro e último dia do mês atual
 export const getCurrentMonthRange = (): MonthRange => {
   const now = new Date();
-  
+
   // Primeiro dia do mês atual (dia 1, hora 00:00:00)
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-  
+
   // Último dia do mês atual (dia 0 do próximo mês, hora 23:59:59)
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-  
+  const lastDay = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
   return {
     firstDay,
-    lastDay
+    lastDay,
   };
 };

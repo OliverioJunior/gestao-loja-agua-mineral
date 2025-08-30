@@ -24,7 +24,6 @@ import {
   formatDateForInput,
   convertToCents,
   convertToReais,
-  validateCurrency,
 } from "./despesa-utils";
 import {
   CategoriaDespesa,
@@ -86,11 +85,6 @@ export function EditDespesaModal({
 
     if (!formData.valor.trim()) {
       toast.error("Valor é obrigatório");
-      return;
-    }
-
-    if (!validateCurrency(formData.valor)) {
-      toast.error("Valor deve ser um número válido");
       return;
     }
 
