@@ -4,6 +4,8 @@ import {
   TProdutoWithCategoria,
   CreateProdutoInput,
 } from "@/core/produto/produto.entity";
+import { toast } from "sonner";
+import { SUCCESS_MESSAGES } from "@/shared/utils";
 
 export const useProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -95,21 +97,41 @@ export const useProducts = () => {
           },
           body: JSON.stringify(productData),
         });
-
+        const result = await response.json();
         if (!response.ok) {
-          throw new Error("Erro ao criar produto");
+          // Tentar extrair a mensagem de erro do servido
+          toast.error(result, {
+            style: {
+              background: "red",
+              color: "white",
+            },
+          });
+          return;
         }
 
         const newProduct = await response.json();
-
         // Recarregar a lista de produtos para garantir sincronização
         const updatedResponse = await fetch("/api/produto");
         const updatedProducts = await updatedResponse.json();
         setProducts(updatedProducts);
 
         setIsAddModalOpen(false);
+        toast.success(SUCCESS_MESSAGES.PRODUCT_CREATED, {
+          style: {
+            background: "green",
+            color: "white",
+          },
+        });
         return newProduct;
       } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message, {
+            style: {
+              background: "red",
+              color: "white",
+            },
+          });
+        }
         console.error("Erro ao adicionar produto:", error);
         throw error;
       }

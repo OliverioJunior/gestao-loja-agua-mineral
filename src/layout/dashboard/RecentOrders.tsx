@@ -8,6 +8,12 @@ import {
 } from "@/shared/components/ui";
 import { Clock, Eye, Badge } from "lucide-react";
 import { redirect } from "next/navigation";
+import { useState } from "react";
+import { OrderDetailsModal } from "@/layout/pedidos/OrderDetailsModal";
+import { usePedidos } from "@/hooks/pedidos/usePedidos";
+import { TPedidoWithRelations } from "@/core/pedidos";
+import { toast } from "sonner";
+import { ERROR_MESSAGES } from "@/shared/constants/messages";
 
 interface Order {
   id: string;
@@ -22,6 +28,40 @@ interface RecentOrdersProps {
 }
 
 export function RecentOrders({ recentOrders }: RecentOrdersProps) {
+  const { findById } = usePedidos();
+  const [selectedOrder, setSelectedOrder] =
+    useState<TPedidoWithRelations | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingOrder, setLoadingOrder] = useState(false);
+
+  const handleViewOrder = async (orderId: string) => {
+    try {
+      setLoadingOrder(true);
+      const order = await findById(orderId);
+
+      if (order) {
+        setSelectedOrder(order);
+        setIsModalOpen(true);
+      } else {
+        toast.error(ERROR_MESSAGES.ORDER_NOT_FOUND);
+      }
+    } catch {
+      toast.error(ERROR_MESSAGES.FETCH_ERROR);
+    } finally {
+      setLoadingOrder(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
+
+  const handleEditOrder = (order: TPedidoWithRelations) => {
+    // Implementar navegação para edição se necessário
+    console.log("Edit order:", order.id);
+  };
+
   const getOrderStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -75,7 +115,7 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
                   {order.customer}
                 </p>
                 <p className="text-xs text-[var(--muted-foreground)]">
-                  {order.createdAt}
+                  {new Date(order.createdAt).toString()}
                 </p>
               </div>
               <div className="text-right">
@@ -85,7 +125,13 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
                     minimumFractionDigits: 2,
                   })}
                 </p>
-                <Button variant="ghost" size="sm" className="mt-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-1"
+                  onClick={() => handleViewOrder(order.id)}
+                  disabled={loadingOrder}
+                >
                   <Eye className="h-3 w-3 text-[var(--foreground)]" />
                 </Button>
               </div>
@@ -102,6 +148,14 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
           Ver todos os pedidos
         </Button>
       </CardContent>
+
+      {/* Modal de Detalhes do Pedido */}
+      <OrderDetailsModal
+        order={selectedOrder}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onEdit={handleEditOrder}
+      />
     </Card>
   );
 }
