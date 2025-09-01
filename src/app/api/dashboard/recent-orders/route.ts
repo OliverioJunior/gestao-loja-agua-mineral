@@ -32,7 +32,7 @@ export async function GET() {
     const formattedOrders = recentOrders.map((order) => ({
       id: `#${order.id.slice(-6).toUpperCase()}`, // Usar últimos 6 caracteres do ID
       customer: order.cliente?.nome || "Cliente Desconhecido",
-      value: order.total, // Valor já está em centavos
+      value: order.total / 100, // Valor já está em centavos
       status: order.status.toLowerCase(), // Converter para lowercase
       date: order.createdAt.toISOString(),
     }));
