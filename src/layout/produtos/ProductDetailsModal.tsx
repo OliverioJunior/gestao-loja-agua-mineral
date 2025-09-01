@@ -86,13 +86,13 @@ export function ProductDetailsModal({
     if (product) {
       setFormData({
         ...product,
-        precoCusto: formatCurrency((product.precoCusto / 100).toString()),
-        precoVenda: formatCurrency((product.precoVenda / 100).toString()),
+        precoCusto: formatCurrency(product.precoCusto.toString()),
+        precoVenda: formatCurrency(product.precoVenda.toString()),
         precoRevenda: product.precoRevenda
-          ? formatCurrency((product.precoRevenda / 100).toString())
+          ? formatCurrency(product.precoRevenda.toString())
           : "",
         precoPromocao: product.precoPromocao
-          ? formatCurrency((product.precoPromocao / 100).toString())
+          ? formatCurrency(product.precoPromocao.toString())
           : "",
       });
       setEditMode(openInEditMode); // Set edit mode based on prop
@@ -517,17 +517,13 @@ export function ProductDetailsModal({
                   // Cancelar edição - resetar dados e sair do modo edição
                   setFormData({
                     ...product,
-                    precoCusto: formatCurrency(
-                      (product.precoCusto / 100).toString()
-                    ),
-                    precoVenda: formatCurrency(
-                      (product.precoVenda / 100).toString()
-                    ),
+                    precoCusto: formatCurrency(product.precoCusto.toString()),
+                    precoVenda: formatCurrency(product.precoVenda.toString()),
                     precoRevenda: product.precoRevenda
-                      ? formatCurrency((product.precoRevenda / 100).toString())
+                      ? formatCurrency(product.precoRevenda.toString())
                       : "",
                     precoPromocao: product.precoPromocao
-                      ? formatCurrency((product.precoPromocao / 100).toString())
+                      ? formatCurrency(product.precoPromocao.toString())
                       : "",
                   });
                   setEditMode(false);
