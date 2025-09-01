@@ -14,25 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui";
+import {
+  formatCurrencyFromCents,
+  convertFormattedToCents,
+} from "@/shared/utils";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-// Função para formatar valor monetário brasileiro
-export const formatCurrency = (value: string): string => {
-  // Remove tudo que não é dígito
-  const numericValue = value.replace(/\D/g, "");
-
-  if (!numericValue) return "";
-
-  // Converte para número e divide por 100 para ter centavos
-  const numberValue = parseInt(numericValue) / 100;
-
-  // Formata para o padrão brasileiro
-  return numberValue.toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
+// Re-exportar função centralizada para manter compatibilidade
+export const formatCurrency = formatCurrencyFromCents;
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -45,15 +35,15 @@ export function AddProductModal({
   onClose,
   onAdd,
 }: AddProductModalProps) {
-  const [formData, setFormData] = useState<CreateProdutoInput>({
+  const [formData, setFormData] = useState({
     nome: "",
     descricao: "",
     marca: "",
     categoriaId: "",
-    precoCusto: 0,
-    precoVenda: 0,
-    precoRevenda: 0,
-    precoPromocao: 0,
+    precoCusto: "",
+    precoVenda: "",
+    precoRevenda: "",
+    precoPromocao: "",
     estoque: 0,
     estoqueMinimo: 0,
     ativo: true,
@@ -66,7 +56,16 @@ export function AddProductModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onAdd(formData);
+      // Converte os valores formatados para centavos
+      const submitData = {
+        ...formData,
+        precoCusto: convertFormattedToCents(formData.precoCusto.toString()),
+        precoVenda: convertFormattedToCents(formData.precoVenda.toString()),
+        precoRevenda: convertFormattedToCents(formData.precoRevenda.toString()),
+        precoPromocao: convertFormattedToCents(formData.precoPromocao.toString()),
+      };
+      
+      await onAdd(submitData);
       handleClose();
     } catch (error) {
       console.error("Erro ao criar produto:", error);
@@ -77,7 +76,12 @@ export function AddProductModal({
 
   // Handlers para formatação de preços
   const handlePriceChange = (field: string, value: string) => {
-    const formattedValue = formatCurrency(value);
+    // Remove todos os caracteres não numéricos
+    const numericOnly = value.replace(/\D/g, "");
+    
+    // Formata como moeda (cada dígito é um centavo)
+    const formattedValue = formatCurrencyFromCents(numericOnly);
+    
     setFormData({ ...formData, [field]: formattedValue });
   };
 
@@ -87,10 +91,10 @@ export function AddProductModal({
       descricao: "",
       marca: "",
       categoriaId: "",
-      precoCusto: 0,
-      precoVenda: 0,
-      precoRevenda: 0,
-      precoPromocao: 0,
+      precoCusto: "",
+      precoVenda: "",
+      precoRevenda: "",
+      precoPromocao: "",
       estoque: 0,
       estoqueMinimo: 0,
       ativo: true,
