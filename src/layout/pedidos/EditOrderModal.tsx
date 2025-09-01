@@ -34,6 +34,14 @@ import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/hooks/clientes/useClientes";
 import { useProdutos } from "@/hooks/produtos/useProdutos";
 import { TPedidoWithRelations } from "@/core/pedidos";
+import { toast } from "sonner";
+import { useLoading } from "@/shared/utils";
+import {
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+  INFO_MESSAGES,
+  UI_LABELS,
+} from "@/shared/constants/messages";
 
 export function EditOrderModal({
   isOpen,
@@ -42,10 +50,12 @@ export function EditOrderModal({
   order,
 }: EditOrderModalProps) {
   // Hooks para buscar dados reais
+  const { loading, withLoading } = useLoading();
   const { clients: clientes } = useClientes();
   const { produtos } = useProdutos();
 
-  const [formData, setFormData] = useState({
+  // Estado inicial do formulário
+  const initialFormData = {
     clienteId: "",
     tipoEntrega: "balcao" as "balcao" | "entrega",
     formaPagamento: "",
@@ -61,13 +71,34 @@ export function EditOrderModal({
     },
     taxaEntrega: 0,
     desconto: 0,
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
 
   const [itens, setItens] = useState<IPedidoItem[]>([]);
   const [selectedProduto, setSelectedProduto] = useState("");
   const [quantidade, setQuantidade] = useState(1);
 
   const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
+
+  // Função auxiliar para atualizar campos do endereço
+  const updateEnderecoField = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      enderecoEntrega: {
+        ...prev.enderecoEntrega,
+        [field]: value,
+      },
+    }));
+  };
+
+  // Função de reset centralizada
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setItens([]);
+    setSelectedProduto("");
+    setQuantidade(1);
+  };
 
   // Preencher formulário com dados do pedido quando modal abrir
   useEffect(() => {
@@ -109,17 +140,18 @@ export function EditOrderModal({
 
   // Preencher endereço automaticamente quando cliente for selecionado
   useEffect(() => {
-    if (selectedCliente && formData.tipoEntrega === "entrega") {
+    if (selectedCliente?.endereco && formData.tipoEntrega === "entrega") {
+      const { endereco } = selectedCliente;
       setFormData((prev) => ({
         ...prev,
         enderecoEntrega: {
-          logradouro: selectedCliente.endereco?.logradouro || "",
-          numero: selectedCliente.endereco?.numero || "",
-          complemento: selectedCliente.endereco?.complemento || "",
-          bairro: selectedCliente.endereco?.bairro || "",
-          cidade: selectedCliente.endereco?.cidade || "",
-          estado: selectedCliente.endereco?.estado || "",
-          cep: selectedCliente.endereco?.cep || "",
+          logradouro: endereco.logradouro || "",
+          numero: endereco.numero || "",
+          complemento: endereco.complemento || "",
+          bairro: endereco.bairro || "",
+          cidade: endereco.cidade || "",
+          estado: endereco.estado || "",
+          cep: endereco.cep || "",
         },
       }));
     }
@@ -129,31 +161,36 @@ export function EditOrderModal({
     const produto = produtos.find((p) => p.id === selectedProduto);
     if (!produto || quantidade <= 0) return;
 
-    const existingItemIndex = itens.findIndex(
-      (item) => item.produtoId === produto.id
-    );
+    setItens((prevItens) => {
+      const existingItemIndex = prevItens.findIndex(
+        (item) => item.produtoId === produto.id
+      );
 
-    if (existingItemIndex >= 0) {
-      // Atualizar quantidade do item existente
-      const newItens = [...itens];
-      newItens[existingItemIndex].quantidade += quantidade;
-      newItens[existingItemIndex].subtotal =
-        newItens[existingItemIndex].precoUnitario *
-        newItens[existingItemIndex].quantidade;
-      setItens(newItens);
-    } else {
-      // Adicionar novo item
-      const newItem: IPedidoItem = {
-        id: `temp-${Date.now()}`,
-        subtotal: produto.precoVenda * quantidade,
-        produtoId: produto.id,
-        produtoNome: produto.nome,
-        produtoPreco: produto.precoVenda,
-        quantidade,
-        precoUnitario: produto.precoVenda,
-      };
-      setItens([...itens, newItem]);
-    }
+      if (existingItemIndex >= 0) {
+        // Atualizar quantidade do item existente
+        return prevItens.map((item, index) =>
+          index === existingItemIndex
+            ? {
+                ...item,
+                quantidade: item.quantidade + quantidade,
+                subtotal: item.precoUnitario * (item.quantidade + quantidade),
+              }
+            : item
+        );
+      } else {
+        // Adicionar novo item
+        const newItem: IPedidoItem = {
+          id: `temp-${Date.now()}`,
+          produtoId: produto.id,
+          produtoNome: produto.nome,
+          produtoPreco: produto.precoVenda,
+          quantidade,
+          precoUnitario: produto.precoVenda,
+          subtotal: produto.precoVenda * quantidade,
+        };
+        return [...prevItens, newItem];
+      }
+    });
 
     setSelectedProduto("");
     setQuantidade(1);
@@ -165,14 +202,21 @@ export function EditOrderModal({
       return;
     }
 
-    const newItens = [...itens];
-    newItens[index].quantidade = newQuantity;
-    newItens[index].subtotal = newItens[index].precoUnitario * newQuantity;
-    setItens(newItens);
+    setItens((prevItens) =>
+      prevItens.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              quantidade: newQuantity,
+              subtotal: item.precoUnitario * newQuantity,
+            }
+          : item
+      )
+    );
   };
 
   const handleRemoveItem = (index: number) => {
-    setItens(itens.filter((_, i) => i !== index));
+    setItens((prevItens) => prevItens.filter((_, i) => i !== index));
   };
 
   const subtotal = itens.reduce(
@@ -181,66 +225,69 @@ export function EditOrderModal({
   );
   const total = subtotal - formData.desconto + formData.taxaEntrega;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (
       !formData.clienteId ||
       !formData.formaPagamento ||
       itens.length === 0 ||
       !order
     ) {
+      toast.error(
+        `${ERROR_MESSAGES.REQUIRED_FIELD}. Adicione pelo menos um item ao pedido`
+      );
       return;
     }
 
-    const updatedOrderData: Partial<TPedidoWithRelations> = {
-      clienteId: formData.clienteId,
-      formaPagamento: formData.formaPagamento as
-        | "dinheiro"
-        | "cartao_debito"
-        | "cartao_credito"
-        | "pix",
+    const result = await withLoading(async () => {
+      try {
+        const updatedOrderData: Partial<TPedidoWithRelations> = {
+          clienteId: formData.clienteId,
+          formaPagamento: formData.formaPagamento as
+            | "dinheiro"
+            | "cartao_debito"
+            | "cartao_credito"
+            | "pix",
+          taxaEntrega: formData.taxaEntrega,
+          desconto: formData.desconto,
+          total: total,
+          itens: itens.map((item) => ({
+            id: item.id,
+            produtoId: item.produtoId,
+            produto: {
+              nome: item.produtoNome,
+            },
+            quantidade: item.quantidade,
+            preco: item.precoUnitario,
+          })),
+        };
 
-      taxaEntrega: formData.taxaEntrega,
-      desconto: formData.desconto,
-      total: total,
-      itens: itens.map((item) => ({
-        id: item.id,
-        produtoId: item.produtoId,
-        produto: {
-          nome: item.produtoNome,
-        },
-        quantidade: item.quantidade,
-        preco: item.precoUnitario,
-      })),
-    };
-    onSave(order.id, updatedOrderData);
-    handleClose();
+        await onSave(order.id, updatedOrderData);
+        return { success: true };
+      } catch (error) {
+        console.error("Erro ao editar pedido:", error);
+        return {
+          success: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : ERROR_MESSAGES.UPDATE_ERROR,
+        };
+      }
+    });
+
+    if (result.success) {
+      toast.success(SUCCESS_MESSAGES.ORDER_UPDATED);
+    } else {
+      toast.error(`${ERROR_MESSAGES.UPDATE_ERROR}: ${result.error}`);
+    }
   };
 
   const handleClose = () => {
-    setFormData({
-      clienteId: "",
-      tipoEntrega: "balcao",
-      formaPagamento: "",
-      observacoes: "",
-      enderecoEntrega: {
-        logradouro: "",
-        numero: "",
-        complemento: "",
-        bairro: "",
-        cidade: "",
-        estado: "",
-        cep: "",
-      },
-      taxaEntrega: 0,
-      desconto: 0,
-    });
-    setItens([]);
-    setSelectedProduto("");
-    setQuantidade(1);
+    resetForm();
     onClose();
   };
-
   if (!order) return null;
 
   return (
@@ -249,7 +296,7 @@ export function EditOrderModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Editar Pedido #{order.id.slice(-8)}
+            {UI_LABELS.EDIT} Pedido #{order.id.slice(-8)}
           </DialogTitle>
         </DialogHeader>
 
@@ -259,7 +306,7 @@ export function EditOrderModal({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <User className="h-5 w-5" />
-                Informações do Cliente
+                Cliente
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -273,7 +320,7 @@ export function EditOrderModal({
                   required
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione um cliente" />
+                    <SelectValue placeholder={UI_LABELS.SELECT_OPTION} />
                   </SelectTrigger>
                   <SelectContent>
                     {clientes.map((cliente) => (
@@ -318,7 +365,7 @@ export function EditOrderModal({
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a forma de pagamento" />
+                      <SelectValue placeholder={UI_LABELS.SELECT_OPTION} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="dinheiro">Dinheiro</SelectItem>
@@ -342,7 +389,7 @@ export function EditOrderModal({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <MapPin className="h-5 w-5" />
-                  Endereço de Entrega
+                  {UI_LABELS.ADDRESS} de Entrega
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -353,13 +400,7 @@ export function EditOrderModal({
                       id="logradouro"
                       value={formData.enderecoEntrega.logradouro}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            logradouro: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("logradouro", e.target.value)
                       }
                       required
                     />
@@ -370,13 +411,7 @@ export function EditOrderModal({
                       id="numero"
                       value={formData.enderecoEntrega.numero}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            numero: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("numero", e.target.value)
                       }
                       required
                     />
@@ -390,13 +425,7 @@ export function EditOrderModal({
                       id="complemento"
                       value={formData.enderecoEntrega.complemento}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            complemento: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("complemento", e.target.value)
                       }
                     />
                   </div>
@@ -406,13 +435,7 @@ export function EditOrderModal({
                       id="bairro"
                       value={formData.enderecoEntrega.bairro}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            bairro: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("bairro", e.target.value)
                       }
                       required
                     />
@@ -426,13 +449,7 @@ export function EditOrderModal({
                       id="cidade"
                       value={formData.enderecoEntrega.cidade}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            cidade: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("cidade", e.target.value)
                       }
                       required
                     />
@@ -443,13 +460,7 @@ export function EditOrderModal({
                       id="estado"
                       value={formData.enderecoEntrega.estado}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            estado: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("estado", e.target.value)
                       }
                       required
                     />
@@ -460,13 +471,7 @@ export function EditOrderModal({
                       id="cep"
                       value={formData.enderecoEntrega.cep}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            cep: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("cep", e.target.value)
                       }
                       required
                     />
@@ -717,18 +722,19 @@ export function EditOrderModal({
           {/* Botões de Ação */}
           <div className="flex justify-end gap-4">
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancelar
+              {UI_LABELS.CANCEL}
             </Button>
             <Button
               type="submit"
               disabled={
+                loading ||
                 !formData.clienteId ||
                 !formData.formaPagamento ||
                 itens.length === 0
               }
             >
               <Save className="h-4 w-4 mr-2" />
-              Salvar Alterações
+              {loading ? INFO_MESSAGES.SAVING : UI_LABELS.SAVE + " Alterações"}
             </Button>
           </div>
         </form>

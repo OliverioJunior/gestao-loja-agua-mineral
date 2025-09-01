@@ -35,7 +35,7 @@ import { useClientes } from "@/hooks/clientes/useClientes";
 import { IProdutoEstoque, useProdutos } from "@/hooks/produtos/useProdutos";
 import { usePedidos } from "@/hooks/pedidos/usePedidos";
 import { toast } from "sonner";
-import { useLoading } from "@/shared/utils";
+import { ERROR_MESSAGES, SUCCESS_MESSAGES, useLoading } from "@/shared/utils";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const { loading, withLoading } = useLoading();
@@ -182,7 +182,12 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           onAdd?.(orderData); // Callback opcional para atualizar dashboard
           return { success: true };
         } else {
-          throw new Error("Falha ao criar pedido");
+          toast.error(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, {
+            style: {
+              backgroundColor: "red",
+              color: "white",
+            },
+          });
         }
       } catch (error) {
         console.error("Erro ao criar pedido:", error);
@@ -191,17 +196,27 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           error:
             error instanceof Error
               ? error.message
-              : "Erro desconhecido ao criar pedido",
+              : ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         };
       }
     });
 
-    if (result.success) {
-      toast.success("Pedido criado com sucesso!");
+    if (result?.success) {
+      toast.success(SUCCESS_MESSAGES.ORDER_CREATED, {
+        style: {
+          backgroundColor: "green",
+          color: "white",
+        },
+      });
       resetForm();
       onClose();
     } else {
-      toast.error(result.error || "Erro ao criar pedido. Tente novamente.");
+      toast.error(result?.error || ERROR_MESSAGES.INTERNAL_SERVER_ERROR, {
+        style: {
+          backgroundColor: "red",
+          color: "white",
+        },
+      });
     }
   };
 
