@@ -13,7 +13,7 @@ interface Order {
   customer: string;
   value: number;
   status: string;
-  time: string;
+  createdAt: string;
 }
 
 interface RecentOrdersProps {
@@ -74,7 +74,7 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
                   {order.customer}
                 </p>
                 <p className="text-xs text-[var(--muted-foreground)]">
-                  {order.time}
+                  {order.createdAt}
                 </p>
               </div>
               <div className="text-right">

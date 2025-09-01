@@ -20,9 +20,39 @@ interface SalesData {
 
 interface KPICardsProps {
   salesData: SalesData;
+  todayGrowthPercentage: number;
+  newOrdersToday: number;
+  lowStockCount: number;
+  monthlyGoalPercentage: number;
+  loading?: boolean;
 }
 
-export function KPICards({ salesData }: KPICardsProps) {
+export function KPICards({ 
+  salesData, 
+  todayGrowthPercentage, 
+  newOrdersToday, 
+  lowStockCount, 
+  monthlyGoalPercentage,
+  loading = false 
+}: KPICardsProps) {
+  
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i} className="border-l-4 border-l-gray-200 animate-pulse">
+            <CardHeader className="pb-2">
+              <div className="h-4 bg-gray-200 rounded w-24"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-8 bg-gray-200 rounded w-20 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-32"></div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card className="border-l-4 border-l-[var(--primary)]">
@@ -39,9 +69,11 @@ export function KPICards({ salesData }: KPICardsProps) {
               minimumFractionDigits: 2,
             })}
           </div>
-          <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
+          <div className={`flex items-center gap-1 text-sm mt-1 ${
+            todayGrowthPercentage >= 0 ? 'text-green-600' : 'text-red-600'
+          }`}>
             <TrendingUp className="h-3 w-3" />
-            +12.3% vs ontem
+            {todayGrowthPercentage >= 0 ? '+' : ''}{todayGrowthPercentage.toFixed(1)}% vs ontem
           </div>
         </CardContent>
       </Card>
@@ -59,7 +91,7 @@ export function KPICards({ salesData }: KPICardsProps) {
           </div>
           <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
             <TrendingUp className="h-3 w-3" />
-            +5 novos pedidos
+            +{newOrdersToday} novos pedidos
           </div>
         </CardContent>
       </Card>
@@ -78,9 +110,12 @@ export function KPICards({ salesData }: KPICardsProps) {
               minimumFractionDigits: 2,
             })}
           </div>
-          <div className="flex items-center gap-1 text-sm text-purple-600 mt-1">
+          <div className={`flex items-center gap-1 text-sm mt-1 ${
+            monthlyGoalPercentage >= 100 ? 'text-green-600' : 
+            monthlyGoalPercentage >= 75 ? 'text-purple-600' : 'text-orange-600'
+          }`}>
             <TrendingUp className="h-3 w-3" />
-            Meta: 85% atingida
+            Meta: {monthlyGoalPercentage}% atingida
           </div>
         </CardContent>
       </Card>
@@ -93,10 +128,14 @@ export function KPICards({ salesData }: KPICardsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-[var(--foreground)]">2</div>
-          <div className="flex items-center gap-1 text-sm text-orange-600 mt-1">
+          <div className="text-2xl font-bold text-[var(--foreground)]">{lowStockCount}</div>
+          <div className={`flex items-center gap-1 text-sm mt-1 ${
+            lowStockCount === 0 ? 'text-green-600' : 
+            lowStockCount <= 3 ? 'text-orange-600' : 'text-red-600'
+          }`}>
             <AlertTriangle className="h-3 w-3" />
-            Produtos em baixa
+            {lowStockCount === 0 ? 'Estoque normal' : 
+             lowStockCount === 1 ? 'Produto em baixa' : 'Produtos em baixa'}
           </div>
         </CardContent>
       </Card>

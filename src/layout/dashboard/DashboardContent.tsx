@@ -22,13 +22,18 @@ interface Order {
   customer: string;
   value: number;
   status: string;
-  time: string;
+  createdAt: string;
 }
 
 interface DashboardContentProps {
   salesData: SalesData;
   stockData: StockItem[];
   recentOrders: Order[];
+  todayGrowthPercentage: number;
+  newOrdersToday: number;
+  lowStockCount: number;
+  monthlyGoalPercentage: number;
+  loading?: boolean;
   onNewOrder?: () => void;
   onAddStock?: () => void;
   onNewCustomer?: () => void;
@@ -39,6 +44,11 @@ export function DashboardContent({
   salesData,
   stockData,
   recentOrders,
+  todayGrowthPercentage,
+  newOrdersToday,
+  lowStockCount,
+  monthlyGoalPercentage,
+  loading = false,
   onNewOrder,
   onAddStock,
   onNewCustomer,
@@ -47,7 +57,14 @@ export function DashboardContent({
   return (
     <div className="p-4 lg:p-6 space-y-6">
       {/* KPI Cards */}
-      <KPICards salesData={salesData} />
+      <KPICards
+        salesData={salesData}
+        todayGrowthPercentage={todayGrowthPercentage}
+        newOrdersToday={newOrdersToday}
+        lowStockCount={lowStockCount}
+        monthlyGoalPercentage={monthlyGoalPercentage}
+        loading={loading}
+      />
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

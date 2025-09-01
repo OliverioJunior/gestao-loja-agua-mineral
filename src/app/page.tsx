@@ -1,57 +1,54 @@
 "use client";
 import { DashboardContent } from "@/layout/dashboard";
+import { useDashboard } from "@/hooks/dashboard/useDashboard";
 
 export default function Home() {
-  // Dados simulados
-  const salesData = {
-    today: 2450.0,
-    yesterday: 2180.0,
-    thisMonth: 45630.0,
-    orders: 23,
+  const {
+    salesData,
+    stockAlerts,
+    recentOrders,
+    loading,
+    error,
+    todayGrowthPercentage,
+    newOrdersToday,
+    lowStockCount,
+    monthlyGoalPercentage,
+    refreshData,
+  } = useDashboard();
+
+  // Dados de fallback para quando salesData ainda não foi carregado
+  const fallbackSalesData = {
+    today: 0,
+    yesterday: 0,
+    thisMonth: 0,
+    orders: 0,
   };
 
-  const stockData = [
-    { product: "Água 500ml", stock: 45, minimum: 20, status: "ok" },
-    { product: "Água 1.5L", stock: 12, minimum: 15, status: "low" },
-    { product: "Água 5L", stock: 78, minimum: 30, status: "ok" },
-    {
-      product: "Água com gás 500ml",
-      stock: 8,
-      minimum: 25,
-      status: "critical",
-    },
-  ];
+  // Mapear alertas de estoque para o formato esperado pelo DashboardContent
+  const stockData = stockAlerts.map(alert => ({
+    product: alert.product,
+    stock: alert.currentStock,
+    minimum: alert.minimumStock,
+    status: alert.status === 'critical' ? 'critical' : alert.status === 'low' ? 'low' : 'ok'
+  }));
 
-  const recentOrders = [
-    {
-      id: "#001",
-      customer: "João Silva",
-      value: 45.9,
-      status: "pending",
-      time: "14:30",
-    },
-    {
-      id: "#002",
-      customer: "Maria Santos",
-      value: 23.5,
-      status: "completed",
-      time: "13:45",
-    },
-    {
-      id: "#003",
-      customer: "Pedro Costa",
-      value: 67.8,
-      status: "preparing",
-      time: "13:20",
-    },
-    {
-      id: "#004",
-      customer: "Ana Oliveira",
-      value: 89.2,
-      status: "completed",
-      time: "12:55",
-    },
-  ];
+  // Se houver erro, mostrar mensagem
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">Erro ao carregar dashboard</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={refreshData}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Handlers para as ações rápidas
   const handleNewOrder = () => {
@@ -80,9 +77,14 @@ export default function Home() {
 
   return (
     <DashboardContent
-      salesData={salesData}
+      salesData={salesData || fallbackSalesData}
       stockData={stockData}
-      recentOrders={recentOrders}
+      recentOrders={recentOrders || []}
+      todayGrowthPercentage={todayGrowthPercentage}
+      newOrdersToday={newOrdersToday}
+      lowStockCount={lowStockCount}
+      monthlyGoalPercentage={monthlyGoalPercentage}
+      loading={loading}
       onNewOrder={handleNewOrder}
       onAddStock={handleAddStock}
       onNewCustomer={handleNewCustomer}

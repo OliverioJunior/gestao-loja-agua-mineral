@@ -75,7 +75,7 @@ export function ProductTable({
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell className="text-center" colSpan={5}>
+              <TableCell className="text-center" colSpan={6}>
                 <span className="text-sm text-slate-400">
                   {products.length} produto(s) encontrado(s)
                 </span>
