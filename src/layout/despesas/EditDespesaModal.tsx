@@ -32,7 +32,6 @@ import {
   formatCurrencyFromCents,
   convertFormattedToCents,
   useLoading,
-  SUCCESS_MESSAGES,
   ERROR_MESSAGES,
 } from "@/shared/utils";
 
@@ -116,11 +115,6 @@ export function EditDespesaModal({
     });
 
     if (result.success) {
-      const message =
-        mode === "create"
-          ? SUCCESS_MESSAGES.EXPENSE_CREATED
-          : SUCCESS_MESSAGES.EXPENSE_UPDATED;
-      toast.success(message);
       onClose();
     } else {
       toast.error(result.error || ERROR_MESSAGES.SAVE_ERROR);

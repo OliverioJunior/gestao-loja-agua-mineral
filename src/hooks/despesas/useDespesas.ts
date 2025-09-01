@@ -250,6 +250,7 @@ export function useDespesas() {
 
   const handleAddDespesa = useCallback(() => {
     setEditingDespesa(null);
+    setIsAddModalOpen(true);
   }, []);
 
   const handleEdit = useCallback((despesa: TDespesaWithUser) => {

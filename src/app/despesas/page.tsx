@@ -11,7 +11,6 @@ import {
 } from "@/layout/despesas";
 import { useDespesas } from "@/hooks/despesas";
 import { ICreateDespesa, IUpdateDespesa } from "@/core/despesas";
-import { useEffect } from "react";
 
 export default function DespesasPage() {
   const {
@@ -37,7 +36,6 @@ export default function DespesasPage() {
     setSearchTerm,
     setFilterCategoria,
     setFilterFormaPagamento,
-    setIsAddModalOpen,
 
     // Event handlers
     handleDespesaClick,
@@ -50,9 +48,7 @@ export default function DespesasPage() {
     handleCloseEditModal,
     handleCloseDeleteModal,
   } = useDespesas();
-  useEffect(() => {
-    console.log(isAddModalOpen);
-  }, [isAddModalOpen]);
+
   if (loading && despesas.length === 0) {
     return (
       <main className="min-h-[calc(100dvh-93px)] p-6">
@@ -102,10 +98,7 @@ export default function DespesasPage() {
           onSearchChange={setSearchTerm}
           onCategoriaChange={setFilterCategoria}
           onFormaPagamentoChange={setFilterFormaPagamento}
-          onAddDespesa={() => {
-            handleAddDespesa();
-            setIsAddModalOpen(true);
-          }}
+          onAddDespesa={handleAddDespesa}
         />
 
         {/* Tabela de Despesas */}
@@ -126,14 +119,13 @@ export default function DespesasPage() {
           despesa={selectedDespesa}
           isOpen={!!selectedDespesa}
           onClose={handleCloseModal}
-          onEdit={handleEdit}
           onDelete={handleDelete}
         />
 
         {/* Modal de Edição/Criação */}
         <EditDespesaModal
           despesa={editingDespesa}
-          isOpen={isAddModalOpen}
+          isOpen={!!editingDespesa || isAddModalOpen}
           onClose={handleCloseEditModal}
           onSave={async (data) => {
             if (editingDespesa) {

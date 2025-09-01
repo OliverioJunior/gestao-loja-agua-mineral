@@ -45,7 +45,6 @@ export interface DespesaDetailsModalProps {
   despesa: TDespesaWithUser | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (despesa: TDespesaWithUser) => void;
   onDelete: (despesa: TDespesaWithUser) => void;
 }
 

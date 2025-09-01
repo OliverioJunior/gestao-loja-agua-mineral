@@ -15,7 +15,6 @@ import {
   CreditCard,
   User,
   FileText,
-  Edit,
   Trash2,
 } from "lucide-react";
 import { DespesaDetailsModalProps } from "./types";
@@ -32,7 +31,6 @@ export function DespesaDetailsModal({
   despesa,
   isOpen,
   onClose,
-  onEdit,
   onDelete,
 }: DespesaDetailsModalProps) {
   if (!despesa) return null;
@@ -147,17 +145,7 @@ export function DespesaDetailsModal({
           <Button variant="outline" onClick={onClose}>
             Fechar
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              onEdit(despesa);
-              onClose();
-            }}
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Editar
-          </Button>
+
           <Button
             variant="destructive"
             onClick={() => {
