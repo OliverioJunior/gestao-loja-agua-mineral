@@ -17,12 +17,11 @@ import {
 import {
   formatCurrencyFromCents,
   convertFormattedToCents,
+  useLoading,
 } from "@/shared/utils";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-
-// Re-exportar função centralizada para manter compatibilidade
-export const formatCurrency = formatCurrencyFromCents;
+import { toast } from "sonner";
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -35,7 +34,11 @@ export function AddProductModal({
   onClose,
   onAdd,
 }: AddProductModalProps) {
-  const [formData, setFormData] = useState({
+  const { loading, withLoading } = useLoading();
+  const { categories } = useCategory();
+
+  // Estado inicial do formulário
+  const initialFormData = {
     nome: "",
     descricao: "",
     marca: "",
@@ -50,58 +53,69 @@ export function AddProductModal({
     promocao: false,
     atualizadoPorId: "",
     criadoPorId: "",
-  });
-  const { categories } = useCategory();
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
+
+    // Validação básica
+    if (!formData.nome.trim()) {
+      toast.error("Nome do produto é obrigatório", {
+        style: {
+          background: "red",
+          color: "white",
+        },
+      });
+      return;
+    }
+
+    if (!formData.precoCusto || !formData.precoVenda) {
+      toast.error("Preço de custo e preço de venda são obrigatórios", {
+        style: {
+          background: "red",
+          color: "white",
+        },
+      });
+      return;
+    }
+
+    await withLoading(async () => {
       // Converte os valores formatados para centavos
       const submitData = {
         ...formData,
         precoCusto: convertFormattedToCents(formData.precoCusto.toString()),
         precoVenda: convertFormattedToCents(formData.precoVenda.toString()),
         precoRevenda: convertFormattedToCents(formData.precoRevenda.toString()),
-        precoPromocao: convertFormattedToCents(formData.precoPromocao.toString()),
+        precoPromocao: convertFormattedToCents(
+          formData.precoPromocao.toString()
+        ),
       };
-      
+
       await onAdd(submitData);
       handleClose();
-    } catch (error) {
-      console.error("Erro ao criar produto:", error);
-      // Aqui você pode adicionar uma notificação de erro para o usuário
-      alert("Erro ao criar produto. Verifique os dados e tente novamente.");
-    }
+    });
+  };
+
+  // Função para resetar o formulário
+  const resetForm = () => {
+    setFormData(initialFormData);
   };
 
   // Handlers para formatação de preços
   const handlePriceChange = (field: string, value: string) => {
     // Remove todos os caracteres não numéricos
     const numericOnly = value.replace(/\D/g, "");
-    
+
     // Formata como moeda (cada dígito é um centavo)
     const formattedValue = formatCurrencyFromCents(numericOnly);
-    
+
     setFormData({ ...formData, [field]: formattedValue });
   };
 
   const handleClose = () => {
-    setFormData({
-      nome: "",
-      descricao: "",
-      marca: "",
-      categoriaId: "",
-      precoCusto: "",
-      precoVenda: "",
-      precoRevenda: "",
-      precoPromocao: "",
-      estoque: 0,
-      estoqueMinimo: 0,
-      ativo: true,
-      promocao: false,
-      atualizadoPorId: "",
-      criadoPorId: "",
-    });
+    resetForm();
     onClose();
   };
 
@@ -308,9 +322,13 @@ export function AddProductModal({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button type="submit" className="flex items-center gap-2">
+            <Button
+              type="submit"
+              className="flex items-center gap-2"
+              disabled={loading}
+            >
               <Plus className="h-4 w-4" />
-              Adicionar Produto
+              {loading ? "Adicionando..." : "Adicionar Produto"}
             </Button>
           </div>
         </form>

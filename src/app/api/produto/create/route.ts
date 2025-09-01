@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/shared/lib/user";
 import { ProdutoRepository } from "@/core/produto/produto.repository";
 import { ProdutoService } from "@/core/produto/produto.service";
 import { Product } from "@/core/produto/produto";
+import { ProdutoValidation } from "@/core/produto/produto.errors";
 
 export async function POST(req: NextRequest) {
   try {
@@ -64,10 +65,19 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(produto);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { message: "Erro interno no servidor ao criar produto" },
-      { status: StatusCode.INTERNAL_SERVER_ERROR }
+    console.error({ error });
+    if (error instanceof ProdutoValidation) {
+      return new NextResponse(JSON.stringify({ message: error.message }), {
+        status: error.statusCode,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return new NextResponse(
+      JSON.stringify({ message: "Erro interno no servidor ao criar produto" }),
+      {
+        status: StatusCode.INTERNAL_SERVER_ERROR,
+        headers: { "Content-Type": "application/json" },
+      }
     );
   }
 }
