@@ -18,6 +18,13 @@ import { Plus, AlertCircle } from "lucide-react";
 import { AddClientModalProps } from "./types";
 import { Status } from "@/infrastructure/generated/prisma";
 import { toast } from "sonner";
+import {
+  useLoading,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+  UI_LABELS,
+  LoadingButton,
+} from "@/shared/utils";
 
 export function AddClientModal({
   isOpen,
@@ -49,15 +56,14 @@ export function AddClientModal({
     status: Status.ATIVO,
     bairro: "",
   });
-  const [loading, setLoading] = useState(false);
+  const { loading, withLoading } = useLoading();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
-    try {
+    const result = await withLoading(async () => {
       const submitData = {
         ...formData,
         aniversario: formData.aniversario
@@ -66,7 +72,11 @@ export function AddClientModal({
       };
 
       await onSubmit(submitData);
+      return { success: true };
+    });
 
+    if (result.success) {
+      toast.success(SUCCESS_MESSAGES.CLIENT_CREATED);
       // Reset form
       setFormData({
         nome: "",
@@ -81,14 +91,9 @@ export function AddClientModal({
         numero: "",
         bairro: "",
       });
-    } catch (error) {
-      console.error("Erro ao criar cliente:", error);
-      toast.error(
-        `${error instanceof Error ? error.message : "Error ao criar cliente"}`
-      );
-    } finally {
       onClose();
-      setLoading(false);
+    } else {
+      toast.error(ERROR_MESSAGES.CREATE_ERROR + ": Cliente");
     }
   };
 
@@ -295,11 +300,15 @@ export function AddClientModal({
               onClick={handleCancel}
               disabled={loading}
             >
-              Cancelar
+              {UI_LABELS.CANCEL}
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Criando..." : "Criar Cliente"}
-            </Button>
+            <LoadingButton
+              type="submit"
+              loading={loading}
+              loadingText="Criando..."
+            >
+              {UI_LABELS.CREATE} Cliente
+            </LoadingButton>
           </DialogFooter>
         </form>
       </DialogContent>
