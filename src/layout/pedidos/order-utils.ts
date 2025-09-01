@@ -1,36 +1,22 @@
 import { TPedidoWithRelations } from "@/core/pedidos";
+import {
+  getOrderStatusColor,
+  getOrderStatusText,
+  formatCurrency,
+  formatDate,
+  formatDateForInput,
+  formatPhone,
+} from "@/shared/utils";
 
-export const getStatusColor = (status: TPedidoWithRelations["status"]) => {
-  switch (status) {
-    case "PENDENTE":
-      return "bg-yellow-500/20 text-yellow-600 border-yellow-500/30";
-    case "CONFIRMADO":
-      return "bg-blue-500/20 text-blue-600 border-blue-500/30";
+// Re-exportar funções centralizadas para manter compatibilidade
+export const getStatusColor = getOrderStatusColor;
+export const getStatusText = getOrderStatusText;
 
-    case "ENTREGUE":
-      return "bg-green-500/20 text-green-600 border-green-500/30";
-    case "CANCELADO":
-      return "bg-red-500/20 text-red-600 border-red-500/30";
-    default:
-      return "bg-gray-500/20 text-gray-600 border-gray-500/30";
-  }
-};
+// Re-exportar formatadores centralizados
+export { formatCurrency, formatDate, formatPhone };
 
-export const getStatusText = (status: TPedidoWithRelations["status"]) => {
-  switch (status) {
-    case "PENDENTE":
-      return "Pendente";
-    case "CONFIRMADO":
-      return "Confirmado";
-
-    case "ENTREGUE":
-      return "Entregue";
-    case "CANCELADO":
-      return "Cancelado";
-    default:
-      return "Indefinido";
-  }
-};
+// Alias para manter compatibilidade
+export const formatDateOnly = formatDateForInput;
 
 export const getDeliveryTypeText = (tipo: "balcao" | "entrega") => {
   return tipo === "balcao" ? "Balcão" : "Entrega";
@@ -53,40 +39,7 @@ export const getPaymentMethodText = (
   }
 };
 
-export const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value / 100); // Assumindo que os valores estão em centavos
-};
 
-export const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-};
-
-export const formatDateOnly = (date: Date) => {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-};
-
-export const formatPhone = (phone: string) => {
-  const cleaned = phone.replace(/\D/g, "");
-  if (cleaned.length === 11) {
-    return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-  } else if (cleaned.length === 10) {
-    return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
-  }
-  return phone;
-};
 
 export const generateOrderNumber = () => {
   const now = new Date();
