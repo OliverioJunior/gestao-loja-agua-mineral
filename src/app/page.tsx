@@ -1,8 +1,13 @@
 "use client";
+import { useState } from "react";
 import { DashboardContent } from "@/layout/dashboard";
 import { useDashboard } from "@/hooks/dashboard/useDashboard";
+import { AddOrderModal } from "@/layout/pedidos/AddOrderModal";
+import { redirect } from "next/navigation";
 
 export default function Home() {
+  const [isCreateOrderModalOpen, setIsCreateOrderModalOpen] = useState(false);
+  
   const {
     salesData,
     stockAlerts,
@@ -25,11 +30,16 @@ export default function Home() {
   };
 
   // Mapear alertas de estoque para o formato esperado pelo DashboardContent
-  const stockData = stockAlerts.map(alert => ({
+  const stockData = stockAlerts.map((alert) => ({
     product: alert.product,
     stock: alert.currentStock,
     minimum: alert.minimumStock,
-    status: alert.status === 'critical' ? 'critical' : alert.status === 'low' ? 'low' : 'ok'
+    status:
+      alert.status === "critical"
+        ? "critical"
+        : alert.status === "low"
+        ? "low"
+        : "ok",
   }));
 
   // Se houver erro, mostrar mensagem
@@ -37,9 +47,11 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">Erro ao carregar dashboard</h2>
+          <h2 className="text-xl font-semibold text-red-600 mb-2">
+            Erro ao carregar dashboard
+          </h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button 
+          <button
             onClick={refreshData}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
@@ -52,15 +64,20 @@ export default function Home() {
 
   // Handlers para as ações rápidas
   const handleNewOrder = () => {
-    console.log("Novo pedido clicado");
-    // Aqui você pode navegar para a página de novo pedido
-    // router.push('/orders/new');
+    setIsCreateOrderModalOpen(true);
+  };
+  
+  const handleOrderSuccess = () => {
+    refreshData(); // Atualizar dados do dashboard
+    setIsCreateOrderModalOpen(false);
+  };
+  
+  const handleCloseOrderModal = () => {
+    setIsCreateOrderModalOpen(false);
   };
 
   const handleAddStock = () => {
-    console.log("Adicionar estoque clicado");
-    // Aqui você pode navegar para a página de estoque
-    // router.push('/stock/add');
+    redirect("/estoque");
   };
 
   const handleNewCustomer = () => {
@@ -76,19 +93,27 @@ export default function Home() {
   };
 
   return (
-    <DashboardContent
-      salesData={salesData || fallbackSalesData}
-      stockData={stockData}
-      recentOrders={recentOrders || []}
-      todayGrowthPercentage={todayGrowthPercentage}
-      newOrdersToday={newOrdersToday}
-      lowStockCount={lowStockCount}
-      monthlyGoalPercentage={monthlyGoalPercentage}
-      loading={loading}
-      onNewOrder={handleNewOrder}
-      onAddStock={handleAddStock}
-      onNewCustomer={handleNewCustomer}
-      onViewReports={handleViewReports}
-    />
+    <>
+      <DashboardContent
+        salesData={salesData || fallbackSalesData}
+        stockData={stockData}
+        recentOrders={recentOrders || []}
+        todayGrowthPercentage={todayGrowthPercentage}
+        newOrdersToday={newOrdersToday}
+        lowStockCount={lowStockCount}
+        monthlyGoalPercentage={monthlyGoalPercentage}
+        loading={loading}
+        onNewOrder={handleNewOrder}
+        onAddStock={handleAddStock}
+        onNewCustomer={handleNewCustomer}
+        onViewReports={handleViewReports}
+      />
+      
+      <AddOrderModal
+        isOpen={isCreateOrderModalOpen}
+        onClose={handleCloseOrderModal}
+        onAdd={handleOrderSuccess}
+      />
+    </>
   );
 }

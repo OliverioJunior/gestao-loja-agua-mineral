@@ -7,6 +7,7 @@ import {
   Button,
 } from "@/shared/components/ui";
 import { Clock, Eye, Badge } from "lucide-react";
+import { redirect } from "next/navigation";
 
 interface Order {
   id: string;
@@ -91,7 +92,13 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
             </div>
           ))}
         </div>
-        <Button variant="outline" className="w-full mt-4">
+        <Button
+          variant="outline"
+          className="w-full mt-4"
+          onClick={() => {
+            redirect("/pedidos");
+          }}
+        >
           Ver todos os pedidos
         </Button>
       </CardContent>

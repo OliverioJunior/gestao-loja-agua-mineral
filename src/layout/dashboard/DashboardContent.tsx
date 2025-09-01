@@ -65,13 +65,6 @@ export function DashboardContent({
         monthlyGoalPercentage={monthlyGoalPercentage}
         loading={loading}
       />
-
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <StockStatus stockData={stockData} />
-        <RecentOrders recentOrders={recentOrders} />
-      </div>
-
       {/* Quick Actions */}
       <QuickActions
         onNewOrder={onNewOrder}
@@ -79,6 +72,12 @@ export function DashboardContent({
         onNewCustomer={onNewCustomer}
         onViewReports={onViewReports}
       />
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <StockStatus stockData={stockData} />
+        <RecentOrders recentOrders={recentOrders} />
+      </div>
     </div>
   );
 }

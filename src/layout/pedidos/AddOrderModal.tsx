@@ -32,13 +32,19 @@ import {
 import { AddOrderModalProps, IPedidoItem, ICreatePedido } from "./types";
 import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/hooks/clientes/useClientes";
-import { useProdutos } from "@/hooks/produtos/useProdutos";
+import { IProdutoEstoque, useProdutos } from "@/hooks/produtos/useProdutos";
+import { usePedidos } from "@/hooks/pedidos/usePedidos";
+import { toast } from "sonner";
+import { useLoading } from "@/shared/utils";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
+  const { loading, withLoading } = useLoading();
   const { clients: clientes } = useClientes();
   const { produtos } = useProdutos();
+  const { createPedido } = usePedidos();
 
-  const [formData, setFormData] = useState({
+  // Estado inicial do formulário
+  const initialFormData = {
     clienteId: "",
     tipoEntrega: "balcao" as "balcao" | "entrega",
     formaPagamento: "",
@@ -54,7 +60,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     },
     taxaEntrega: 0,
     desconto: 0,
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
 
   const [itens, setItens] = useState<IPedidoItem[]>([]);
   const [revenda, setRevenda] = useState(false);
@@ -65,43 +73,44 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
   // Preencher endereço automaticamente quando cliente for selecionado
   useEffect(() => {
-    if (selectedCliente && formData.tipoEntrega === "entrega") {
+    if (selectedCliente?.endereco && formData.tipoEntrega === "entrega") {
+      const { endereco } = selectedCliente;
       setFormData((prev) => ({
         ...prev,
         enderecoEntrega: {
-          logradouro: selectedCliente.endereco?.logradouro || "",
-          numero: selectedCliente.endereco?.numero || "",
-          complemento: selectedCliente.endereco?.complemento || "",
-          bairro: selectedCliente.endereco?.bairro || "",
-          cidade: selectedCliente.endereco?.cidade || "",
-          estado: selectedCliente.endereco?.estado || "",
-          cep: selectedCliente.endereco?.cep || "",
+          logradouro: endereco.logradouro || "",
+          numero: endereco.numero || "",
+          complemento: endereco.complemento || "",
+          bairro: endereco.bairro || "",
+          cidade: endereco.cidade || "",
+          estado: endereco.estado || "",
+          cep: endereco.cep || "",
         },
       }));
     }
   }, [selectedCliente, formData.tipoEntrega]);
 
+  // Função auxiliar para calcular preço baseado no tipo de venda
+  const getPreco = (produto: IProdutoEstoque) => {
+    return revenda ? produto.precoRevenda || 0 : produto.precoVenda || 0;
+  };
+
   const handleAddItem = () => {
     const produto = produtos.find((p) => p.id === selectedProduto);
     if (!produto || quantidade <= 0) return;
 
+    const precoUnitario = getPreco(produto);
     const newItem: IPedidoItem = {
       id: produto.id,
-      subtotal: revenda
-        ? (produto.precoRevenda || 0) * quantidade
-        : (produto.precoVenda || 0) * quantidade,
       produtoId: produto.id,
       produtoNome: produto.nome,
-      produtoPreco: revenda
-        ? produto.precoRevenda || 0
-        : produto.precoVenda || 0,
+      produtoPreco: precoUnitario,
       quantidade,
-      precoUnitario: revenda
-        ? produto.precoRevenda || 0
-        : produto.precoVenda || 0,
+      precoUnitario,
+      subtotal: precoUnitario * quantidade,
     };
-    setItens([...itens, newItem]);
 
+    setItens([...itens, newItem]);
     setSelectedProduto("");
     setQuantidade(1);
   };
@@ -112,13 +121,21 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
       return;
     }
 
-    const newItens = [...itens];
-    newItens[index].quantidade = newQuantity;
-    setItens(newItens);
+    setItens((prevItens) =>
+      prevItens.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              quantidade: newQuantity,
+              subtotal: item.precoUnitario * newQuantity,
+            }
+          : item
+      )
+    );
   };
 
   const handleRemoveItem = (index: number) => {
-    setItens(itens.filter((_, i) => i !== index));
+    setItens((prevItens) => prevItens.filter((_, i) => i !== index));
   };
 
   const subtotal = itens.reduce(
@@ -127,61 +144,105 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   );
   const total = subtotal - formData.desconto + formData.taxaEntrega;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.clienteId || !formData.formaPagamento || itens.length === 0) {
+
+    if (!validateForm()) {
       return;
     }
 
-    const orderData: ICreatePedido = {
-      clienteId: formData.clienteId,
-      tipoEntrega: formData.tipoEntrega,
-      formaPagamento: formData.formaPagamento as
-        | "dinheiro"
-        | "cartao_debito"
-        | "cartao_credito"
-        | "pix",
-      observacoes: formData.observacoes,
-      enderecoEntrega:
-        formData.tipoEntrega === "entrega"
-          ? formData.enderecoEntrega
-          : undefined,
-      taxaEntrega: formData.taxaEntrega,
-      desconto: formData.desconto,
-      itens: itens.map((item) => ({
-        produtoId: item.produtoId,
-        produtoNome: item.produtoNome,
-        quantidade: item.quantidade,
-        precoUnitario: item.precoUnitario,
-        subtotal: item.subtotal,
-      })),
-    };
+    const result = await withLoading(async () => {
+      try {
+        const orderData: ICreatePedido = {
+          clienteId: formData.clienteId,
+          tipoEntrega: formData.tipoEntrega,
+          formaPagamento: formData.formaPagamento as
+            | "dinheiro"
+            | "cartao_debito"
+            | "cartao_credito"
+            | "pix",
+          observacoes: formData.observacoes,
+          enderecoEntrega:
+            formData.tipoEntrega === "entrega"
+              ? formData.enderecoEntrega
+              : undefined,
+          taxaEntrega: formData.taxaEntrega,
+          desconto: formData.desconto,
+          itens: itens.map((item) => ({
+            produtoId: item.produtoId,
+            produtoNome: item.produtoNome,
+            quantidade: item.quantidade,
+            precoUnitario: item.precoUnitario,
+            subtotal: item.subtotal,
+          })),
+        };
 
-    onAdd(orderData);
-    handleClose();
+        const success = await createPedido(orderData);
+        if (success) {
+          onAdd?.(orderData); // Callback opcional para atualizar dashboard
+          return { success: true };
+        } else {
+          throw new Error("Falha ao criar pedido");
+        }
+      } catch (error) {
+        console.error("Erro ao criar pedido:", error);
+        return {
+          success: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Erro desconhecido ao criar pedido",
+        };
+      }
+    });
+
+    if (result.success) {
+      toast.success("Pedido criado com sucesso!");
+      resetForm();
+      onClose();
+    } else {
+      toast.error(result.error || "Erro ao criar pedido. Tente novamente.");
+    }
   };
 
-  const handleClose = () => {
-    setFormData({
-      clienteId: "",
-      tipoEntrega: "balcao",
-      formaPagamento: "",
-      observacoes: "",
-      enderecoEntrega: {
-        logradouro: "",
-        numero: "",
-        complemento: "",
-        bairro: "",
-        cidade: "",
-        estado: "",
-        cep: "",
-      },
-      taxaEntrega: 0,
-      desconto: 0,
-    });
+  const resetForm = () => {
+    setFormData(initialFormData);
     setItens([]);
     setSelectedProduto("");
     setQuantidade(1);
+    setRevenda(false);
+  };
+
+  // Função auxiliar para atualizar campos do endereço
+  const updateEnderecoField = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      enderecoEntrega: {
+        ...prev.enderecoEntrega,
+        [field]: value,
+      },
+    }));
+  };
+
+  // Função de validação consolidada
+  const validateForm = () => {
+    if (!formData.clienteId) {
+      toast.error("Selecione um cliente");
+      return false;
+    }
+    if (!formData.formaPagamento) {
+      toast.error("Selecione uma forma de pagamento");
+      return false;
+    }
+    if (itens.length === 0) {
+      toast.error("Adicione pelo menos um item ao pedido");
+      return false;
+    }
+    return true;
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
   };
 
@@ -215,11 +276,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um cliente">
-                        {clientes
-                          .find((c) => c.id === formData.clienteId)
-                          ?.nome.split(" ")[0] || "Nenhum"}
-                      </SelectValue>
+                      <SelectValue placeholder="Selecione um cliente" />
                     </SelectTrigger>
                     <SelectContent sideOffset={5} align="start">
                       {clientes.map((cliente) => (
@@ -269,13 +326,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       id="logradouro"
                       value={formData.enderecoEntrega.logradouro}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            logradouro: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("logradouro", e.target.value)
                       }
                       required
                     />
@@ -286,13 +337,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       id="numero"
                       value={formData.enderecoEntrega.numero}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            numero: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("numero", e.target.value)
                       }
                       required
                     />
@@ -306,13 +351,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       id="complemento"
                       value={formData.enderecoEntrega.complemento}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            complemento: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("complemento", e.target.value)
                       }
                     />
                   </div>
@@ -322,13 +361,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       id="bairro"
                       value={formData.enderecoEntrega.bairro}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            bairro: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("bairro", e.target.value)
                       }
                       required
                     />
@@ -342,13 +375,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       id="cidade"
                       value={formData.enderecoEntrega.cidade}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            cidade: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("cidade", e.target.value)
                       }
                       required
                     />
@@ -359,13 +386,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       id="estado"
                       value={formData.enderecoEntrega.estado}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            estado: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("estado", e.target.value)
                       }
                       required
                     />
@@ -376,13 +397,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       id="cep"
                       value={formData.enderecoEntrega.cep}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          enderecoEntrega: {
-                            ...prev.enderecoEntrega,
-                            cep: e.target.value,
-                          },
-                        }))
+                        updateEnderecoField("cep", e.target.value)
                       }
                       required
                     />
@@ -437,12 +452,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         .filter((p) => p.ativo)
                         .map((produto) => (
                           <SelectItem key={produto.id} value={produto.id}>
-                            {produto.nome} -{" "}
-                            {formatCurrency(
-                              revenda
-                                ? produto.precoRevenda || 0
-                                : produto.precoVenda || 0
-                            )}
+                            {produto.nome} - {formatCurrency(getPreco(produto))}
                           </SelectItem>
                         ))}
                     </SelectContent>
@@ -662,12 +672,13 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
             <Button
               type="submit"
               disabled={
+                loading ||
                 !formData.clienteId ||
                 !formData.formaPagamento ||
                 itens.length === 0
               }
             >
-              Criar Pedido
+              {loading ? "Criando Pedido..." : "Criar Pedido"}
             </Button>
           </div>
         </form>

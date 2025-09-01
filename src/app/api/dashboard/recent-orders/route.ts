@@ -19,6 +19,11 @@ export async function GET() {
       orderBy: {
         createdAt: "desc",
       },
+      where: {
+        status: {
+          equals: "PENDENTE",
+        },
+      },
       include: {
         cliente: {
           select: {
