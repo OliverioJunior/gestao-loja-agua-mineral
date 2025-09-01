@@ -201,7 +201,7 @@ export function ProductDetailsModal({
                   <div className="mt-1">
                     <Badge
                       className={`${getCategoryColor(
-                        product.categoriaId
+                        product.categoriaId || ""
                       )} border`}
                     >
                       {getCategoryText(product.categoria!.nome)}
