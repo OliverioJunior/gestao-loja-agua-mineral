@@ -22,15 +22,19 @@ import {
   categoriaOptions,
   formaPagamentoOptions,
   formatDateForInput,
-  convertToCents,
-  convertToReais,
 } from "./despesa-utils";
 import {
   CategoriaDespesa,
   FormaPagamentoDespesa,
 } from "@/infrastructure/generated/prisma";
 import { toast } from "sonner";
-import { formatCurrency } from "../produtos/AddProductModal";
+import {
+  formatCurrencyFromCents,
+  convertFormattedToCents,
+  useLoading,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+} from "@/shared/utils";
 
 export function EditDespesaModal({
   despesa,
@@ -39,7 +43,7 @@ export function EditDespesaModal({
   onSave,
   mode,
 }: EditDespesaModalProps) {
-  const [loading, setLoading] = useState(false);
+  const { loading, withLoading } = useLoading();
   const [formData, setFormData] = useState<DespesaFormData>({
     descricao: "",
     valor: "",
@@ -53,9 +57,14 @@ export function EditDespesaModal({
   useEffect(() => {
     if (isOpen) {
       if (mode === "edit" && despesa) {
+        // Converte o valor de centavos para formato de exibição
+        const valorFormatado = formatCurrencyFromCents(
+          despesa.valor.toString()
+        );
+
         setFormData({
           descricao: despesa.descricao,
-          valor: convertToReais(despesa.valor),
+          valor: valorFormatado,
           data: formatDateForInput(despesa.data),
           categoria: despesa.categoria,
           formaPagamento: despesa.formaPagamento,
@@ -79,47 +88,54 @@ export function EditDespesaModal({
 
     // Validações
     if (!formData.descricao.trim()) {
-      toast.error("Descrição é obrigatória");
+      toast.error(ERROR_MESSAGES.REQUIRED_FIELD + ": Descrição");
       return;
     }
 
     if (!formData.valor.trim()) {
-      toast.error("Valor é obrigatório");
+      toast.error(ERROR_MESSAGES.REQUIRED_FIELD + ": Valor");
       return;
     }
 
     if (!formData.data) {
-      toast.error("Data é obrigatória");
+      toast.error(ERROR_MESSAGES.REQUIRED_FIELD + ": Data");
       return;
     }
 
-    setLoading(true);
-
-    try {
+    const result = await withLoading(async () => {
       const submitData = {
         descricao: formData.descricao.trim(),
-        valor: convertToCents(formData.valor),
+        valor: convertFormattedToCents(formData.valor),
         data: new Date(formData.data),
         categoria: formData.categoria,
         formaPagamento: formData.formaPagamento,
         observacoes: formData.observacoes?.trim() || undefined,
       };
 
-      const result = await onSave(submitData);
+      return await onSave(submitData);
+    });
 
-      if (result.success) {
-        onClose();
-      }
-    } catch (error) {
-      console.error("Erro ao salvar despesa:", error);
-      toast.error("Erro ao salvar despesa");
-    } finally {
-      setLoading(false);
+    if (result.success) {
+      const message =
+        mode === "create"
+          ? SUCCESS_MESSAGES.EXPENSE_CREATED
+          : SUCCESS_MESSAGES.EXPENSE_UPDATED;
+      toast.success(message);
+      onClose();
+    } else {
+      toast.error(result.error || ERROR_MESSAGES.SAVE_ERROR);
     }
   };
 
-  const handleValueChange = (value: string) => {
-    const formatted = formatCurrency(value);
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+
+    // Remove todos os caracteres não numéricos
+    const numericOnly = inputValue.replace(/\D/g, "");
+
+    // Formata como moeda (cada dígito é um centavo)
+    const formatted = formatCurrencyFromCents(numericOnly);
+
     setFormData((prev) => ({ ...prev, valor: formatted }));
   };
 
@@ -167,7 +183,7 @@ export function EditDespesaModal({
               <Input
                 id="valor"
                 value={formData.valor}
-                onChange={(e) => handleValueChange(e.target.value)}
+                onChange={handleValueChange}
                 placeholder="0,00"
                 required
               />
