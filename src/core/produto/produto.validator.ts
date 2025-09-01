@@ -78,7 +78,7 @@ export class ProdutoValidator {
   }
 
   private static validatePrecoMaximo(preco: number, campo: string) {
-    if (preco > this.MAX_PRICE) {
+    if (preco / 100 > this.MAX_PRICE) {
       throw new ProdutoValidation(campo, preco, "preco_max_value");
     }
   }
