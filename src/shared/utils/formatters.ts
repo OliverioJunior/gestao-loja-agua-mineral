@@ -38,6 +38,30 @@ export const formatDate = (date: Date | string): string => {
 };
 
 /**
+ * Formata uma data e hora completa para o padrão brasileiro (dd/mm/aaaa hh:mm:ss)
+ *
+ * @param date - Data como Date object ou string ISO
+ * @returns String formatada no padrão brasileiro com data e hora completa
+ *
+ * @example
+ * formatDateTime(new Date()) // "25/01/2024 14:30:45"
+ * formatDateTime("2024-01-25T14:30:45Z") // "25/01/2024 14:30:45"
+ */
+export const formatDateTime = (date: Date | string): string => {
+  if (!date) return "";
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(dateObj);
+};
+
+/**
  * Formata uma data para input HTML do tipo date (yyyy-mm-dd)
  *
  * @param date - Data como Date object ou string ISO
