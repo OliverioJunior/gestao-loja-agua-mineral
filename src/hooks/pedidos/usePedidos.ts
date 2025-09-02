@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { IPedidoStats, ICreatePedido } from "@/layout/pedidos/types";
 import { TPedidoWithRelations } from "@/core/pedidos";
+import { toast } from "sonner";
 
 export interface UsePedidosReturn {
   pedidos: TPedidoWithRelations[];
@@ -25,6 +26,7 @@ export interface UsePedidosReturn {
   findByStatus: (
     status: TPedidoWithRelations["status"]
   ) => Promise<TPedidoWithRelations[]>;
+  findById: (id: string) => Promise<TPedidoWithRelations | null>;
 }
 
 export function usePedidos(): UsePedidosReturn {
@@ -84,13 +86,23 @@ export function usePedidos(): UsePedidosReturn {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao criar pedido");
+          toast.error(errorData.error || "Erro ao criar pedido", {
+            style: {
+              backgroundColor: "red",
+              color: "white",
+            },
+          });
         }
 
         // Recarregar pedidos após criação
         await fetchPedidos();
         await fetchStats();
-
+        toast.success("Pedido criado com sucesso!", {
+          style: {
+            backgroundColor: "green",
+            color: "white",
+          },
+        });
         return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Erro desconhecido");
@@ -252,6 +264,26 @@ export function usePedidos(): UsePedidosReturn {
     []
   );
 
+  const findById = useCallback(
+    async (id: string): Promise<TPedidoWithRelations | null> => {
+      try {
+        setError(null);
+
+        const response = await fetch(`/api/pedido/${id}`);
+        if (!response.ok) {
+          throw new Error("Erro ao buscar pedido");
+        }
+
+        const data: TPedidoWithRelations = await response.json();
+        return data;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Erro desconhecido");
+        return null;
+      }
+    },
+    []
+  );
+
   // Carregar pedidos e estatísticas na inicialização
   useEffect(() => {
     fetchPedidos();
@@ -271,5 +303,6 @@ export function usePedidos(): UsePedidosReturn {
     deletePedido,
     findByCliente,
     findByStatus,
+    findById,
   };
 }

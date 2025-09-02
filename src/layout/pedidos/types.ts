@@ -78,7 +78,7 @@ export interface OrderFiltersProps {
   statusFilter: string;
   onSearchChange: (term: string) => void;
   onStatusChange: (status: string) => void;
-  onAddOrder: (order: ICreatePedido) => void;
+  onAddOrder: (order: ICreatePedido) => Promise<void>;
 }
 
 export interface OrderTableProps {
@@ -119,7 +119,7 @@ export interface OrderStatsCardsProps {
 export interface AddOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (order: ICreatePedido) => void;
+  onAdd: (order: ICreatePedido) => Promise<void>;
 }
 
 export interface EditOrderModalProps {

@@ -21,8 +21,8 @@ export function OrderFilters({
 }: OrderFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleAddOrder = (order: ICreatePedido) => {
-    onAddOrder(order);
+  const handleAddOrder = async (order: ICreatePedido) => {
+    await onAddOrder(order);
     setIsAddModalOpen(false);
   };
 

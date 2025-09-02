@@ -21,6 +21,7 @@ export class PedidoRepository implements IPedidoRepository {
         criadoPorId: data.criadoPorId,
         atualizadoPorId: data.atualizadoPorId,
         enderecoId: data.enderecoId,
+        formaPagamento: data.formaPagamento,
       },
     });
   }

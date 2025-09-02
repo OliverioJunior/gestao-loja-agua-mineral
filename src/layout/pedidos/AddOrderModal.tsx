@@ -33,15 +33,14 @@ import { AddOrderModalProps, IPedidoItem, ICreatePedido } from "./types";
 import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/hooks/clientes/useClientes";
 import { IProdutoEstoque, useProdutos } from "@/hooks/produtos/useProdutos";
-import { usePedidos } from "@/hooks/pedidos/usePedidos";
 import { toast } from "sonner";
-import { ERROR_MESSAGES, SUCCESS_MESSAGES, useLoading } from "@/shared/utils";
+import { useLoading } from "@/shared/utils";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const { loading, withLoading } = useLoading();
   const { clients: clientes } = useClientes();
   const { produtos } = useProdutos();
-  const { createPedido } = usePedidos();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estado inicial do formulário
   const initialFormData = {
@@ -147,12 +146,17 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Prevenir duplos cliques
+    if (isSubmitting || loading) {
+      return;
+    }
     if (!validateForm()) {
       return;
     }
 
-    const result = await withLoading(async () => {
-      try {
+    setIsSubmitting(true);
+    try {
+      await withLoading(async () => {
         const orderData: ICreatePedido = {
           clienteId: formData.clienteId,
           tipoEntrega: formData.tipoEntrega,
@@ -176,47 +180,13 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
             subtotal: item.subtotal,
           })),
         };
-
-        const success = await createPedido(orderData);
-        if (success) {
-          onAdd?.(orderData); // Callback opcional para atualizar dashboard
-          return { success: true };
-        } else {
-          toast.error(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, {
-            style: {
-              backgroundColor: "red",
-              color: "white",
-            },
-          });
-        }
-      } catch (error) {
-        console.error("Erro ao criar pedido:", error);
-        return {
-          success: false,
-          error:
-            error instanceof Error
-              ? error.message
-              : ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        };
-      }
-    });
-
-    if (result?.success) {
-      toast.success(SUCCESS_MESSAGES.ORDER_CREATED, {
-        style: {
-          backgroundColor: "green",
-          color: "white",
-        },
+        await onAdd(orderData);
       });
+    } finally {
       resetForm();
       onClose();
-    } else {
-      toast.error(result?.error || ERROR_MESSAGES.INTERNAL_SERVER_ERROR, {
-        style: {
-          backgroundColor: "red",
-          color: "white",
-        },
-      });
+
+      setIsSubmitting(false);
     }
   };
 
@@ -226,6 +196,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     setSelectedProduto("");
     setQuantidade(1);
     setRevenda(false);
+    setIsSubmitting(false);
   };
 
   // Função auxiliar para atualizar campos do endereço
@@ -688,12 +659,13 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
               type="submit"
               disabled={
                 loading ||
+                isSubmitting ||
                 !formData.clienteId ||
                 !formData.formaPagamento ||
                 itens.length === 0
               }
             >
-              {loading ? "Criando Pedido..." : "Criar Pedido"}
+              {loading || isSubmitting ? "Criando Pedido..." : "Criar Pedido"}
             </Button>
           </div>
         </form>

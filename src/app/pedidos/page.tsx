@@ -161,7 +161,7 @@ export default function PedidosPage() {
   );
   const handleAddOrder = useCallback(
     async (order: ICreatePedido) => {
-      handleCreateOrder(order);
+      await handleCreateOrder(order);
     },
     [handleCreateOrder]
   );
