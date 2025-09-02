@@ -1,5 +1,7 @@
 "use client";
 
+import { TPedidoWithRelations } from "@/core/pedidos";
+import { formatDateTime } from "@/shared/utils/formatters";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
@@ -33,7 +35,7 @@ export interface RecentOrder {
 export function useDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [stockAlerts, setStockAlerts] = useState<StockAlert[]>([]);
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [recentOrders, setRecentOrders] = useState<TPedidoWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,9 +86,9 @@ export function useDashboard() {
 
       const data = await response.json();
       setRecentOrders(
-        data.map((order: RecentOrder) => ({
+        data.map((order: TPedidoWithRelations) => ({
           ...order,
-          date: new Date(order.createdAt),
+          createdAt: formatDateTime(order.createdAt),
         }))
       );
     } catch (err) {

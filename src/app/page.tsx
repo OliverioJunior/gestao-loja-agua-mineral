@@ -4,10 +4,11 @@ import { DashboardContent } from "@/layout/dashboard";
 import { useDashboard } from "@/hooks/dashboard/useDashboard";
 import { AddOrderModal } from "@/layout/pedidos/AddOrderModal";
 import { redirect } from "next/navigation";
-
+import { ICreatePedido } from "@/layout/pedidos";
+import { usePedidos } from "@/hooks/pedidos/usePedidos";
 export default function Home() {
   const [isCreateOrderModalOpen, setIsCreateOrderModalOpen] = useState(false);
-  
+
   const {
     salesData,
     stockAlerts,
@@ -20,6 +21,7 @@ export default function Home() {
     monthlyGoalPercentage,
     refreshData,
   } = useDashboard();
+  const { createPedido } = usePedidos();
 
   // Dados de fallback para quando salesData ainda não foi carregado
   const fallbackSalesData = {
@@ -66,12 +68,13 @@ export default function Home() {
   const handleNewOrder = () => {
     setIsCreateOrderModalOpen(true);
   };
-  
-  const handleOrderSuccess = () => {
+
+  const handleOrderSuccess = async (order: ICreatePedido) => {
     refreshData(); // Atualizar dados do dashboard
+    await createPedido(order);
     setIsCreateOrderModalOpen(false);
   };
-  
+
   const handleCloseOrderModal = () => {
     setIsCreateOrderModalOpen(false);
   };
@@ -108,7 +111,7 @@ export default function Home() {
         onNewCustomer={handleNewCustomer}
         onViewReports={handleViewReports}
       />
-      
+
       <AddOrderModal
         isOpen={isCreateOrderModalOpen}
         onClose={handleCloseOrderModal}
