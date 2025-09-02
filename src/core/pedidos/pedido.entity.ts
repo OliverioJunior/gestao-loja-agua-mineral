@@ -66,7 +66,7 @@ export interface IPedidoRepository {
   update(id: string, data: UpdatePedidoInput): Promise<TPedido>;
   delete(id: string): Promise<TPedido>;
   findAll(): Promise<TPedidoWithRelations[]>;
-  findById(id: string): Promise<TPedidoComplete | null>;
+  findById(id: string): Promise<TPedidoWithRelations | null>;
   findByClienteId(clienteId: string): Promise<TPedidoWithRelations[]>;
   findByStatus(status: StatusPedido): Promise<TPedidoWithRelations[]>;
   findByDateRange(

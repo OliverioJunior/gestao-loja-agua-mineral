@@ -6,7 +6,6 @@ import {
   UpdatePedidoInput,
   TPedido,
   TPedidoWithRelations,
-  TPedidoComplete,
 } from "./pedido.entity";
 
 export class PedidoRepository implements IPedidoRepository {
@@ -67,20 +66,25 @@ export class PedidoRepository implements IPedidoRepository {
     });
   }
 
-  async findById(id: string): Promise<TPedidoComplete | null> {
+  async findById(id: string): Promise<TPedidoWithRelations | null> {
     return await this.db.pedido.findUnique({
       where: { id },
       include: {
         cliente: true,
         itens: {
-          include: {
+          select: {
+            id: true,
+            produtoId: true,
+            quantidade: true,
+            preco: true,
             produto: {
-              include: {
-                categoria: true,
+              select: {
+                nome: true,
               },
             },
           },
         },
+        endereco: true,
       },
     });
   }

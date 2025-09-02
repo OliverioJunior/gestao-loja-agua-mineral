@@ -5,7 +5,6 @@ import {
   UpdatePedidoInput,
   TPedido,
   TPedidoWithRelations,
-  TPedidoComplete,
   StatusPedido,
   IPedidoStats,
 } from "./pedido.entity";
@@ -117,7 +116,7 @@ export class PedidoService {
     }
   }
 
-  async findById(id: string): Promise<TPedidoComplete | null> {
+  async findById(id: string): Promise<TPedidoWithRelations | null> {
     try {
       PedidoValidator.validateId(id);
       return await this.pedidoRepository.findById(id);

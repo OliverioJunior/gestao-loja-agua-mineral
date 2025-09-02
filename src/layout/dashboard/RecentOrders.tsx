@@ -10,25 +10,16 @@ import { Clock, Eye, Badge } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import { OrderDetailsModal } from "@/layout/pedidos/OrderDetailsModal";
-import { usePedidos } from "@/hooks/pedidos/usePedidos";
 import { TPedidoWithRelations } from "@/core/pedidos";
 import { toast } from "sonner";
 import { ERROR_MESSAGES } from "@/shared/constants/messages";
-
-interface Order {
-  id: string;
-  customer: string;
-  value: number;
-  status: string;
-  createdAt: string;
-}
+import { formatDateTime, formatCurrency } from "@/shared/utils";
 
 interface RecentOrdersProps {
-  recentOrders: Order[];
+  recentOrders: TPedidoWithRelations[];
 }
 
 export function RecentOrders({ recentOrders }: RecentOrdersProps) {
-  const { findById } = usePedidos();
   const [selectedOrder, setSelectedOrder] =
     useState<TPedidoWithRelations | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +28,7 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
   const handleViewOrder = async (orderId: string) => {
     try {
       setLoadingOrder(true);
-      const order = await findById(orderId);
+      const order = recentOrders.find((o) => o.id === orderId);
 
       if (order) {
         setSelectedOrder(order);
@@ -112,18 +103,15 @@ export function RecentOrders({ recentOrders }: RecentOrdersProps) {
                   </Badge>
                 </div>
                 <p className="text-sm text-[var(--muted-foreground)]">
-                  {order.customer}
+                  {order.cliente?.nome}
                 </p>
                 <p className="text-xs text-[var(--muted-foreground)]">
-                  {new Date(order.createdAt).toString()}
+                  {formatDateTime(order.createdAt)}
                 </p>
               </div>
               <div className="text-right">
                 <p className="font-semibold text-green-600 dark:text-green-400">
-                  R${" "}
-                  {order.value.toLocaleString("pt-BR", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatCurrency(order.total)}
                 </p>
                 <Button
                   variant="ghost"

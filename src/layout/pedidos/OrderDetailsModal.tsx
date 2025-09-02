@@ -32,14 +32,14 @@ export function OrderDetailsModal({
   onClose,
 }: OrderDetailsModalProps) {
   if (!order) return null;
-  console.log({ order });
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Detalhes do Pedido {order.endereco?.numero || ""}
+            Detalhes do Pedido{" "}
+            {order.endereco?.logradouro + ", " + order.endereco?.numero || ""}
           </DialogTitle>
         </DialogHeader>
 
@@ -61,7 +61,9 @@ export function OrderDetailsModal({
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">Data do Pedido:</span>
                 <span className="font-medium">
-                  {formatDate(new Date(order.createdAt!))}
+                  {formatDate(
+                    new Date(order.createdAt || new Date().toISOString())
+                  )}
                 </span>
               </div>
 

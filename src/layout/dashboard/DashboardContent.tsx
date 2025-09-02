@@ -2,6 +2,7 @@ import { KPICards } from "./KPICards";
 import { StockStatus } from "./StockStatus";
 import { RecentOrders } from "./RecentOrders";
 import { QuickActions } from "./QuickActions";
+import { TPedidoWithRelations } from "@/core/pedidos";
 
 interface SalesData {
   today: number;
@@ -17,18 +18,10 @@ interface StockItem {
   status: string;
 }
 
-interface Order {
-  id: string;
-  customer: string;
-  value: number;
-  status: string;
-  createdAt: string;
-}
-
 interface DashboardContentProps {
   salesData: SalesData;
   stockData: StockItem[];
-  recentOrders: Order[];
+  recentOrders: TPedidoWithRelations[];
   todayGrowthPercentage: number;
   newOrdersToday: number;
   lowStockCount: number;
