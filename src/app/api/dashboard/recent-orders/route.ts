@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/infrastructure";
 import { getCurrentUser } from "@/shared/lib/user";
 import { StatusCode } from "@/core/error";
+import { TPedidoComplete } from "@/core/pedidos";
 
 export async function GET() {
   try {
@@ -14,7 +15,7 @@ export async function GET() {
     }
 
     // Buscar os 5 pedidos mais recentes
-    const recentOrders = await prisma.pedido.findMany({
+    const recentOrders: TPedidoComplete[] = await prisma.pedido.findMany({
       take: 5,
       orderBy: {
         createdAt: "desc",
@@ -25,21 +26,26 @@ export async function GET() {
         },
       },
       include: {
-        cliente: {
-          select: {
-            nome: true,
+        cliente: true,
+        itens: {
+          include: {
+            produto: {
+              include: {
+                categoria: true,
+              },
+            },
           },
         },
+        endereco: true,
       },
     });
 
     // Mapear pedidos para o formato esperado
     const formattedOrders = recentOrders.map((order) => ({
+      ...order,
       id: `#${order.id.slice(-6).toUpperCase()}`, // Usar últimos 6 caracteres do ID
-      customer: order.cliente?.nome || "Cliente Desconhecido",
-      value: order.total / 100, // Valor já está em centavos
-      status: order.status.toLowerCase(), // Converter para lowercase
-      date: order.createdAt.toISOString(),
+      total: order.total, // Valor já está em centavos
+      createdAt: order.createdAt.toISOString(),
     }));
 
     return NextResponse.json(formattedOrders, { status: StatusCode.OK });
