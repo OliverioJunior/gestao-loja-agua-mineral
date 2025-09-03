@@ -6,7 +6,7 @@ import {
   NotFoundError,
   ValidationError,
 } from "@/core/error";
-import { ProdutoConflictError } from "@/core/produto/produto.errors";
+import { ProdutoConflictError } from "@/core/produto/domain/produto.errors";
 describe("ErrorHandler", () => {
   describe("handleRepositoryError", () => {
     const operation = "teste de operação";

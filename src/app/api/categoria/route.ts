@@ -1,5 +1,5 @@
-import { CategoriaRepository } from "@/core/categoria/dominio/categoria.repository";
-import { CategoriaService } from "@/core/categoria/dominio/categoria.service";
+import { CategoriaRepository } from "@/core/categoria/domain/categoria.repository";
+import { CategoriaService } from "@/core/categoria/domain/categoria.service";
 import { StatusCode } from "@/core/error";
 import { NextResponse } from "next/server";
 

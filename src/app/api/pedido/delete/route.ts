@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PedidoService } from "@/core/pedidos/pedido.service";
-import { PedidoRepository } from "@/core/pedidos/pedido.repository";
+import { PedidoService } from "@/core/pedidos/domain/pedido.service";
+import { PedidoRepository } from "@/core/pedidos/domain/pedido.repository";
 import { getCurrentUser } from "@/shared/lib/user";
 import { StatusCode } from "@/core/error";
 
@@ -17,7 +17,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const body = await request.json();
-    
+
     // Validar ID do pedido
     if (!body.id) {
       return NextResponse.json(
@@ -39,11 +39,11 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       message: "Pedido deletado com sucesso",
-      pedido: pedidoDeletado
+      pedido: pedidoDeletado,
     });
   } catch (error) {
     console.error("Erro ao deletar pedido:", error);
-    
+
     if (error instanceof Error) {
       if (error.name === "PedidoNotFoundError") {
         return NextResponse.json(

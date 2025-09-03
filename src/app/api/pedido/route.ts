@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PedidoService } from "@/core/pedidos/pedido.service";
-import { PedidoRepository } from "@/core/pedidos/pedido.repository";
+import { PedidoService } from "@/core/pedidos/domain/pedido.service";
+import { PedidoRepository } from "@/core/pedidos/domain/pedido.repository";
 import { getCurrentUser } from "@/shared/lib/user";
-import { StatusPedido } from "@/core/pedidos/pedido.entity";
+import { StatusPedido } from "@/core/pedidos/domain";
 
 const pedidoService = new PedidoService(new PedidoRepository());
 
@@ -30,10 +30,7 @@ export async function GET(request: NextRequest) {
       // Validar se o status é válido
       const validStatuses = Object.values(StatusPedido);
       if (!validStatuses.includes(status as StatusPedido)) {
-        return NextResponse.json(
-          { error: "Status inválido" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Status inválido" }, { status: 400 });
       }
       pedidos = await pedidoService.findByStatus(status as StatusPedido);
     } else if (startDate && endDate) {

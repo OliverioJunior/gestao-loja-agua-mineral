@@ -2,7 +2,7 @@ import {
   ProdutoValidation,
   ProdutoConflictError,
   ProdutoNotFoundError,
-} from "@/core/produto/produto.errors";
+} from "@/core/produto/domain/produto.errors";
 describe("ProdutoError", () => {
   describe("ProdutoValidation", () => {
     it("should throw ProdutoValidation when nome is required and is empty", () => {

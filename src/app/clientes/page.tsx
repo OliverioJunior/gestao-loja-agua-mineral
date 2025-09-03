@@ -7,8 +7,8 @@ import {
   ClientTable,
   EditClientModal,
   DeleteClientModal,
-} from "@/layout/clientes";
-import { useClientes } from "@/hooks/clientes/useClientes";
+} from "@/core/cliente/layout";
+import { useClientes } from "@/core/cliente/hooks/useClientes";
 
 export default function ClientesPage() {
   const {

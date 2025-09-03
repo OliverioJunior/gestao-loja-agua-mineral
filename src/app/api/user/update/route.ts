@@ -1,8 +1,8 @@
 import { StatusCode } from "@/core/error";
-import { UpdateUsuarioInput } from "@/core/usuário/usuario.entity";
-import { UsuarioRepository } from "@/core/usuário/usuario.repository";
-import { UsuarioService } from "@/core/usuário/usuario.service";
-import { User } from "@/core/usuário/usuario";
+import { UpdateUsuarioInput } from "@/core/usuário/domain/usuario.entity";
+import { UsuarioRepository } from "@/core/usuário/domain/usuario.repository";
+import { UsuarioService } from "@/core/usuário/domain/usuario.service";
+import { User } from "@/core/usuário/domain/usuario";
 import { NextResponse } from "next/server";
 
 export async function PUT(req: Request) {

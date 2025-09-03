@@ -1,6 +1,6 @@
 import { StatusCode } from "@/core/error";
-import { UsuarioRepository } from "@/core/usuário/usuario.repository";
-import { UsuarioService } from "@/core/usuário/usuario.service";
+import { UsuarioRepository } from "@/core/usuário/domain/usuario.repository";
+import { UsuarioService } from "@/core/usuário/domain/usuario.service";
 
 import { NextResponse } from "next/server";
 

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PedidoService } from "@/core/pedidos/pedido.service";
-import { PedidoRepository } from "@/core/pedidos/pedido.repository";
+import { PedidoService } from "@/core/pedidos/domain/pedido.service";
+import { PedidoRepository } from "@/core/pedidos/domain/pedido.repository";
 import { getCurrentUser } from "@/shared/lib/user";
-import { CreatePedidoInput } from "@/core/pedidos/pedido.entity";
+
 import { StatusCode } from "@/core/error";
-import { ItemRepository, ItemService } from "@/core/item";
+import { ItemRepository, ItemService } from "@/core/item/domain";
 import { prisma } from "@/infrastructure";
+import { CreatePedidoInput } from "@/core/pedidos/domain";
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,6 +1,6 @@
 import { StatusCode } from "@/core/error/statusCode.enum";
-import { ClienteRepository } from "@/core/cliente/cliente.repository";
-import { ClienteService } from "@/core/cliente/cliente.service";
+import { ClienteRepository } from "@/core/cliente/domain/cliente.repository";
+import { ClienteService } from "@/core/cliente/domain/cliente.service";
 import { NextResponse } from "next/server";
 
 export async function GET() {

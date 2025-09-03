@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DespesaService, DespesaRepository } from "@/core/despesas";
+import { DespesaService, DespesaRepository } from "@/core/despesas/domain";
 import { prisma } from "@/infrastructure";
 import { getCurrentUser } from "@/shared/lib/user";
 import { StatusCode } from "@/core/error";
-import { getCurrentMonthRange } from "@/layout/despesas";
+import { getCurrentMonthRange } from "@/core/despesas/layout";
 
 const despesaRepository = new DespesaRepository(prisma);
 const despesaService = new DespesaService(despesaRepository);

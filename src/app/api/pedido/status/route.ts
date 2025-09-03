@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PedidoService } from "@/core/pedidos/pedido.service";
-import { PedidoRepository } from "@/core/pedidos/pedido.repository";
+import { PedidoService } from "@/core/pedidos/domain/pedido.service";
+import { PedidoRepository } from "@/core/pedidos/domain/pedido.repository";
 import { getCurrentUser } from "@/shared/lib/user";
 import { StatusCode } from "@/core/error";
 
@@ -17,7 +17,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    
+
     // Validar campos obrigatórios
     if (!body.id || !body.status) {
       return NextResponse.json(
@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(pedidoAtualizado);
   } catch (error) {
     console.error("Erro ao atualizar status do pedido:", error);
-    
+
     if (error instanceof Error) {
       if (error.name === "PedidoNotFoundError") {
         return NextResponse.json(
@@ -53,7 +53,10 @@ export async function PUT(request: NextRequest) {
         );
       }
 
-      if (error.name === "PedidoValidation" || error.name === "PedidoBusinessRulesError") {
+      if (
+        error.name === "PedidoValidation" ||
+        error.name === "PedidoBusinessRulesError"
+      ) {
         return NextResponse.json(
           { error: error.message },
           { status: StatusCode.BAD_REQUEST }

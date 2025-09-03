@@ -1,6 +1,6 @@
 /**
  * Índice dos utilitários compartilhados
- * 
+ *
  * Este arquivo centraliza todas as exportações dos utilitários,
  * facilitando as importações em todo o sistema.
  */
@@ -21,7 +21,7 @@ export * from "./status";
 export * from "../constants/messages";
 
 // Re-exportar hooks compartilhados
-export * from "../hooks/useLoading";
+export * from "../../hooks/useLoading";
 
 // Re-exportar componentes de loading
-export * from "../components/LoadingSpinner";
+export * from "../components/layout/LoadingSpinner";

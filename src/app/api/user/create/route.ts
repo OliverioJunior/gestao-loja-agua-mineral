@@ -1,8 +1,8 @@
 import { StatusCode } from "@/core/error";
-import { User } from "@/core/usuário/usuario";
-import { CreateUsuarioInput } from "@/core/usuário/usuario.entity";
-import { UsuarioRepository } from "@/core/usuário/usuario.repository";
-import { UsuarioService } from "@/core/usuário/usuario.service";
+import { User } from "@/core/usuário/domain/usuario";
+import { CreateUsuarioInput } from "@/core/usuário/domain/usuario.entity";
+import { UsuarioRepository } from "@/core/usuário/domain/usuario.repository";
+import { UsuarioService } from "@/core/usuário/domain/usuario.service";
 import { NextResponse } from "next/server";
 import { hash } from "argon2";
 export async function POST(req: Request) {

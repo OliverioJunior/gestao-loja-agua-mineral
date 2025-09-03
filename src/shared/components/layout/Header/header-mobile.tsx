@@ -3,7 +3,10 @@ import { memo, useCallback } from "react";
 import { Droplets, Bell, Menu, User, LogOut } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { HeaderMobileProps } from "./types";
-import { useCurrentUser, getUserInitials } from "@/shared/hooks/useCurrentUser";
+import {
+  useCurrentUser,
+  getUserInitials,
+} from "@/core/usuário/hooks/useCurrentUser";
 import { useRouter } from "next/navigation";
 
 const HEADER_STYLES = {
@@ -14,7 +17,8 @@ const HEADER_STYLES = {
   icon: "text-[var(--foreground)]",
   primaryIcon: "text-[var(--primary)]",
   appName: "font-semibold text-[var(--foreground)]",
-  avatar: "h-7 w-7 bg-[var(--primary)]/20 rounded-full flex items-center justify-center",
+  avatar:
+    "h-7 w-7 bg-[var(--primary)]/20 rounded-full flex items-center justify-center",
   avatarText: "text-xs font-medium text-[var(--primary)]",
   loading: "h-4 w-4 animate-spin",
 } as const;
@@ -36,7 +40,7 @@ export const HeaderMobile = memo<HeaderMobileProps>(
   }) => {
     const { user, loading, error } = useCurrentUser();
     const router = useRouter();
-    
+
     const handleMenuClick = useCallback(() => {
       onMenuClick();
     }, [onMenuClick]);
@@ -50,7 +54,7 @@ export const HeaderMobile = memo<HeaderMobileProps>(
         const response = await fetch("/api/auth/signout", {
           method: "POST",
         });
-        
+
         if (response.ok) {
           router.push("/login");
         } else {
@@ -72,14 +76,20 @@ export const HeaderMobile = memo<HeaderMobileProps>(
 
       if (error || !user) {
         return (
-          <div className={HEADER_STYLES.avatar} aria-label="Usuário não encontrado">
+          <div
+            className={HEADER_STYLES.avatar}
+            aria-label="Usuário não encontrado"
+          >
             <User className="h-3 w-3 text-[var(--muted-foreground)]" />
           </div>
         );
       }
 
       return (
-        <div className={HEADER_STYLES.avatar} aria-label={`Perfil de ${user.name}`}>
+        <div
+          className={HEADER_STYLES.avatar}
+          aria-label={`Perfil de ${user.name}`}
+        >
           <span className={HEADER_STYLES.avatarText}>
             {getUserInitials(user.name)}
           </span>
@@ -125,10 +135,7 @@ export const HeaderMobile = memo<HeaderMobileProps>(
               aria-label="Fazer logout"
               className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             >
-              <LogOut
-                className={`${ICON_SIZES.action}`}
-                aria-hidden="true"
-              />
+              <LogOut className={`${ICON_SIZES.action}`} aria-hidden="true" />
             </Button>
           )}
 

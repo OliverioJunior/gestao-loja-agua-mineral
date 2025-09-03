@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PedidoService } from "@/core/pedidos/pedido.service";
-import { PedidoRepository } from "@/core/pedidos/pedido.repository";
+import { PedidoService } from "@/core/pedidos/domain/pedido.service";
+import { PedidoRepository } from "@/core/pedidos/domain/pedido.repository";
 
 import { StatusCode } from "@/core/error";
 import { getCurrentUser } from "@/shared/lib/user";

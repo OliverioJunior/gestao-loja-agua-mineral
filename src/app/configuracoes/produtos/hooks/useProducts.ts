@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { IProductStats, IFiltrosProdutos } from "@/layout/produtos";
+import { IProductStats, IFiltrosProdutos } from "@/core/produto/layout";
 import {
   TProdutoWithCategoria,
   CreateProdutoInput,
-} from "@/core/produto/produto.entity";
+} from "@/core/produto/domain/produto.entity";
 import { toast } from "sonner";
 import { SUCCESS_MESSAGES } from "@/shared/utils";
 

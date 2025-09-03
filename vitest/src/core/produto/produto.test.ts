@@ -1,5 +1,5 @@
-import { Product } from "@/core/produto/produto";
-import { TProduto } from "@/core/produto/produto.entity";
+import { Product } from "@/core/produto/domain/produto";
+import { TProduto } from "@/core/produto/domain/produto.entity";
 
 describe("Produto", () => {
   const data: TProduto = {

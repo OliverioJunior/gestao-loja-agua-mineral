@@ -8,8 +8,8 @@ import {
   UserTable,
   IUser,
   IUserStats,
-} from "@/layout/usuarios";
-import { UserProvider, useUser } from "@/context/user/useContext";
+} from "@/core/usuário/layout";
+import { UserProvider, useUser } from "@/core/usuário/context/useContext";
 import { toast } from "sonner";
 
 function UsuariosPageContent() {

@@ -1,7 +1,7 @@
 import { StatusCode } from "@/core/error/statusCode.enum";
 
-import { UsuarioRepository } from "@/core/usuário/usuario.repository";
-import { UsuarioService } from "@/core/usuário/usuario.service";
+import { UsuarioRepository } from "@/core/usuário/domain/usuario.repository";
+import { UsuarioService } from "@/core/usuário/domain/usuario.service";
 import { NextResponse } from "next/server";
 
 export async function GET() {

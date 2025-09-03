@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { FiltrosPesquisa } from "./FiltrosPesquisa";
 import { ProdutoRow } from "./ProdutoRow";
-import { IProdutoEstoque } from "@/hooks/produtos";
+import { IProdutoEstoque } from "@/core/produto/hooks";
 import {
   Table,
   TableBody,

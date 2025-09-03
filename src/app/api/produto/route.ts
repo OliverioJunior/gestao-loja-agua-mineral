@@ -1,6 +1,6 @@
 import { StatusCode } from "@/core/error/statusCode.enum";
-import { ProdutoRepository } from "@/core/produto/produto.repository";
-import { ProdutoService } from "@/core/produto/produto.service";
+import { ProdutoRepository } from "@/core/produto/domain/produto.repository";
+import { ProdutoService } from "@/core/produto/domain/produto.service";
 import { NextResponse } from "next/server";
 
 export async function GET() {

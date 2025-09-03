@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Cards } from "./Cards";
 import { TabelaProdutos } from "./TabelaProdutos";
 import { DialogEstoque } from "./DialogEstoque";
-import { useProdutos, IProdutoEstoque } from "@/hooks/produtos";
+import { useProdutos, IProdutoEstoque } from "@/core/produto/hooks";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 

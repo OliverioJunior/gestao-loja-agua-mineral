@@ -1,6 +1,6 @@
 import { Button, TableCell, TableRow } from "@/shared/components/ui";
 import { Package, Eye, Edit3 } from "lucide-react";
-import { IProdutoEstoque } from "@/hooks/produtos";
+import { IProdutoEstoque } from "@/core/produto/hooks";
 
 interface IProdutoRow {
   produto: IProdutoEstoque;

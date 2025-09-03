@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { DashboardContent } from "@/layout/dashboard";
 import { useDashboard } from "@/hooks/dashboard/useDashboard";
-import { AddOrderModal } from "@/layout/pedidos/AddOrderModal";
+import { AddOrderModal } from "@/core/pedidos/layout/AddOrderModal";
 import { redirect } from "next/navigation";
-import { ICreatePedido } from "@/layout/pedidos";
-import { usePedidos } from "@/hooks/pedidos/usePedidos";
+import { ICreatePedido } from "@/core/pedidos/layout";
+import { usePedidos } from "@/core/pedidos/hooks/usePedidos";
 export default function Home() {
   const [isCreateOrderModalOpen, setIsCreateOrderModalOpen] = useState(false);
 

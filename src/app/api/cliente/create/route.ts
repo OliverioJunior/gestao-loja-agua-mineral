@@ -1,12 +1,12 @@
 import { StatusCode } from "@/core/error";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/shared/lib/user";
-import { ClienteRepository } from "@/core/cliente/cliente.repository";
-import { ClienteService } from "@/core/cliente/cliente.service";
-import { Client } from "@/core/cliente/cliente";
-import { EnderecoService } from "@/core/endereco/endereco.service";
-import { EnderecoRepository } from "@/core/endereco/endereco.repository";
-import { Endereco } from "@/core/endereco/endereco";
+import { ClienteRepository } from "@/core/cliente/domain/cliente.repository";
+import { ClienteService } from "@/core/cliente/domain/cliente.service";
+import { Client } from "@/core/cliente/domain/cliente";
+import { EnderecoService } from "@/core/endereco/domain/endereco.service";
+import { EnderecoRepository } from "@/core/endereco/domain/endereco.repository";
+import { Endereco } from "@/core/endereco/domain/endereco";
 import { TiposEndereco } from "@/infrastructure/generated/prisma";
 import { prisma } from "@/infrastructure";
 

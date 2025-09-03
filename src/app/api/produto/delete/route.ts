@@ -1,8 +1,8 @@
 import { StatusCode } from "@/core/error";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/shared/lib/user";
-import { ProdutoService } from "@/core/produto/produto.service";
-import { ProdutoRepository } from "@/core/produto/produto.repository";
+import { ProdutoService } from "@/core/produto/domain/produto.service";
+import { ProdutoRepository } from "@/core/produto/domain/produto.repository";
 
 export async function DELETE(req: NextRequest) {
   try {

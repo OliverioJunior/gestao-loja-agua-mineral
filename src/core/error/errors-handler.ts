@@ -1,4 +1,4 @@
-import { ProdutoConflictError } from "../produto/produto.errors";
+import { ProdutoConflictError } from "../produto/domain/produto.errors";
 import { BaseError } from "./base.errors";
 import {
   ConflictError,

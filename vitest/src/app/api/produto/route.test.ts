@@ -1,6 +1,6 @@
 import { GET } from "@/app/api/produto/route";
-import { TProduto } from "@/core/produto/produto.entity";
-import { ProdutoService } from "@/core/produto/produto.service";
+import { TProduto } from "@/core/produto/domain/produto.entity";
+import { ProdutoService } from "@/core/produto/domain/produto.service";
 import { NextResponse } from "next/server";
 
 vitest.mock("next/server", () => ({

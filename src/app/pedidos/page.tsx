@@ -10,10 +10,10 @@ import {
   StatusTransitionModal,
   IPedidoStats,
   ICreatePedido,
-} from "@/layout/pedidos";
-import { usePedidos } from "@/hooks/pedidos/usePedidos";
-import { useVendas } from "@/hooks/vendas";
-import { TPedidoWithRelations } from "@/core/pedidos";
+} from "@/core/pedidos/layout";
+import { usePedidos } from "@/core/pedidos/hooks/usePedidos";
+import { useVendas } from "@/core/vendas/hooks";
+import { TPedidoWithRelations } from "@/core/pedidos/domain";
 
 export default function PedidosPage() {
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,9 +1,9 @@
 import { BusinessRulesError } from "@/core/error";
-import { TProduto } from "@/core/produto/produto.entity";
-import { ProdutoValidation } from "@/core/produto/produto.errors";
-import { ProdutoValidator } from "@/core/produto/produto.validator";
+import { TProduto } from "@/core/produto/domain/produto.entity";
+import { ProdutoValidationError } from "@/core/produto/domain/produto.errors";
+import { ProdutoValidation } from "@/core/produto/domain/produto.validation";
 
-describe("ProdutoValidator", () => {
+describe("ProdutoValidation", () => {
   const produtoBase: TProduto = {
     id: "1",
     nome: "produto",
@@ -26,26 +26,26 @@ describe("ProdutoValidator", () => {
   };
   describe("ValidateInput", () => {
     it("should validate all fields", () => {
-      expect(ProdutoValidator.validateInput(produtoBase)).toEqual({
+      expect(ProdutoValidation.validateInput(produtoBase)).toEqual({
         data: produtoBase,
         validate: true,
       });
     });
     it("should fail when any field is undefined", () => {
       expect(() =>
-        ProdutoValidator.validateInput({
+        ProdutoValidation.validateInput({
           ...produtoBase,
           nome: undefined as unknown as string,
         })
       ).toThrow(
-        new ProdutoValidation("produto", undefined, "all_field_required")
+        new ProdutoValidationError("produto", undefined, "all_field_required")
       );
     });
   });
   describe("ValidateCreateInput", () => {
     it("should work with all valid data", () => {
       expect(
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
         })
       ).toEqual({
@@ -55,7 +55,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when nome is empty", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           nome: "",
         })
@@ -63,7 +63,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when nome is less than 2 caracters", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           nome: "a",
         })
@@ -71,7 +71,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoVenda' is less than 0", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoVenda: -1,
         })
@@ -79,7 +79,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoVenda' is equal 0", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoVenda: 0,
         })
@@ -87,7 +87,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoVenda' is more than  999999.99", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoVenda: 1000000,
         })
@@ -95,7 +95,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoCusto' is less than 0", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoCusto: -1,
         })
@@ -103,7 +103,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoCusto' is equal than 0", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoCusto: 0,
         })
@@ -111,7 +111,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoCusto' is more than 999999.99", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoCusto: 1000000,
         })
@@ -119,7 +119,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoVenda' is less than 'precoCusto'", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoVenda: 10,
           precoCusto: 11,
@@ -128,7 +128,7 @@ describe("ProdutoValidator", () => {
     });
     it("should throw an error when 'precoVenda' is equal than 'precoCusto'", () => {
       expect(() =>
-        ProdutoValidator.validateCreateInput({
+        ProdutoValidation.validateCreateInput({
           ...produtoBase,
           precoVenda: 10,
           precoCusto: 10,
@@ -138,25 +138,25 @@ describe("ProdutoValidator", () => {
   });
   describe("ValidateUpdateInput", () => {
     it("should throw an error when no fields are update", () => {
-      expect(() => ProdutoValidator.validateUpdateInput({})).toThrow(
+      expect(() => ProdutoValidation.validateUpdateInput({})).toThrow(
         ProdutoValidation
       );
     });
     it("should throw an error when fields 'nome' is empty", () => {
       const updateNameEmpty = { nome: "" };
       expect(() =>
-        ProdutoValidator.validateUpdateInput(updateNameEmpty)
+        ProdutoValidation.validateUpdateInput(updateNameEmpty)
       ).toThrow(ProdutoValidation);
     });
     it("should throw an error when fields 'nome' is less than 2 caracters", () => {
       const validUpdate = { nome: "A" };
-      expect(() => ProdutoValidator.validateUpdateInput(validUpdate)).toThrow(
+      expect(() => ProdutoValidation.validateUpdateInput(validUpdate)).toThrow(
         ProdutoValidation
       );
     });
     it("should return success when nome is valid", () => {
       const validUpdate = { nome: "Produto Válido" };
-      const result = ProdutoValidator.validateUpdateInput(validUpdate);
+      const result = ProdutoValidation.validateUpdateInput(validUpdate);
       expect(result).toEqual({
         update: true,
         data: validUpdate,
@@ -165,31 +165,31 @@ describe("ProdutoValidator", () => {
 
     it("should throw an error when fields 'precoVenda' is less than 0", () => {
       const validUpdate = { precoVenda: -1 };
-      expect(() => ProdutoValidator.validateUpdateInput(validUpdate)).toThrow(
+      expect(() => ProdutoValidation.validateUpdateInput(validUpdate)).toThrow(
         ProdutoValidation
       );
     });
     it("should throw an error when fields 'precoCusto' is less than 0", () => {
       const validUpdate = { precoCusto: -1 };
-      expect(() => ProdutoValidator.validateUpdateInput(validUpdate)).toThrow(
+      expect(() => ProdutoValidation.validateUpdateInput(validUpdate)).toThrow(
         ProdutoValidation
       );
     });
     it("should throw when 'precoVenda' less than 'precoCusto'", () => {
       const validUpdate = { precoVenda: 10, precoCusto: 11 };
-      expect(() => ProdutoValidator.validateUpdateInput(validUpdate)).toThrow(
+      expect(() => ProdutoValidation.validateUpdateInput(validUpdate)).toThrow(
         BusinessRulesError
       );
     });
   });
   describe("validateId", () => {
     it("should throw an error when id is empty", () => {
-      expect(() => ProdutoValidator.validateId("")).toThrow(ProdutoValidation);
+      expect(() => ProdutoValidation.validateId("")).toThrow(ProdutoValidation);
     });
   });
   it("should return success when id is valid", () => {
     const id = "1";
-    const result = ProdutoValidator.validateId(id);
+    const result = ProdutoValidation.validateId(id);
     expect(result).toEqual({
       id: "1",
       validate: true,

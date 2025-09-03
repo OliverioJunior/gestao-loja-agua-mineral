@@ -1,14 +1,14 @@
-import { ClienteService } from "@/core/cliente/cliente.service";
-import { ClienteRepository } from "@/core/cliente/cliente.repository";
+import { ClienteService } from "@/core/cliente/domain/cliente.service";
+import { ClienteRepository } from "@/core/cliente/domain/cliente.repository";
 
 import { StatusCode } from "@/core/error";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/shared/lib/user";
-import { Client } from "@/core/cliente/cliente";
-import { EnderecoService } from "@/core/endereco/endereco.service";
-import { EnderecoRepository } from "@/core/endereco/endereco.repository";
+import { Client } from "@/core/cliente/domain/cliente";
+import { EnderecoService } from "@/core/endereco/domain/endereco.service";
+import { EnderecoRepository } from "@/core/endereco/domain/endereco.repository";
 import { prisma } from "@/infrastructure";
-import { Endereco } from "@/core/endereco/endereco";
+import { Endereco } from "@/core/endereco/domain/endereco";
 
 export async function PUT(req: NextRequest) {
   try {

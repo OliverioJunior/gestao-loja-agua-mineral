@@ -2,7 +2,7 @@ import { KPICards } from "./KPICards";
 import { StockStatus } from "./StockStatus";
 import { RecentOrders } from "./RecentOrders";
 import { QuickActions } from "./QuickActions";
-import { TPedidoWithRelations } from "@/core/pedidos";
+import { TPedidoWithRelations } from "@/core/pedidos/domain";
 
 interface SalesData {
   today: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import { TPedidoWithRelations } from "@/core/pedidos";
+import { TPedidoWithRelations } from "@/core/pedidos/domain";
 import { formatDateTime } from "@/shared/utils/formatters";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";

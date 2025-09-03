@@ -18,7 +18,7 @@ import {
   Edit3,
   Eye,
 } from "lucide-react";
-import { IProdutoEstoque } from "@/hooks/produtos";
+import { IProdutoEstoque } from "@/core/produto/hooks";
 
 interface DialogEstoqueProps {
   produto: IProdutoEstoque | null;
@@ -35,7 +35,9 @@ export const DialogEstoque = ({
   mode,
   onEstoqueUpdate,
 }: DialogEstoqueProps) => {
-  const [novoEstoque, setNovoEstoque] = useState(produto?.estoque?.toString() || "0");
+  const [novoEstoque, setNovoEstoque] = useState(
+    produto?.estoque?.toString() || "0"
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -51,7 +53,7 @@ export const DialogEstoque = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const estoqueNumerico = parseInt(novoEstoque);
     if (isNaN(estoqueNumerico) || estoqueNumerico < 0) {
       return;
@@ -60,7 +62,7 @@ export const DialogEstoque = ({
     setLoading(true);
     const success = await onEstoqueUpdate(produto.id, estoqueNumerico);
     setLoading(false);
-    
+
     if (success) {
       onOpenChange(false);
     }

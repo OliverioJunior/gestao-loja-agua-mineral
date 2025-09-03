@@ -9,8 +9,8 @@ import {
 import { Clock, Eye, Badge } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useState } from "react";
-import { OrderDetailsModal } from "@/layout/pedidos/OrderDetailsModal";
-import { TPedidoWithRelations } from "@/core/pedidos";
+import { OrderDetailsModal } from "@/core/pedidos/layout/OrderDetailsModal";
+import { TPedidoWithRelations } from "@/core/pedidos/domain";
 import { toast } from "sonner";
 import { ERROR_MESSAGES } from "@/shared/constants/messages";
 import { formatDateTime, formatCurrency } from "@/shared/utils";

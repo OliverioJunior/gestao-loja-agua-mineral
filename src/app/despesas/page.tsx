@@ -8,9 +8,9 @@ import {
   DespesaDetailsModal,
   EditDespesaModal,
   DeleteDespesaModal,
-} from "@/layout/despesas";
-import { useDespesas } from "@/hooks/despesas";
-import { ICreateDespesa, IUpdateDespesa } from "@/core/despesas";
+} from "@/core/despesas/layout";
+import { useDespesas } from "@/core/despesas/hooks";
+import { ICreateDespesa, IUpdateDespesa } from "@/core/despesas/domain";
 
 export default function DespesasPage() {
   const {

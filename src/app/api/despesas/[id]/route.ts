@@ -3,7 +3,7 @@ import {
   DespesaService,
   DespesaRepository,
   IUpdateDespesa,
-} from "@/core/despesas";
+} from "@/core/despesas/domain";
 import { prisma } from "@/infrastructure";
 import { getCurrentUser } from "@/shared/lib/user";
 import { StatusCode } from "@/core/error";

@@ -8,7 +8,7 @@ import {
   ProductTable,
   AddProductModal,
   DeleteConfirmModal,
-} from "@/layout/produtos";
+} from "@/core/produto/layout";
 import { useProducts } from "./hooks/useProducts";
 
 export default function ProdutosPage() {

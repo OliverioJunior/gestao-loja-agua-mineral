@@ -4,10 +4,10 @@ import {
   IProdutoRepository,
   TProduto,
   UpdateProdutoInput,
-} from "@/core/produto/produto.entity";
-import { ProdutoNotFoundError } from "@/core/produto/produto.errors";
-import { ProdutoRepository } from "@/core/produto/produto.repository";
-import { ProdutoService } from "@/core/produto/produto.service";
+} from "@/core/produto/domain/produto.entity";
+import { ProdutoNotFoundError } from "@/core/produto/domain/produto.errors";
+import { ProdutoRepository } from "@/core/produto/domain/produto.repository";
+import { ProdutoService } from "@/core/produto/domain/produto.service";
 import { prismaMock, PrismaMock } from "vitest/src/infrastructure/prisma.mock";
 
 describe("ProdutoService", () => {

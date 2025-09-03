@@ -2,8 +2,8 @@ import {
   CreateProdutoInput,
   TProduto,
   UpdateProdutoInput,
-} from "@/core/produto/produto.entity";
-import { ProdutoRepository } from "@/core/produto/produto.repository";
+} from "@/core/produto/domain/produto.entity";
+import { ProdutoRepository } from "@/core/produto/domain/produto.repository";
 import { PrismaMock, prismaMock } from "vitest/src/infrastructure/prisma.mock";
 
 describe("ProdutoRepository", () => {

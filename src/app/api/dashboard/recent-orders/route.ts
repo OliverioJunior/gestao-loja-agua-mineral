@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/infrastructure";
 import { getCurrentUser } from "@/shared/lib/user";
 import { StatusCode } from "@/core/error";
-import { TPedidoComplete } from "@/core/pedidos";
+import { TPedidoComplete } from "@/core/pedidos/domain";
 
 export async function GET() {
   try {

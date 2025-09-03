@@ -1,10 +1,10 @@
 import { StatusCode } from "@/core/error";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/shared/lib/user";
-import { ProdutoRepository } from "@/core/produto/produto.repository";
-import { ProdutoService } from "@/core/produto/produto.service";
-import { Product } from "@/core/produto/produto";
-import { ProdutoValidation } from "@/core/produto/produto.errors";
+import { ProdutoRepository } from "@/core/produto/domain/produto.repository";
+import { ProdutoService } from "@/core/produto/domain/produto.service";
+import { Product } from "@/core/produto/domain/produto";
+import { ProdutoValidationError } from "@/core/produto/domain/produto.errors";
 
 export async function POST(req: NextRequest) {
   try {
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(produto);
   } catch (error) {
     console.error({ error });
-    if (error instanceof ProdutoValidation) {
+    if (error instanceof ProdutoValidationError) {
       return new NextResponse(JSON.stringify({ message: error.message }), {
         status: error.statusCode,
         headers: { "Content-Type": "application/json" },

@@ -1,10 +1,10 @@
-import { ProdutoService } from "@/core/produto/produto.service";
-import { ProdutoRepository } from "@/core/produto/produto.repository";
+import { ProdutoService } from "@/core/produto/domain/produto.service";
+import { ProdutoRepository } from "@/core/produto/domain/produto.repository";
 
 import { StatusCode } from "@/core/error";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/shared/lib/user";
-import { Product } from "@/core/produto/produto";
+import { Product } from "@/core/produto/domain/produto";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -29,12 +29,12 @@ export async function PUT(req: NextRequest) {
     }
 
     produtoToUpdate.atualizadoPorId = currentUser.id;
-    
+
     // Tratar categoria se fornecida
     if (categoria && categoria.id) {
       produtoToUpdate.categoriaId = categoria.id;
     }
-    
+
     // Converter campos numéricos se fornecidos
     if (produtoToUpdate.estoque !== undefined) {
       produtoToUpdate.estoque = Number(produtoToUpdate.estoque);
@@ -42,7 +42,7 @@ export async function PUT(req: NextRequest) {
     if (produtoToUpdate.estoqueMinimo !== undefined) {
       produtoToUpdate.estoqueMinimo = Number(produtoToUpdate.estoqueMinimo);
     }
-    
+
     const data = new Product(produtoToUpdate, "update").validationData();
 
     const produto = await produtoService.update(id, data);

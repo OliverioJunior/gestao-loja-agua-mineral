@@ -1,5 +1,5 @@
 import { StatusCode } from "@/core/error";
-import { VendaRepository, VendaService } from "@/core/vendas";
+import { VendaRepository, VendaService } from "@/core/vendas/domain";
 import { getCurrentUser } from "@/shared/lib/user";
 import { NextRequest, NextResponse } from "next/server";
 
