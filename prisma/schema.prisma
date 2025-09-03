@@ -42,6 +42,24 @@ enum FormaPagamentoDespesa {
   CHEQUE
 }
 
+enum FormaPagamentoCompra {
+  DINHEIRO
+  PIX
+  CARTAO_DEBITO
+  CARTAO_CREDITO
+  TRANSFERENCIA
+  BOLETO
+  CHEQUE
+  PRAZO
+}
+
+enum StatusCompra {
+  PENDENTE
+  CONFIRMADA
+  RECEBIDA
+  CANCELADA
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Uuid
   name      String   @db.VarChar(255)
@@ -52,21 +70,27 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos de auditoria - criação
-  clientesCriados       Cliente[]   @relation("ClienteCreatedBy")
-  produtosCriados       Produto[]   @relation("ProdutoCreatedBy")
-  categoriasCriadas     Categoria[] @relation("CategoriaCreatedBy")
-  pedidosCriados        Pedido[]    @relation("PedidoCreatedBy")
-  itensCriados          Item[]      @relation("ItemCreatedBy")
-  vendasCriadas         Vendas[]    @relation("VendasCreatedBy")
+  clientesCriados       Cliente[]     @relation("ClienteCreatedBy")
+  produtosCriados       Produto[]     @relation("ProdutoCreatedBy")
+  categoriasCriadas     Categoria[]   @relation("CategoriaCreatedBy")
+  pedidosCriados        Pedido[]      @relation("PedidoCreatedBy")
+  itensCriados          Item[]        @relation("ItemCreatedBy")
+  vendasCriadas         Vendas[]      @relation("VendasCreatedBy")
+  fornecedoresCriados   Fornecedor[]  @relation("FornecedorCreatedBy")
+  comprasCriadas        Compra[]      @relation("CompraCreatedBy")
+  itensCompraCriados    ItemCompra[]  @relation("ItemCompraCreatedBy")
   // Relacionamentos de auditoria - atualização
-  clientesAtualizados   Cliente[]   @relation("ClienteUpdatedBy")
-  produtosAtualizados   Produto[]   @relation("ProdutoUpdatedBy")
-  categoriasAtualizadas Categoria[] @relation("CategoriaUpdatedBy")
-  pedidosAtualizados    Pedido[]    @relation("PedidoUpdatedBy")
-  itensAtualizados      Item[]      @relation("ItemUpdatedBy")
-  despesasCriadas       Despesa[]   @relation("DespesaCreatedBy")
-  despesasAtualizadas   Despesa[]   @relation("DespesaUpdatedBy")
-  vendasAtualizadas     Vendas[]    @relation("VendasUpdatedBy")
+  clientesAtualizados   Cliente[]     @relation("ClienteUpdatedBy")
+  produtosAtualizados   Produto[]     @relation("ProdutoUpdatedBy")
+  categoriasAtualizadas Categoria[]   @relation("CategoriaUpdatedBy")
+  pedidosAtualizados    Pedido[]      @relation("PedidoUpdatedBy")
+  itensAtualizados      Item[]        @relation("ItemUpdatedBy")
+  despesasCriadas       Despesa[]     @relation("DespesaCreatedBy")
+  despesasAtualizadas   Despesa[]     @relation("DespesaUpdatedBy")
+  vendasAtualizadas     Vendas[]      @relation("VendasUpdatedBy")
+  fornecedoresAtualizados Fornecedor[] @relation("FornecedorUpdatedBy")
+  comprasAtualizadas    Compra[]      @relation("CompraUpdatedBy")
+  itensCompraAtualizados ItemCompra[] @relation("ItemCompraUpdatedBy")
 
   @@map("users")
 }
@@ -90,6 +114,7 @@ model Produto {
   categoria     Categoria? @relation(fields: [categoriaId], references: [id])
   categoriaId   String?    @map("categoria_id") @db.Uuid
   Item          Item[]
+  itensCompra   ItemCompra[]
 
   // Auditoria
   criadoPor       User   @relation("ProdutoCreatedBy", fields: [criadoPorId], references: [id])
@@ -281,4 +306,93 @@ model Despesa {
   @@index([categoria])
   @@index([formaPagamento])
   @@map("despesas")
+}
+
+model Fornecedor {
+  id            String   @id @default(uuid()) @db.Uuid
+  nome          String   @db.VarChar(255)
+  razaoSocial   String?  @map("razao_social") @db.VarChar(255)
+  cnpj          String?  @unique @db.VarChar(18)
+  cpf           String?  @unique @db.VarChar(14)
+  email         String?  @db.VarChar(255)
+  telefone      String?  @db.VarChar(20)
+  endereco      String?  @db.Text
+  observacoes   String?  @db.Text
+  status        Status   @default(ATIVO)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  compras Compra[]
+
+  // Auditoria
+  criadoPor       User    @relation("FornecedorCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String  @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?   @relation("FornecedorUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String? @map("atualizado_por_id") @db.Uuid
+
+  @@index([nome])
+  @@index([cnpj])
+  @@index([cpf])
+  @@index([status])
+  @@map("fornecedores")
+}
+
+model Compra {
+  id               String               @id @default(uuid()) @db.Uuid
+  fornecedorId     String               @map("fornecedor_id") @db.Uuid
+  numeroNota       String?              @map("numero_nota") @db.VarChar(50)
+  dataCompra       DateTime             @map("data_compra") @db.Date
+  dataVencimento   DateTime?            @map("data_vencimento") @db.Date
+  total            Int                  // Valor em centavos
+  desconto         Int?                 @default(0) // Valor em centavos
+  frete            Int?                 @default(0) // Valor em centavos
+  impostos         Int?                 @default(0) // Valor em centavos
+  formaPagamento   FormaPagamentoCompra @map("forma_pagamento")
+  status           StatusCompra         @default(PENDENTE)
+  observacoes      String?              @db.Text
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  fornecedor Fornecedor   @relation(fields: [fornecedorId], references: [id])
+  itens      ItemCompra[]
+
+  // Auditoria
+  criadoPor       User    @relation("CompraCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String  @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?   @relation("CompraUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String? @map("atualizado_por_id") @db.Uuid
+
+  @@index([fornecedorId])
+  @@index([dataCompra])
+  @@index([status])
+  @@index([numeroNota])
+  @@map("compras")
+}
+
+model ItemCompra {
+  id           String   @id @default(uuid()) @db.Uuid
+  compraId     String   @map("compra_id") @db.Uuid
+  produtoId    String   @map("produto_id") @db.Uuid
+  quantidade   Int
+  precoUnitario Int     @map("preco_unitario") // Valor em centavos
+  precoTotal   Int      @map("preco_total") // Valor em centavos
+  desconto     Int?     @default(0) // Valor em centavos
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  compra  Compra  @relation(fields: [compraId], references: [id], onDelete: Cascade)
+  produto Produto @relation(fields: [produtoId], references: [id])
+
+  // Auditoria
+  criadoPor       User    @relation("ItemCompraCreatedBy", fields: [criadoPorId], references: [id])
+  criadoPorId     String  @map("criado_por_id") @db.Uuid
+  atualizadoPor   User?   @relation("ItemCompraUpdatedBy", fields: [atualizadoPorId], references: [id])
+  atualizadoPorId String? @map("atualizado_por_id") @db.Uuid
+
+  @@index([compraId])
+  @@index([produtoId])
+  @@map("itens_compra")
 }
