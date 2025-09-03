@@ -1,4 +1,4 @@
-import { ConflictError, NotFoundError, ValidationError } from "../error";
+import { ConflictError, NotFoundError, ValidationError } from "../../error";
 
 type TMessages = {
   id_required: "ID é obrigatório";
@@ -9,7 +9,7 @@ type TMessages = {
   field_not_allowed: "Campo não permitido";
 };
 
-export class CategoriaValidation extends ValidationError {
+export class CategoriaValidationError extends ValidationError {
   constructor(field: string, value: unknown, rule: keyof TMessages) {
     const messages: TMessages = {
       id_required: "ID é obrigatório",

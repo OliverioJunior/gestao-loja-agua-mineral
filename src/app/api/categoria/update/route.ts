@@ -1,6 +1,6 @@
-import { CategoriaService } from "@/core/categoria/categoria.service";
-import { CategoriaRepository } from "@/core/categoria/categoria.repository";
-import { Category } from "@/core/categoria/categoria";
+import { CategoriaService } from "@/core/categoria/dominio/categoria.service";
+import { CategoriaRepository } from "@/core/categoria/dominio/categoria.repository";
+import { Category } from "@/core/categoria/dominio/categoria";
 import { StatusCode } from "@/core/error";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/shared/lib/user";

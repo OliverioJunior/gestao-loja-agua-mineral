@@ -1,5 +1,5 @@
 import { CreateProdutoInput } from "@/core/produto/produto.entity";
-import { useCategory } from "@/hooks/categoria/useCategory";
+import { useCategory } from "@/core/categoria/hooks/useCategory";
 import {
   Dialog,
   DialogContent,

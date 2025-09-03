@@ -3,9 +3,9 @@ import {
   TCategoria,
   UpdateCategoriaInput,
 } from "./categoria.entity";
-import { CategoriaValidation } from "./categoria.errors";
+import { CategoriaValidationError } from "./categoria.errors";
 
-export class CategoriaValidator {
+export class CategoriaValidation {
   private static readonly MIN_NAME_LENGTH = 2;
 
   private static readonly ALLOWED_CREATE_FIELDS = [
@@ -57,17 +57,17 @@ export class CategoriaValidator {
 
   static validateId(id: string) {
     if (!id) {
-      throw new CategoriaValidation("id", id, "id_required");
+      throw new CategoriaValidationError("id", id, "id_required");
     }
     return { id, validate: true };
   }
 
   private static validateNome(nome: string) {
     if (!nome?.trim()) {
-      throw new CategoriaValidation("nome", nome, "nome_required");
+      throw new CategoriaValidationError("nome", nome, "nome_required");
     }
     if (nome.trim().length < this.MIN_NAME_LENGTH) {
-      throw new CategoriaValidation("nome", nome, "nome_min_length");
+      throw new CategoriaValidationError("nome", nome, "nome_min_length");
     }
   }
 
@@ -79,7 +79,7 @@ export class CategoriaValidator {
     );
 
     if (!hasAtLeastOneField) {
-      throw new CategoriaValidation(
+      throw new CategoriaValidationError(
         "categoria",
         data,
         "categoria_required_to_update"
@@ -92,7 +92,7 @@ export class CategoriaValidator {
 
     fields.forEach((field) => {
       if (data[field] === undefined) {
-        throw new CategoriaValidation(
+        throw new CategoriaValidationError(
           "categoria",
           data[field],
           "all_field_required"
@@ -109,7 +109,7 @@ export class CategoriaValidator {
     const extraFields = dataKeys.filter((key) => !allowedFields.includes(key));
 
     if (extraFields.length > 0) {
-      throw new CategoriaValidation(
+      throw new CategoriaValidationError(
         "categoria",
         extraFields,
         "field_not_allowed"

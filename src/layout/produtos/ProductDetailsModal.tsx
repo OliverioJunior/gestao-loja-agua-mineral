@@ -26,7 +26,7 @@ import {
 import { TProdutoWithCategoria } from "@/core/produto/produto.entity";
 
 import { useState, useEffect } from "react";
-import { useCategory } from "@/hooks/categoria/useCategory";
+import { useCategory } from "@/core/categoria/hooks/useCategory";
 
 // Função para formatar valor monetário brasileiro
 const formatCurrency = (value: string): string => {

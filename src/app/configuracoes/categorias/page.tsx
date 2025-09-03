@@ -9,7 +9,7 @@ import {
   EditCategoryModal,
   ICategory,
   ICategoryStats,
-} from "@/layout/categorias";
+} from "@/core/categoria/layout";
 
 export default function CategoriasPage() {
   const [searchTerm, setSearchTerm] = useState("");

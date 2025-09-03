@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { ICategory } from "@/layout/categorias";
+import { ICategory } from "@/core/categoria/layout";
 
 export const useCategory = () => {
   const [categories, setCategories] = useState<ICategory[]>([]);

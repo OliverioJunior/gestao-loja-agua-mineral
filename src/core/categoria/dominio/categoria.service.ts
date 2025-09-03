@@ -1,4 +1,4 @@
-import { ErrorHandler } from "../error/errors-handler";
+import { ErrorHandler } from "../../error/errors-handler";
 import {
   ICategoriaRepository,
   CreateCategoriaInput,
@@ -6,7 +6,7 @@ import {
   TCategoria,
 } from "./categoria.entity";
 import { CategoriaNotFoundError } from "./categoria.errors";
-import { CategoriaValidator } from "./categoria.validator";
+import { CategoriaValidation } from "./categoria.validation";
 
 export class CategoriaService {
   constructor(private categoriaRepository: ICategoriaRepository) {}
@@ -14,7 +14,7 @@ export class CategoriaService {
   async create(data: CreateCategoriaInput): Promise<TCategoria> {
     try {
       const { data: validatedData } =
-        CategoriaValidator.validateCreateInput(data);
+        CategoriaValidation.validateCreateInput(data);
       return await this.categoriaRepository.create(validatedData);
     } catch (error) {
       return ErrorHandler.handleRepositoryError(error, "criação de categoria");
@@ -23,8 +23,8 @@ export class CategoriaService {
 
   async update(id: string, data: UpdateCategoriaInput): Promise<TCategoria> {
     try {
-      CategoriaValidator.validateId(id);
-      CategoriaValidator.validateUpdateInput(data);
+      CategoriaValidation.validateId(id);
+      CategoriaValidation.validateUpdateInput(data);
 
       const exists = await this.categoriaRepository.existsById(id);
       if (!exists) {
@@ -42,7 +42,7 @@ export class CategoriaService {
 
   async delete(id: string): Promise<TCategoria> {
     try {
-      CategoriaValidator.validateId(id);
+      CategoriaValidation.validateId(id);
 
       const exists = await this.categoriaRepository.existsById(id);
       if (!exists) {
@@ -57,7 +57,7 @@ export class CategoriaService {
 
   async findById(id: string): Promise<TCategoria | null> {
     try {
-      CategoriaValidator.validateId(id);
+      CategoriaValidation.validateId(id);
 
       const categoria = await this.categoriaRepository.findById(id);
       if (!categoria) {
