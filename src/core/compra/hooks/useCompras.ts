@@ -1,18 +1,20 @@
+"use client";
+
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import {
   TCompraWithRelations,
-  CreateCompraInput,
-  UpdateCompraInput
+  UpdateCompraInput,
 } from "../domain/compra.entity";
-import { Compra } from "../domain/compra";
+import { CreateCompraWithItensInput } from "../layout/types";
+import { Compra } from "../domain";
 
 export interface ICompraHook {
   // Estados principais
   compras: TCompraWithRelations[];
   loading: boolean;
   error: string | null;
-  
+
   // Estados de UI
   searchTerm: string;
   statusFilter: string;
@@ -25,13 +27,13 @@ export interface ICompraHook {
   isEditModalOpen: boolean;
   isDetailsModalOpen: boolean;
   isDeleteModalOpen: boolean;
-  
+
   // Operações CRUD
   fetchCompras: () => Promise<void>;
-  createCompra: (data: CreateCompraInput) => Promise<void>;
+  createCompra: (data: CreateCompraWithItensInput) => Promise<void>;
   updateCompra: (id: string, data: UpdateCompraInput) => Promise<void>;
   deleteCompra: (id: string) => Promise<void>;
-  
+
   // Operações específicas
   fetchComprasByFornecedor: (fornecedorId: string) => Promise<void>;
   fetchComprasByStatus: (status: string) => Promise<void>;
@@ -49,17 +51,20 @@ export interface ICompraHook {
     valorTotal: number;
     valorMedio: number;
   } | null>;
-  
+
   // Handlers de UI
   setSearchTerm: (term: string) => void;
   setStatusFilter: (status: string) => void;
-  setDateFilter: (filter: { startDate: Date | null; endDate: Date | null }) => void;
+  setDateFilter: (filter: {
+    startDate: Date | null;
+    endDate: Date | null;
+  }) => void;
   handleCompraClick: (compra: TCompraWithRelations) => void;
   handleAddClick: () => void;
   handleEditClick: (compra: TCompraWithRelations) => void;
   handleDeleteClick: (compra: TCompraWithRelations) => void;
   handleCloseModals: () => void;
-  
+
   // Dados computados
   filteredCompras: TCompraWithRelations[];
   totalCompras: number;
@@ -75,7 +80,7 @@ export const useCompras = (): ICompraHook => {
   const [compras, setCompras] = useState<TCompraWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Estados de UI
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("TODOS");
@@ -83,7 +88,8 @@ export const useCompras = (): ICompraHook => {
     startDate: Date | null;
     endDate: Date | null;
   }>({ startDate: null, endDate: null });
-  const [selectedCompra, setSelectedCompra] = useState<TCompraWithRelations | null>(null);
+  const [selectedCompra, setSelectedCompra] =
+    useState<TCompraWithRelations | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -94,10 +100,21 @@ export const useCompras = (): ICompraHook => {
     try {
       setLoading(true);
       setError(null);
-      const fetchedCompras = await Compra.service.findAll();
-      setCompras(fetchedCompras);
+
+      const response = await fetch("/api/compra");
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "Erro ao carregar compras");
+      }
+
+      setCompras(data.data || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao carregar compras";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao carregar compras";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -105,63 +122,127 @@ export const useCompras = (): ICompraHook => {
     }
   }, []);
 
-  const createCompra = useCallback(async (data: CreateCompraInput) => {
-    try {
-      setLoading(true);
-      await Compra.service.create(data);
-      await fetchCompras();
-      toast.success("Compra criada com sucesso!");
-      handleCloseModals();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao criar compra";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCompras]);
+  const createCompra = useCallback(
+    async (data: CreateCompraWithItensInput) => {
+      try {
+        setLoading(true);
 
-  const updateCompra = useCallback(async (id: string, data: UpdateCompraInput) => {
-    try {
-      setLoading(true);
-      await Compra.service.update(id, data);
-      await fetchCompras();
-      toast.success("Compra atualizada com sucesso!");
-      handleCloseModals();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao atualizar compra";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCompras]);
+        const response = await fetch("/api/compra", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
 
-  const deleteCompra = useCallback(async (id: string) => {
-    try {
-      setLoading(true);
-      await Compra.service.delete(id);
-      await fetchCompras();
-      toast.success("Compra excluída com sucesso!");
-      handleCloseModals();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao excluir compra";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCompras]);
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao criar compra");
+        }
+
+        await fetchCompras();
+        toast.success("Compra criada com sucesso!");
+        handleCloseModals();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao criar compra";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCompras]
+  );
+
+  const updateCompra = useCallback(
+    async (id: string, data: UpdateCompraInput) => {
+      try {
+        setLoading(true);
+
+        const response = await fetch(`/api/compra/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao atualizar compra");
+        }
+
+        await fetchCompras();
+        toast.success("Compra atualizada com sucesso!");
+        handleCloseModals();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao atualizar compra";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCompras]
+  );
+
+  const deleteCompra = useCallback(
+    async (id: string) => {
+      try {
+        setLoading(true);
+
+        const response = await fetch(`/api/compra/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao excluir compra");
+        }
+
+        await fetchCompras();
+        toast.success("Compra excluída com sucesso!");
+        handleCloseModals();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao excluir compra";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCompras]
+  );
 
   // Operações específicas
   const fetchComprasByFornecedor = useCallback(async (fornecedorId: string) => {
     try {
       setLoading(true);
       setError(null);
-      const fetchedCompras = await Compra.service.findByFornecedorId(fornecedorId);
+      const fetchedCompras = await Compra.service.findByFornecedorId(
+        fornecedorId
+      );
       setCompras(fetchedCompras);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao carregar compras por fornecedor";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erro ao carregar compras por fornecedor";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -176,7 +257,10 @@ export const useCompras = (): ICompraHook => {
       const fetchedCompras = await Compra.service.findByStatus(status);
       setCompras(fetchedCompras);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao carregar compras por status";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erro ao carregar compras por status";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -184,20 +268,29 @@ export const useCompras = (): ICompraHook => {
     }
   }, []);
 
-  const fetchComprasByDateRange = useCallback(async (startDate: Date, endDate: Date) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const fetchedCompras = await Compra.service.findByDateRange(startDate, endDate);
-      setCompras(fetchedCompras);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao carregar compras por período";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchComprasByDateRange = useCallback(
+    async (startDate: Date, endDate: Date) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const fetchedCompras = await Compra.service.findByDateRange(
+          startDate,
+          endDate
+        );
+        setCompras(fetchedCompras);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Erro ao carregar compras por período";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   const searchByNumeroNota = useCallback(async (numeroNota: string) => {
     try {
@@ -206,7 +299,10 @@ export const useCompras = (): ICompraHook => {
       const compra = await Compra.service.findByNumeroNota(numeroNota);
       setCompras(compra ? [compra] : []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao buscar compra por número da nota";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erro ao buscar compra por número da nota";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -214,44 +310,124 @@ export const useCompras = (): ICompraHook => {
     }
   }, []);
 
-  const confirmarCompra = useCallback(async (id: string) => {
-    try {
-      await Compra.service.confirmarCompra(id, 'current-user-id'); // TODO: Obter do contexto
-      await fetchCompras();
-      toast.success("Compra confirmada com sucesso!");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao confirmar compra";
-      toast.error(errorMessage);
-    }
-  }, [fetchCompras]);
+  const confirmarCompra = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetch("/api/compra/status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            compraId: id,
+            status: "CONFIRMADA",
+          }),
+        });
 
-  const receberCompra = useCallback(async (id: string) => {
-    try {
-      await Compra.service.receberCompra(id, 'current-user-id'); // TODO: Obter do contexto
-      await fetchCompras();
-      toast.success("Compra recebida com sucesso!");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao receber compra";
-      toast.error(errorMessage);
-    }
-  }, [fetchCompras]);
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
 
-  const cancelarCompra = useCallback(async (id: string) => {
-    try {
-      await Compra.service.cancelarCompra(id, 'current-user-id'); // TODO: Obter do contexto
-      await fetchCompras();
-      toast.success("Compra cancelada com sucesso!");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao cancelar compra";
-      toast.error(errorMessage);
-    }
-  }, [fetchCompras]);
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao confirmar compra");
+        }
+
+        await fetchCompras();
+        toast.success("Compra confirmada com sucesso!");
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao confirmar compra";
+        toast.error(errorMessage);
+      }
+    },
+    [fetchCompras]
+  );
+
+  const receberCompra = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetch("/api/compra/status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            compraId: id,
+            status: "RECEBIDA",
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao receber compra");
+        }
+
+        await fetchCompras();
+        toast.success("Compra recebida com sucesso!");
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao receber compra";
+        toast.error(errorMessage);
+      }
+    },
+    [fetchCompras]
+  );
+
+  const cancelarCompra = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetch("/api/compra/status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            compraId: id,
+            status: "CANCELADA",
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao cancelar compra");
+        }
+
+        await fetchCompras();
+        toast.success("Compra cancelada com sucesso!");
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao cancelar compra";
+        toast.error(errorMessage);
+      }
+    },
+    [fetchCompras]
+  );
 
   const getStatistics = useCallback(async () => {
     try {
-      return await Compra.service.getStatistics();
+      const response = await fetch("/api/compra/stats");
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "Erro ao obter estatísticas");
+      }
+
+      return data.data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao obter estatísticas";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao obter estatísticas";
       toast.error(errorMessage);
       return null;
     }
@@ -292,25 +468,29 @@ export const useCompras = (): ICompraHook => {
 
     // Filtrar por status
     if (statusFilter !== "TODOS") {
-      filtered = filtered.filter(compra => compra.status === statusFilter);
+      filtered = filtered.filter((compra) => compra.status === statusFilter);
     }
 
     // Filtrar por termo de busca
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(compra => 
-        compra.numeroNota?.toLowerCase().includes(term) ||
-        compra.fornecedor?.nome?.toLowerCase().includes(term) ||
-        compra.fornecedor?.razaoSocial?.toLowerCase().includes(term) ||
-        compra.observacoes?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (compra) =>
+          compra.numeroNota?.toLowerCase().includes(term) ||
+          compra.fornecedor?.nome?.toLowerCase().includes(term) ||
+          compra.fornecedor?.razaoSocial?.toLowerCase().includes(term) ||
+          compra.observacoes?.toLowerCase().includes(term)
       );
     }
 
     // Filtrar por intervalo de datas
     if (dateFilter.startDate && dateFilter.endDate) {
-      filtered = filtered.filter(compra => {
+      filtered = filtered.filter((compra) => {
         const dataCompra = new Date(compra.dataCompra);
-        return dataCompra >= dateFilter.startDate! && dataCompra <= dateFilter.endDate!;
+        return (
+          dataCompra >= dateFilter.startDate! &&
+          dataCompra <= dateFilter.endDate!
+        );
       });
     }
 
@@ -320,24 +500,24 @@ export const useCompras = (): ICompraHook => {
   const totalCompras = useMemo(() => filteredCompras.length, [filteredCompras]);
 
   const comprasPendentes = useMemo(() => {
-    return filteredCompras.filter(c => c.status === 'PENDENTE').length;
+    return filteredCompras.filter((c) => c.status === "PENDENTE").length;
   }, [filteredCompras]);
 
   const comprasConfirmadas = useMemo(() => {
-    return filteredCompras.filter(c => c.status === 'CONFIRMADA').length;
+    return filteredCompras.filter((c) => c.status === "CONFIRMADA").length;
   }, [filteredCompras]);
 
   const comprasRecebidas = useMemo(() => {
-    return filteredCompras.filter(c => c.status === 'RECEBIDA').length;
+    return filteredCompras.filter((c) => c.status === "RECEBIDA").length;
   }, [filteredCompras]);
 
   const comprasCanceladas = useMemo(() => {
-    return filteredCompras.filter(c => c.status === 'CANCELADA').length;
+    return filteredCompras.filter((c) => c.status === "CANCELADA").length;
   }, [filteredCompras]);
 
   const valorTotalFiltrado = useMemo(() => {
     return filteredCompras.reduce((sum, compra) => {
-      if (['CONFIRMADA', 'RECEBIDA'].includes(compra.status)) {
+      if (["CONFIRMADA", "RECEBIDA"].includes(compra.status)) {
         return sum + compra.total;
       }
       return sum;
@@ -355,7 +535,7 @@ export const useCompras = (): ICompraHook => {
     compras: filteredCompras,
     loading,
     error,
-    
+
     // Estados de UI
     searchTerm,
     statusFilter,
@@ -365,13 +545,13 @@ export const useCompras = (): ICompraHook => {
     isEditModalOpen,
     isDetailsModalOpen,
     isDeleteModalOpen,
-    
+
     // Operações CRUD
     fetchCompras,
     createCompra,
     updateCompra,
     deleteCompra,
-    
+
     // Operações específicas
     fetchComprasByFornecedor,
     fetchComprasByStatus,
@@ -381,7 +561,7 @@ export const useCompras = (): ICompraHook => {
     receberCompra,
     cancelarCompra,
     getStatistics,
-    
+
     // Handlers de UI
     setSearchTerm,
     setStatusFilter,
@@ -391,7 +571,7 @@ export const useCompras = (): ICompraHook => {
     handleEditClick,
     handleDeleteClick,
     handleCloseModals,
-    
+
     // Dados computados
     filteredCompras,
     totalCompras,
@@ -399,6 +579,6 @@ export const useCompras = (): ICompraHook => {
     comprasConfirmadas,
     comprasRecebidas,
     comprasCanceladas,
-    valorTotalFiltrado
+    valorTotalFiltrado,
   };
 };

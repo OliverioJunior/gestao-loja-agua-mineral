@@ -33,10 +33,15 @@ export function useProdutos() {
         throw new Error("Erro ao carregar produtos");
       }
 
-      const data: TProdutoWithCategoria[] = await response.json();
-
+      const data = await response.json();
+      const dados = data.data as TProdutoWithCategoria[];
       // Transformar dados para o formato do estoque
-      const produtosEstoque: IProdutoEstoque[] = data.map((produto) => {
+
+      if (dados.length === 0) {
+        setProdutos([]);
+        return;
+      }
+      const produtosEstoque: IProdutoEstoque[] = dados.map((produto) => {
         const estoqueMinimo = produto.estoqueMinimo ?? 0;
         const status = getStatusEstoque(produto.estoque, estoqueMinimo);
 
