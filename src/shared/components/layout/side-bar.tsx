@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   Receipt,
+  ShoppingBag,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { usePathname, redirect } from "next/navigation";
@@ -62,6 +63,18 @@ export const SideBar: React.FC<ISideBar> = ({ sidebarOpen, closeSidebar }) => {
           >
             <ShoppingCart className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
             Pedidos
+          </Button>
+          
+          <Button
+            variant={pathname === "/compras" ? "secondary" : "ghost"}
+            className="w-full justify-start text-[var(--sidebar-foreground)]"
+            onClick={() => {
+              closeSidebar();
+              redirect("/compras");
+            }}
+          >
+            <ShoppingBag className="mr-2 h-4 w-4 text-[var(--sidebar-foreground)]" />
+            Compras
           </Button>
           <Button
             variant={pathname === "/estoque" ? "secondary" : "ghost"}

@@ -46,8 +46,6 @@ export async function middleware(request: NextRequest) {
     response.cookies.delete("session");
     return response;
   }
-
-  return NextResponse.next();
 }
 
 // Configurar quais rotas o middleware deve interceptar
