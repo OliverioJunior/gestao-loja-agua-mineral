@@ -16,8 +16,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Gestão Loja Água Mineral",
-  description: "Sistema completo de gestão para loja de água mineral - pedidos, estoque, clientes e vendas",
-  keywords: ["gestão", "água mineral", "pedidos", "estoque", "vendas", "clientes"],
+  description:
+    "Sistema completo de gestão para loja de água mineral - pedidos, estoque, clientes e vendas",
+  keywords: [
+    "gestão",
+    "água mineral",
+    "pedidos",
+    "estoque",
+    "vendas",
+    "clientes",
+  ],
   authors: [{ name: "AquaGestão Team" }],
   creator: "AquaGestão",
   publisher: "AquaGestão",
@@ -26,51 +34,51 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://aquagestao.com'),
+  metadataBase: new URL("https://aquagestao.com"),
   alternates: {
-    canonical: '/',
+    canonical: "/",
   },
   openGraph: {
     title: "AquaGestão - Sistema de Gestão",
     description: "Sistema completo de gestão para loja de água mineral",
-    url: 'https://aquagestao.com',
-    siteName: 'AquaGestão',
+    url: "https://aquagestao.com",
+    siteName: "AquaGestão",
     images: [
       {
-        url: '/icon-512x512.svg',
+        url: "/icon-512x512.svg",
         width: 512,
         height: 512,
-        alt: 'AquaGestão Logo',
+        alt: "AquaGestão Logo",
       },
     ],
-    locale: 'pt_BR',
-    type: 'website',
+    locale: "pt_BR",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: "AquaGestão - Sistema de Gestão",
     description: "Sistema completo de gestão para loja de água mineral",
-    images: ['/icon-512x512.svg'],
+    images: ["/icon-512x512.svg"],
   },
   viewport: {
-    width: 'device-width',
+    width: "device-width",
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
-    viewportFit: 'cover',
+    viewportFit: "cover",
   },
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0ea5e9' },
-    { media: '(prefers-color-scheme: dark)', color: '#0ea5e9' },
+    { media: "(prefers-color-scheme: light)", color: "#0ea5e9" },
+    { media: "(prefers-color-scheme: dark)", color: "#0ea5e9" },
   ],
-  manifest: '/manifest.json',
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'AquaGestão',
+    statusBarStyle: "default",
+    title: "AquaGestão",
   },
-  applicationName: 'AquaGestão',
-  category: 'business',
+  applicationName: "AquaGestão",
+  category: "business",
 };
 
 export default function RootLayout({
@@ -79,7 +87,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" className="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

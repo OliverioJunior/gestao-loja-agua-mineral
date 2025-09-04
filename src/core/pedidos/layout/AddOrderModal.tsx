@@ -251,9 +251,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                 Informações do Cliente
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
+            <CardContent className="space-y-6">
+              <div className="flex flex-col space-y-6">
+                <div className="flex flex-col space-y-2">
                   <Label htmlFor="cliente">Cliente *</Label>
                   <Select
                     value={formData.clienteId}
@@ -261,7 +261,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       setFormData((prev) => ({ ...prev, clienteId: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione um cliente" />
                     </SelectTrigger>
                     <SelectContent sideOffset={5} align="start">
@@ -274,7 +274,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   </Select>
                 </div>
 
-                <div className="grid gap-2">
+                <div className="flex flex-col space-y-2">
                   <Label htmlFor="tipoEntrega">Tipo de Entrega *</Label>
                   <Select
                     value={formData.tipoEntrega}
@@ -282,7 +282,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       setFormData((prev) => ({ ...prev, tipoEntrega: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
