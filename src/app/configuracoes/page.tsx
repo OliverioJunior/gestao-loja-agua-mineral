@@ -5,7 +5,7 @@ import {
   CardTitle,
   CardContent,
 } from "@/shared/components/ui";
-import { Users, Package, ShoppingCart, ChevronRight } from "lucide-react";
+import { Users, Package, ShoppingCart, Building, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 interface ConfigItem {
@@ -38,6 +38,13 @@ export default function Configuracaos() {
       icon: <ShoppingCart className="h-5 w-5" />,
       color: "bg-chart-4/10 text-chart-4 border-chart-4/20",
       href: "/configuracoes/produtos",
+    },
+    {
+      title: "Gestão de Fornecedores",
+      description: "Cadastrar e gerenciar fornecedores e parceiros",
+      icon: <Building className="h-5 w-5" />,
+      color: "bg-chart-3/10 text-chart-3 border-chart-3/20",
+      href: "/configuracoes/fornecedores",
     },
   ];
 
