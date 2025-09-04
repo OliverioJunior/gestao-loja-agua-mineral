@@ -12,6 +12,7 @@ import {
   CompraCanceladaError,
 } from "./compra.errors";
 import { ErrorHandler } from "../../error/errors-handler";
+import { EstoqueService } from "./estoque.service";
 import { StatusCompra } from "@/infrastructure/generated/prisma";
 
 export interface ICompraService {
@@ -306,21 +307,66 @@ export class CompraService implements ICompraService {
   }
 
   /**
-   * Recebe uma compra
+   * Recebe uma compra e atualiza o estoque
    */
   async receberCompra(id: string, userId: string): Promise<TCompra> {
     try {
-      return await this.updateStatus(id, "RECEBIDA", userId);
+      // Buscar compra com itens antes de atualizar
+      const compraAntes = await this.compraRepository.findById(id);
+      if (!compraAntes) {
+        throw new CompraNotFoundError("id", id);
+      }
+
+      // Atualizar status da compra
+      const compraAtualizada = await this.updateStatus(id, "RECEBIDA", userId);
+
+      // Buscar compra atualizada com itens para atualizar estoque
+      const compraCompleta = await this.compraRepository.findById(id);
+      if (compraCompleta) {
+        try {
+          await EstoqueService.atualizarEstoqueCompra(compraCompleta);
+          console.log(`Estoque atualizado para compra ${id}`);
+        } catch (estoqueError) {
+          console.error(
+            `Erro ao atualizar estoque para compra ${id}:`,
+            estoqueError
+          );
+          // Não falhar a operação se houver erro no estoque, apenas logar
+        }
+      }
+
+      return compraAtualizada;
     } catch (error) {
       return ErrorHandler.handleRepositoryError(error, "recebimento de compra");
     }
   }
 
   /**
-   * Cancela uma compra
+   * Cancela uma compra e reverte o estoque se necessário
    */
   async cancelarCompra(id: string, userId: string): Promise<TCompra> {
     try {
+      // Buscar compra antes de cancelar
+      const compraAntes = await this.compraRepository.findById(id);
+      if (!compraAntes) {
+        throw new CompraNotFoundError("id", id);
+      }
+
+      // Se a compra estava recebida, reverter estoque
+      if (compraAntes.status === "RECEBIDA") {
+        try {
+          await EstoqueService.reverterEstoqueCompra(compraAntes);
+          console.log(`Estoque revertido para compra cancelada ${id}`);
+        } catch (estoqueError) {
+          console.error(
+            `Erro ao reverter estoque para compra ${id}:`,
+            estoqueError
+          );
+          // Não falhar a operação se houver erro no estoque, apenas logar
+        }
+      }
+
+      // Cancelar compra
       return await this.updateStatus(id, "CANCELADA", userId);
     } catch (error) {
       return ErrorHandler.handleRepositoryError(
