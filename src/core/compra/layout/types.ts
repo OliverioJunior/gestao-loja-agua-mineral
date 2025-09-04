@@ -10,9 +10,20 @@ export interface BaseModalProps {
   onClose: () => void;
 }
 
+// Tipo estendido para criação de compra com itens
+export interface CreateCompraWithItensInput extends CreateCompraInput {
+  itens?: {
+    produtoId: string;
+    quantidade: number;
+    precoUnitario: number;
+    precoTotal: number;
+    desconto?: number;
+  }[];
+}
+
 // Props para modal de criação
 export interface AddCompraModalProps extends BaseModalProps {
-  onSubmit: (data: CreateCompraInput) => Promise<void>;
+  onSubmit: (data: CreateCompraWithItensInput) => Promise<void>;
 }
 
 // Props para modal de edição

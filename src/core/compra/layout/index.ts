@@ -7,5 +7,6 @@ export * from "./CompraTable";
 export * from "./CompraRow";
 export * from "./CompraFilters";
 export * from "./CompraStatsCards";
+export * from "./CompraReports";
 export * from "./types";
 export * from "./compra-utils";
