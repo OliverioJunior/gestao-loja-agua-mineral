@@ -47,9 +47,6 @@ export class FornecedorService implements IFornecedorService {
       // Validar entrada
       FornecedorValidation.validateCreateInput(data);
 
-      // Validar UUIDs
-      FornecedorValidation.validateUUID(data.criadoPorId, "criadoPorId");
-
       // Executar operação
       return await this.fornecedorRepository.create(data);
     } catch (error) {
@@ -64,14 +61,6 @@ export class FornecedorService implements IFornecedorService {
     try {
       // Validar entrada
       FornecedorValidation.validateUpdateInput(data);
-      FornecedorValidation.validateUUID(id, "id");
-
-      if (data.atualizadoPorId) {
-        FornecedorValidation.validateUUID(
-          data.atualizadoPorId,
-          "atualizadoPorId"
-        );
-      }
 
       // Executar operação
       return await this.fornecedorRepository.update(id, data);
@@ -88,8 +77,6 @@ export class FornecedorService implements IFornecedorService {
    */
   async delete(id: string): Promise<TFornecedor> {
     try {
-      FornecedorValidation.validateUUID(id, "id");
-
       return await this.fornecedorRepository.delete(id);
     } catch (error) {
       return ErrorHandler.handleRepositoryError(
@@ -104,7 +91,6 @@ export class FornecedorService implements IFornecedorService {
    */
   async findById(id: string): Promise<TFornecedorWithRelations | null> {
     try {
-      FornecedorValidation.validateUUID(id, "id");
       return await this.fornecedorRepository.findById(id);
     } catch (error) {
       return ErrorHandler.handleRepositoryError(
@@ -238,9 +224,6 @@ export class FornecedorService implements IFornecedorService {
    */
   async activateFornecedor(id: string, userId: string): Promise<TFornecedor> {
     try {
-      FornecedorValidation.validateUUID(id, "id");
-      FornecedorValidation.validateUUID(userId, "userId");
-
       // Verificar se o fornecedor existe
       const fornecedor = await this.fornecedorRepository.findById(id);
       if (!fornecedor) {
@@ -269,9 +252,6 @@ export class FornecedorService implements IFornecedorService {
    */
   async deactivateFornecedor(id: string, userId: string): Promise<TFornecedor> {
     try {
-      FornecedorValidation.validateUUID(id, "id");
-      FornecedorValidation.validateUUID(userId, "userId");
-
       // Verificar se o fornecedor existe
       const fornecedor = await this.fornecedorRepository.findById(id);
       if (!fornecedor) {

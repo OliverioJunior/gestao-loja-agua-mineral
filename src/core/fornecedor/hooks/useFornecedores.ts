@@ -1,9 +1,11 @@
+"use client";
+
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import {
   TFornecedorWithRelations,
   CreateFornecedorInput,
-  UpdateFornecedorInput
+  UpdateFornecedorInput,
 } from "../domain/fornecedor.entity";
 import { Fornecedor } from "../domain/fornecedor";
 
@@ -12,7 +14,7 @@ export interface IFornecedorHook {
   fornecedores: TFornecedorWithRelations[];
   loading: boolean;
   error: string | null;
-  
+
   // Estados de UI
   searchTerm: string;
   statusFilter: string;
@@ -21,13 +23,13 @@ export interface IFornecedorHook {
   isEditModalOpen: boolean;
   isDetailsModalOpen: boolean;
   isDeleteModalOpen: boolean;
-  
+
   // Operações CRUD
   fetchFornecedores: () => Promise<void>;
   createFornecedor: (data: CreateFornecedorInput) => Promise<void>;
   updateFornecedor: (id: string, data: UpdateFornecedorInput) => Promise<void>;
   deleteFornecedor: (id: string) => Promise<void>;
-  
+
   // Operações específicas
   fetchFornecedoresByStatus: (status: string) => Promise<void>;
   searchFornecedoresByName: (name: string) => Promise<void>;
@@ -39,7 +41,7 @@ export interface IFornecedorHook {
     inativos: number;
     totalCompras: number;
   } | null>;
-  
+
   // Handlers de UI
   setSearchTerm: (term: string) => void;
   setStatusFilter: (status: string) => void;
@@ -48,7 +50,7 @@ export interface IFornecedorHook {
   handleEditClick: (fornecedor: TFornecedorWithRelations) => void;
   handleDeleteClick: (fornecedor: TFornecedorWithRelations) => void;
   handleCloseModals: () => void;
-  
+
   // Dados computados
   filteredFornecedores: TFornecedorWithRelations[];
   totalFornecedores: number;
@@ -58,14 +60,17 @@ export interface IFornecedorHook {
 
 export const useFornecedores = (): IFornecedorHook => {
   // Estados principais
-  const [fornecedores, setFornecedores] = useState<TFornecedorWithRelations[]>([]);
+  const [fornecedores, setFornecedores] = useState<TFornecedorWithRelations[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Estados de UI
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("TODOS");
-  const [selectedFornecedor, setSelectedFornecedor] = useState<TFornecedorWithRelations | null>(null);
+  const [selectedFornecedor, setSelectedFornecedor] =
+    useState<TFornecedorWithRelations | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -76,10 +81,21 @@ export const useFornecedores = (): IFornecedorHook => {
     try {
       setLoading(true);
       setError(null);
-      const fetchedFornecedores = await Fornecedor.service.findAll();
-      setFornecedores(fetchedFornecedores);
+
+      const response = await fetch("/api/fornecedor");
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "Erro ao carregar fornecedores");
+      }
+
+      setFornecedores(data.data || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao carregar fornecedores";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao carregar fornecedores";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -87,53 +103,112 @@ export const useFornecedores = (): IFornecedorHook => {
     }
   }, []);
 
-  const createFornecedor = useCallback(async (data: CreateFornecedorInput) => {
-    try {
-      setLoading(true);
-      await Fornecedor.service.create(data);
-      await fetchFornecedores();
-      toast.success("Fornecedor criado com sucesso!");
-      handleCloseModals();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao criar fornecedor";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchFornecedores]);
+  const createFornecedor = useCallback(
+    async (data: CreateFornecedorInput) => {
+      try {
+        setLoading(true);
 
-  const updateFornecedor = useCallback(async (id: string, data: UpdateFornecedorInput) => {
-    try {
-      setLoading(true);
-      await Fornecedor.service.update(id, data);
-      await fetchFornecedores();
-      toast.success("Fornecedor atualizado com sucesso!");
-      handleCloseModals();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao atualizar fornecedor";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchFornecedores]);
+        const response = await fetch("/api/fornecedor", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
 
-  const deleteFornecedor = useCallback(async (id: string) => {
-    try {
-      setLoading(true);
-      await Fornecedor.service.delete(id);
-      await fetchFornecedores();
-      toast.success("Fornecedor excluído com sucesso!");
-      handleCloseModals();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao excluir fornecedor";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchFornecedores]);
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao criar fornecedor");
+        }
+
+        await fetchFornecedores();
+        toast.success("Fornecedor criado com sucesso!");
+        handleCloseModals();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao criar fornecedor";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchFornecedores]
+  );
+
+  const updateFornecedor = useCallback(
+    async (id: string, data: UpdateFornecedorInput) => {
+      try {
+        setLoading(true);
+
+        const response = await fetch(`/api/fornecedor/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao atualizar fornecedor");
+        }
+
+        await fetchFornecedores();
+        toast.success("Fornecedor atualizado com sucesso!");
+        handleCloseModals();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao atualizar fornecedor";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchFornecedores]
+  );
+
+  const deleteFornecedor = useCallback(
+    async (id: string) => {
+      try {
+        setLoading(true);
+
+        const response = await fetch(`/api/fornecedor/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao excluir fornecedor");
+        }
+
+        await fetchFornecedores();
+        toast.success("Fornecedor excluído com sucesso!");
+        handleCloseModals();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao excluir fornecedor";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchFornecedores]
+  );
 
   // Operações específicas
   const fetchFornecedoresByStatus = useCallback(async (status: string) => {
@@ -143,7 +218,10 @@ export const useFornecedores = (): IFornecedorHook => {
       const fetchedFornecedores = await Fornecedor.service.findByStatus(status);
       setFornecedores(fetchedFornecedores);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao carregar fornecedores por status";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erro ao carregar fornecedores por status";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -158,7 +236,8 @@ export const useFornecedores = (): IFornecedorHook => {
       const fetchedFornecedores = await Fornecedor.service.searchByName(name);
       setFornecedores(fetchedFornecedores);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao buscar fornecedores";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao buscar fornecedores";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -166,58 +245,76 @@ export const useFornecedores = (): IFornecedorHook => {
     }
   }, []);
 
-  const activateFornecedor = useCallback(async (id: string) => {
-    try {
-      await Fornecedor.service.activateFornecedor(id, 'current-user-id'); // TODO: Obter do contexto
-      await fetchFornecedores();
-      toast.success("Fornecedor ativado com sucesso!");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao ativar fornecedor";
-      toast.error(errorMessage);
-    }
-  }, [fetchFornecedores]);
+  const activateFornecedor = useCallback(
+    async (id: string) => {
+      try {
+        await Fornecedor.service.activateFornecedor(id, "current-user-id"); // TODO: Obter do contexto
+        await fetchFornecedores();
+        toast.success("Fornecedor ativado com sucesso!");
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao ativar fornecedor";
+        toast.error(errorMessage);
+      }
+    },
+    [fetchFornecedores]
+  );
 
-  const deactivateFornecedor = useCallback(async (id: string) => {
-    try {
-      await Fornecedor.service.deactivateFornecedor(id, 'current-user-id'); // TODO: Obter do contexto
-      await fetchFornecedores();
-      toast.success("Fornecedor desativado com sucesso!");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao desativar fornecedor";
-      toast.error(errorMessage);
-    }
-  }, [fetchFornecedores]);
+  const deactivateFornecedor = useCallback(
+    async (id: string) => {
+      try {
+        await Fornecedor.service.deactivateFornecedor(id, "current-user-id"); // TODO: Obter do contexto
+        await fetchFornecedores();
+        toast.success("Fornecedor desativado com sucesso!");
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro ao desativar fornecedor";
+        toast.error(errorMessage);
+      }
+    },
+    [fetchFornecedores]
+  );
 
   const getStatistics = useCallback(async () => {
     try {
       return await Fornecedor.service.getStatistics();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro ao obter estatísticas";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao obter estatísticas";
       toast.error(errorMessage);
       return null;
     }
   }, []);
 
   // Handlers de UI
-  const handleFornecedorClick = useCallback((fornecedor: TFornecedorWithRelations) => {
-    setSelectedFornecedor(fornecedor);
-    setIsDetailsModalOpen(true);
-  }, []);
+  const handleFornecedorClick = useCallback(
+    (fornecedor: TFornecedorWithRelations) => {
+      setSelectedFornecedor(fornecedor);
+      setIsDetailsModalOpen(true);
+    },
+    []
+  );
 
   const handleAddClick = useCallback(() => {
     setSelectedFornecedor(null);
     setIsAddModalOpen(true);
   }, []);
 
-  const handleEditClick = useCallback((fornecedor: TFornecedorWithRelations) => {
-    setSelectedFornecedor(fornecedor);
-    setIsEditModalOpen(true);
-  }, []);
+  const handleEditClick = useCallback(
+    (fornecedor: TFornecedorWithRelations) => {
+      setSelectedFornecedor(fornecedor);
+      setIsEditModalOpen(true);
+    },
+    []
+  );
 
-  const handleDeleteClick = useCallback((fornecedor: TFornecedorWithRelations) => {
-    setSelectedFornecedor(fornecedor);
-    setIsDeleteModalOpen(true);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (fornecedor: TFornecedorWithRelations) => {
+      setSelectedFornecedor(fornecedor);
+      setIsDeleteModalOpen(true);
+    },
+    []
+  );
 
   const handleCloseModals = useCallback(() => {
     setIsAddModalOpen(false);
@@ -233,32 +330,38 @@ export const useFornecedores = (): IFornecedorHook => {
 
     // Filtrar por status
     if (statusFilter !== "TODOS") {
-      filtered = filtered.filter(fornecedor => fornecedor.status === statusFilter);
+      filtered = filtered.filter(
+        (fornecedor) => fornecedor.status === statusFilter
+      );
     }
 
     // Filtrar por termo de busca
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(fornecedor => 
-        fornecedor.nome?.toLowerCase().includes(term) ||
-        fornecedor.razaoSocial?.toLowerCase().includes(term) ||
-        fornecedor.cnpj?.includes(term) ||
-        fornecedor.cpf?.includes(term) ||
-        fornecedor.email?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (fornecedor) =>
+          fornecedor.nome?.toLowerCase().includes(term) ||
+          fornecedor.razaoSocial?.toLowerCase().includes(term) ||
+          fornecedor.cnpj?.includes(term) ||
+          fornecedor.cpf?.includes(term) ||
+          fornecedor.email?.toLowerCase().includes(term)
       );
     }
 
     return filtered;
   }, [fornecedores, statusFilter, searchTerm]);
 
-  const totalFornecedores = useMemo(() => filteredFornecedores.length, [filteredFornecedores]);
+  const totalFornecedores = useMemo(
+    () => filteredFornecedores.length,
+    [filteredFornecedores]
+  );
 
   const activeFornecedores = useMemo(() => {
-    return filteredFornecedores.filter(f => f.status === 'ATIVO').length;
+    return filteredFornecedores.filter((f) => f.status === "ATIVO").length;
   }, [filteredFornecedores]);
 
   const inactiveFornecedores = useMemo(() => {
-    return filteredFornecedores.filter(f => f.status === 'INATIVO').length;
+    return filteredFornecedores.filter((f) => f.status === "INATIVO").length;
   }, [filteredFornecedores]);
 
   // Effects
@@ -272,7 +375,7 @@ export const useFornecedores = (): IFornecedorHook => {
     fornecedores: filteredFornecedores,
     loading,
     error,
-    
+
     // Estados de UI
     searchTerm,
     statusFilter,
@@ -281,20 +384,20 @@ export const useFornecedores = (): IFornecedorHook => {
     isEditModalOpen,
     isDetailsModalOpen,
     isDeleteModalOpen,
-    
+
     // Operações CRUD
     fetchFornecedores,
     createFornecedor,
     updateFornecedor,
     deleteFornecedor,
-    
+
     // Operações específicas
     fetchFornecedoresByStatus,
     searchFornecedoresByName,
     activateFornecedor,
     deactivateFornecedor,
     getStatistics,
-    
+
     // Handlers de UI
     setSearchTerm,
     setStatusFilter,
@@ -303,11 +406,11 @@ export const useFornecedores = (): IFornecedorHook => {
     handleEditClick,
     handleDeleteClick,
     handleCloseModals,
-    
+
     // Dados computados
     filteredFornecedores,
     totalFornecedores,
     activeFornecedores,
-    inactiveFornecedores
+    inactiveFornecedores,
   };
 };
