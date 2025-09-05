@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -60,17 +60,6 @@ export const metadata: Metadata = {
     description: "Sistema completo de gestão para loja de água mineral",
     images: ["/icon-512x512.svg"],
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: "cover",
-  },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0ea5e9" },
-    { media: "(prefers-color-scheme: dark)", color: "#0ea5e9" },
-  ],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -81,13 +70,25 @@ export const metadata: Metadata = {
   category: "business",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "dark",
+};
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className="dark" suppressHydrationWarning>
+    <html
+      lang="pt-BR"
+      suppressHydrationWarning
+      className={viewport.themeColor as string}
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

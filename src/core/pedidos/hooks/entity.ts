@@ -1,5 +1,5 @@
-import { TPedidoWithRelations } from "@/core/pedidos/domain";
-import { IPedidoStats, ICreatePedido } from "@/core/pedidos/layout";
+import { CreatePedidoInput, TPedidoWithRelations } from "@/core/pedidos/domain";
+import { IPedidoStats } from "@/core/pedidos/layout";
 
 export interface UsePedidosReturn {
   pedidos: TPedidoWithRelations[];
@@ -12,7 +12,7 @@ export interface UsePedidosReturn {
     params: FetchPedidosParams & { paginated: true }
   ) => Promise<PaginatedResponse<TPedidoWithRelations>>;
   fetchStats: () => Promise<void>;
-  createPedido: (data: ICreatePedido) => Promise<boolean>;
+  createPedido: (data: CreatePedidoInput) => Promise<boolean>;
   updatePedido: (
     id: string,
     data: Partial<TPedidoWithRelations>

@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { IPedidoStats, ICreatePedido } from "@/core/pedidos/layout/types";
-import { TPedidoWithRelations } from "@/core/pedidos/domain";
+import { IPedidoStats } from "@/core/pedidos/layout/types";
+import { CreatePedidoInput, TPedidoWithRelations } from "@/core/pedidos/domain";
 import { toast } from "sonner";
-import { PaginatedResponse, FetchPedidosParams, UsePedidosReturn } from "./entity";
+import {
+  PaginatedResponse,
+  FetchPedidosParams,
+  UsePedidosReturn,
+} from "./entity";
 
 /**
  * Hook utilitário para gerenciamento completo de pedidos
@@ -16,7 +20,9 @@ export const usePedidos = (): UsePedidosReturn => {
   const [stats, setStats] = useState<IPedidoStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<PaginatedResponse<TPedidoWithRelations>["pagination"] | null>(null);
+  const [pagination, setPagination] = useState<
+    PaginatedResponse<TPedidoWithRelations>["pagination"] | null
+  >(null);
 
   /**
    * Constrói URL com parâmetros de query de forma otimizada
@@ -24,38 +30,44 @@ export const usePedidos = (): UsePedidosReturn => {
    * @returns URL formatada com query string
    */
   const buildApiUrl = useCallback((params?: FetchPedidosParams): string => {
-     const searchParams = new URLSearchParams();
-     
-     // Adiciona parâmetros de paginação se habilitada
-     if (params?.paginated) searchParams.append("paginated", "true");
-     if (params?.page) searchParams.append("page", params.page.toString());
-     if (params?.limit) searchParams.append("limit", params.limit.toString());
-     
-     // Adiciona filtros se fornecidos
-     if (params?.clienteId) searchParams.append("clienteId", params.clienteId);
-     if (params?.status) searchParams.append("status", params.status);
-     if (params?.startDate) searchParams.append("startDate", params.startDate);
-     if (params?.endDate) searchParams.append("endDate", params.endDate);
-    
+    const searchParams = new URLSearchParams();
+
+    // Adiciona parâmetros de paginação se habilitada
+    if (params?.paginated) searchParams.append("paginated", "true");
+    if (params?.page) searchParams.append("page", params.page.toString());
+    if (params?.limit) searchParams.append("limit", params.limit.toString());
+
+    // Adiciona filtros se fornecidos
+    if (params?.clienteId) searchParams.append("clienteId", params.clienteId);
+    if (params?.status) searchParams.append("status", params.status);
+    if (params?.startDate) searchParams.append("startDate", params.startDate);
+    if (params?.endDate) searchParams.append("endDate", params.endDate);
+
     const queryString = searchParams.toString();
     return `/api/pedido${queryString ? `?${queryString}` : ""}`;
   }, []);
 
   /**
-     * Processa resposta da API baseada no tipo (paginada ou tradicional)
-     * @param data - Dados retornados da API
-     * @param isPaginated - Se a resposta é paginada
-     */
-    const processApiResponse = useCallback((data: PaginatedResponse<TPedidoWithRelations> | TPedidoWithRelations[], isPaginated: boolean) => {
-     if (isPaginated && 'data' in data && 'pagination' in data) {
-       const { data: pedidosData, pagination: paginationData } = data;
-       setPedidos(pedidosData);
-       setPagination(paginationData);
-     } else {
-       setPedidos(data as TPedidoWithRelations[]);
-       setPagination(null);
-     }
-   }, []);
+   * Processa resposta da API baseada no tipo (paginada ou tradicional)
+   * @param data - Dados retornados da API
+   * @param isPaginated - Se a resposta é paginada
+   */
+  const processApiResponse = useCallback(
+    (
+      data: PaginatedResponse<TPedidoWithRelations> | TPedidoWithRelations[],
+      isPaginated: boolean
+    ) => {
+      if (isPaginated && "data" in data && "pagination" in data) {
+        const { data: pedidosData, pagination: paginationData } = data;
+        setPedidos(pedidosData);
+        setPagination(paginationData);
+      } else {
+        setPedidos(data as TPedidoWithRelations[]);
+        setPagination(null);
+      }
+    },
+    []
+  );
 
   /**
    * Exibe toast de erro padronizado
@@ -63,7 +75,7 @@ export const usePedidos = (): UsePedidosReturn => {
    */
   const showErrorToast = useCallback((message: string) => {
     toast.error(message, {
-      style: { backgroundColor: "red", color: "white" }
+      style: { backgroundColor: "red", color: "white" },
     });
   }, []);
 
@@ -73,7 +85,7 @@ export const usePedidos = (): UsePedidosReturn => {
    */
   const showSuccessToast = useCallback((message: string) => {
     toast.success(message, {
-      style: { backgroundColor: "green", color: "white" }
+      style: { backgroundColor: "green", color: "white" },
     });
   }, []);
 
@@ -81,38 +93,44 @@ export const usePedidos = (): UsePedidosReturn => {
    * Busca pedidos com suporte a paginação e filtros
    * Atualiza o estado local automaticamente
    */
-  const fetchPedidos = useCallback(async (params?: FetchPedidosParams): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchPedidos = useCallback(
+    async (params?: FetchPedidosParams): Promise<void> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const url = buildApiUrl(params);
-      const response = await fetch(url);
+        const url = buildApiUrl(params);
+        const response = await fetch(url);
 
-      if (!response.ok) {
-        showErrorToast("Erro ao carregar pedidos");
-        return;
+        if (!response.ok) {
+          showErrorToast("Erro ao carregar pedidos");
+          return;
+        }
+
+        const data = await response.json();
+        processApiResponse(data, Boolean(params?.paginated));
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro desconhecido";
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-      processApiResponse(data, Boolean(params?.paginated));
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [buildApiUrl, processApiResponse, showErrorToast]);
+    },
+    [buildApiUrl, processApiResponse, showErrorToast]
+  );
 
   /**
    * Busca pedidos paginados e retorna resposta completa
    * Não atualiza estado local - usado para operações específicas
    */
   const fetchPedidosPaginated = useCallback(
-    async (params: FetchPedidosParams & { paginated: true }): Promise<PaginatedResponse<TPedidoWithRelations>> => {
+    async (
+      params: FetchPedidosParams & { paginated: true }
+    ): Promise<PaginatedResponse<TPedidoWithRelations>> => {
       try {
         setError(null);
-        
+
         const url = buildApiUrl(params);
         const response = await fetch(url);
 
@@ -120,9 +138,10 @@ export const usePedidos = (): UsePedidosReturn => {
           throw new Error("Erro ao carregar pedidos paginados");
         }
 
-        return await response.json() as PaginatedResponse<TPedidoWithRelations>;
+        return (await response.json()) as PaginatedResponse<TPedidoWithRelations>;
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro desconhecido";
         setError(errorMessage);
         throw err;
       }
@@ -136,17 +155,18 @@ export const usePedidos = (): UsePedidosReturn => {
   const fetchStats = useCallback(async (): Promise<void> => {
     try {
       setError(null);
-      
+
       const response = await fetch("/api/pedido/stats");
-      
+
       if (!response.ok) {
         throw new Error("Erro ao carregar estatísticas");
       }
 
-      const data = await response.json() as IPedidoStats;
+      const data = (await response.json()) as IPedidoStats;
       setStats(data);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
       setError(errorMessage);
     }
   }, []);
@@ -165,33 +185,34 @@ export const usePedidos = (): UsePedidosReturn => {
    * @param successMessage - Mensagem de sucesso (opcional)
    */
   const executeRequest = useCallback(
-    async (url: string, options: RequestInit, successMessage?: string): Promise<boolean> => {
+    async (
+      url: string,
+      options: RequestInit,
+      successMessage?: string
+    ): Promise<boolean> => {
       try {
         setLoading(true);
         setError(null);
 
         const response = await fetch(url, {
           headers: { "Content-Type": "application/json" },
-          ...options
+          ...options,
         });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          const errorMessage = errorData?.error || `Erro na requisição: ${response.status}`;
-          
-          if (options.method === "POST") {
-            showErrorToast(errorMessage);
-            return false;
-          }
-          
-          throw new Error(errorMessage);
+          const errorMessage =
+            errorData?.error || `Erro na requisição: ${response.status}`;
+          showErrorToast(errorMessage);
+          return false;
         }
 
         await refreshData();
-         if (successMessage) showSuccessToast(successMessage);
-         return true;
+        if (successMessage) showSuccessToast(successMessage);
+        return true;
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+        const errorMessage =
+          err instanceof Error ? err.message : "Erro desconhecido";
         setError(errorMessage);
         return false;
       } finally {
@@ -205,7 +226,7 @@ export const usePedidos = (): UsePedidosReturn => {
    * Cria novo pedido
    */
   const createPedido = useCallback(
-    async (data: ICreatePedido): Promise<boolean> => 
+    async (data: CreatePedidoInput): Promise<boolean> =>
       executeRequest(
         "/api/pedido/create",
         { method: "POST", body: JSON.stringify(data) },
@@ -221,7 +242,11 @@ export const usePedidos = (): UsePedidosReturn => {
     async (id: string, data: Partial<TPedidoWithRelations>): Promise<boolean> =>
       executeRequest(
         "/api/pedido/update",
-        { method: "PUT", body: JSON.stringify({ id, ...data }) }
+        {
+          method: "PUT",
+          body: JSON.stringify({ id, ...data }),
+        },
+        "Pedido atualizado com sucesso!"
       ),
     [executeRequest]
   );
@@ -230,11 +255,14 @@ export const usePedidos = (): UsePedidosReturn => {
    * Atualiza status do pedido
    */
   const updateStatus = useCallback(
-    async (id: string, status: TPedidoWithRelations["status"]): Promise<boolean> =>
-      executeRequest(
-        "/api/pedido/status",
-        { method: "PUT", body: JSON.stringify({ id, status }) }
-      ),
+    async (
+      id: string,
+      status: TPedidoWithRelations["status"]
+    ): Promise<boolean> =>
+      executeRequest("/api/pedido/status", {
+        method: "PUT",
+        body: JSON.stringify({ id, status }),
+      }),
     [executeRequest]
   );
 
@@ -243,10 +271,10 @@ export const usePedidos = (): UsePedidosReturn => {
    */
   const deletePedido = useCallback(
     async (id: string): Promise<boolean> =>
-      executeRequest(
-        "/api/pedido/delete",
-        { method: "DELETE", body: JSON.stringify({ id }) }
-      ),
+      executeRequest("/api/pedido/delete", {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+      }),
     [executeRequest]
   );
 
@@ -259,14 +287,14 @@ export const usePedidos = (): UsePedidosReturn => {
     async <T>(url: string, errorMessage: string): Promise<T> => {
       try {
         setError(null);
-        
+
         const response = await fetch(url);
-        
+
         if (!response.ok) {
           throw new Error(errorMessage);
         }
 
-        return await response.json() as T;
+        return (await response.json()) as T;
       } catch (err) {
         const error = err instanceof Error ? err.message : "Erro desconhecido";
         setError(error);
@@ -297,7 +325,9 @@ export const usePedidos = (): UsePedidosReturn => {
    * Busca pedidos por status
    */
   const findByStatus = useCallback(
-    async (status: TPedidoWithRelations["status"]): Promise<TPedidoWithRelations[]> => {
+    async (
+      status: TPedidoWithRelations["status"]
+    ): Promise<TPedidoWithRelations[]> => {
       try {
         return await executeSearch<TPedidoWithRelations[]>(
           `/api/pedido?status=${status}`,
@@ -340,21 +370,21 @@ export const usePedidos = (): UsePedidosReturn => {
     loading,
     error,
     pagination,
-    
+
     // Operações de busca
     fetchPedidos,
     fetchPedidosPaginated,
     fetchStats,
-    
+
     // Operações CRUD
     createPedido,
     updatePedido,
     updateStatus,
     deletePedido,
-    
+
     // Buscas específicas
     findByCliente,
     findByStatus,
-    findById
+    findById,
   };
 };
