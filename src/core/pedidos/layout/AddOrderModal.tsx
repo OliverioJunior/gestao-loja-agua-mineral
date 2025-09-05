@@ -29,7 +29,7 @@ import {
   MapPin,
   CreditCard,
 } from "lucide-react";
-import { AddOrderModalProps, IPedidoItem, ICreatePedido } from "./types";
+import { AddOrderModalProps, IPedidoItem } from "./types";
 import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/core/cliente/hooks/useClientes";
 import { IProdutoEstoque, useProdutos } from "@/core/produto/hooks/useProdutos";
@@ -39,6 +39,7 @@ import {
   formatCurrencyFromCents,
   convertFormattedToCents,
 } from "@/shared/utils";
+import { CreatePedidoInput } from "../domain";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const { loading, withLoading } = useLoading();
@@ -163,28 +164,19 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     setIsSubmitting(true);
     try {
       await withLoading(async () => {
-        const orderData: ICreatePedido = {
+        const orderData: CreatePedidoInput = {
           clienteId: formData.clienteId,
-          tipoEntrega: formData.tipoEntrega,
-          formaPagamento: formData.formaPagamento as
-            | "dinheiro"
-            | "cartao_debito"
-            | "cartao_credito"
-            | "pix",
+          formaPagamento: formData.formaPagamento,
           observacoes: formData.observacoes,
-          enderecoEntrega:
-            formData.tipoEntrega === "entrega"
-              ? formData.enderecoEntrega
-              : undefined,
           taxaEntrega: formData.taxaEntrega,
           desconto: formData.desconto,
           itens: itens.map((item) => ({
             produtoId: item.produtoId,
-            produtoNome: item.produtoNome,
             quantidade: item.quantidade,
             precoUnitario: item.precoUnitario,
-            subtotal: item.subtotal,
           })),
+          total,
+          criadoPorId: "",
         };
         await onAdd(orderData);
       });

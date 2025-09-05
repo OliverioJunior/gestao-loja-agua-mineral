@@ -1,4 +1,4 @@
-import { TPedidoWithRelations } from "@/core/pedidos/domain";
+import { CreatePedidoInput, TPedidoWithRelations } from "@/core/pedidos/domain";
 
 export interface IEndereco {
   logradouro: string;
@@ -46,23 +46,6 @@ export interface IPedidoItem {
   subtotal: number;
 }
 
-export interface ICreatePedido {
-  clienteId: string;
-  tipoEntrega: "balcao" | "entrega";
-  enderecoEntrega?: IEndereco;
-  observacoes?: string;
-  itens: Array<{
-    produtoId: string;
-    produtoNome: string;
-    quantidade: number;
-    precoUnitario: number;
-    observacoes?: string;
-  }>;
-  desconto?: number;
-  taxaEntrega?: number;
-  formaPagamento: "dinheiro" | "cartao_debito" | "cartao_credito" | "pix";
-}
-
 export interface IPedidoStats {
   total: number;
   pendentes: number;
@@ -78,7 +61,7 @@ export interface OrderFiltersProps {
   statusFilter: string;
   onSearchChange: (term: string) => void;
   onStatusChange: (status: string) => void;
-  onAddOrder: (order: ICreatePedido) => Promise<void>;
+  onAddOrder: (order: CreatePedidoInput) => Promise<void>;
 }
 
 export interface OrderTableProps {
@@ -119,7 +102,7 @@ export interface OrderStatsCardsProps {
 export interface AddOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (order: ICreatePedido) => Promise<void>;
+  onAdd: (order: CreatePedidoInput) => Promise<void>;
 }
 
 export interface EditOrderModalProps {

@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
   Separator,
+  Checkbox,
 } from "@/shared/components/ui";
 import {
   Plus,
@@ -32,10 +33,14 @@ import {
 import { EditOrderModalProps, IPedidoItem } from "./types";
 import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/core/cliente/hooks/useClientes";
-import { useProdutos } from "@/core/produto/hooks/useProdutos";
+import { IProdutoEstoque, useProdutos } from "@/core/produto/hooks/useProdutos";
 import { TPedidoWithRelations } from "@/core/pedidos/domain";
 import { toast } from "sonner";
-import { useLoading } from "@/shared/utils";
+import {
+  useLoading,
+  formatCurrencyFromCents,
+  convertFormattedToCents,
+} from "@/shared/utils";
 import {
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
@@ -53,6 +58,7 @@ export function EditOrderModal({
   const { loading, withLoading } = useLoading();
   const { clients: clientes } = useClientes();
   const { produtos } = useProdutos();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estado inicial do formulário
   const initialFormData = {
@@ -74,12 +80,19 @@ export function EditOrderModal({
   };
 
   const [formData, setFormData] = useState(initialFormData);
-
   const [itens, setItens] = useState<IPedidoItem[]>([]);
+  const [revenda, setRevenda] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState("");
-  const [quantidade, setQuantidade] = useState(1);
+  const [quantidade, setQuantidade] = useState(0);
+  const [descontoFormatado, setDescontoFormatado] = useState("");
+  const [taxaEntregaFormatada, setTaxaEntregaFormatada] = useState("");
 
   const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
+
+  // Função auxiliar para calcular preço baseado no tipo de venda
+  const getPreco = (produto: IProdutoEstoque) => {
+    return revenda ? produto.precoRevenda || 0 : produto.precoVenda || 0;
+  };
 
   // Função auxiliar para atualizar campos do endereço
   const updateEnderecoField = (field: string, value: string) => {
@@ -96,8 +109,12 @@ export function EditOrderModal({
   const resetForm = () => {
     setFormData(initialFormData);
     setItens([]);
+    setRevenda(false);
     setSelectedProduto("");
-    setQuantidade(1);
+    setQuantidade(0);
+    setDescontoFormatado("");
+    setTaxaEntregaFormatada("");
+    setIsSubmitting(false);
   };
 
   // Preencher formulário com dados do pedido quando modal abrir
@@ -120,6 +137,14 @@ export function EditOrderModal({
         taxaEntrega: order.taxaEntrega || 0,
         desconto: order.desconto || 0,
       });
+
+      // Formatar valores monetários
+      setDescontoFormatado(
+        formatCurrencyFromCents((order.desconto || 0).toString())
+      );
+      setTaxaEntregaFormatada(
+        formatCurrencyFromCents((order.taxaEntrega || 0).toString())
+      );
 
       // Converter itens do pedido para o formato do modal
       if (order.itens) {
@@ -161,39 +186,20 @@ export function EditOrderModal({
     const produto = produtos.find((p) => p.id === selectedProduto);
     if (!produto || quantidade <= 0) return;
 
-    setItens((prevItens) => {
-      const existingItemIndex = prevItens.findIndex(
-        (item) => item.produtoId === produto.id
-      );
+    const precoUnitario = getPreco(produto);
+    const newItem: IPedidoItem = {
+      id: `temp-${Date.now()}`,
+      produtoId: produto.id,
+      produtoNome: produto.nome,
+      produtoPreco: precoUnitario,
+      quantidade,
+      precoUnitario,
+      subtotal: precoUnitario * quantidade,
+    };
 
-      if (existingItemIndex >= 0) {
-        // Atualizar quantidade do item existente
-        return prevItens.map((item, index) =>
-          index === existingItemIndex
-            ? {
-                ...item,
-                quantidade: item.quantidade + quantidade,
-                subtotal: item.precoUnitario * (item.quantidade + quantidade),
-              }
-            : item
-        );
-      } else {
-        // Adicionar novo item
-        const newItem: IPedidoItem = {
-          id: `temp-${Date.now()}`,
-          produtoId: produto.id,
-          produtoNome: produto.nome,
-          produtoPreco: produto.precoVenda,
-          quantidade,
-          precoUnitario: produto.precoVenda,
-          subtotal: produto.precoVenda * quantidade,
-        };
-        return [...prevItens, newItem];
-      }
-    });
-
+    setItens([...itens, newItem]);
     setSelectedProduto("");
-    setQuantidade(1);
+    setQuantidade(0);
   };
 
   const handleUpdateQuantity = (index: number, newQuantity: number) => {
@@ -225,23 +231,38 @@ export function EditOrderModal({
   );
   const total = subtotal - formData.desconto + formData.taxaEntrega;
 
+  // Função de validação consolidada
+  const validateForm = () => {
+    if (!formData.clienteId) {
+      toast.error("Selecione um cliente");
+      return false;
+    }
+    if (!formData.formaPagamento) {
+      toast.error("Selecione uma forma de pagamento");
+      return false;
+    }
+    if (itens.length === 0) {
+      toast.error("Adicione pelo menos um item ao pedido");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !formData.clienteId ||
-      !formData.formaPagamento ||
-      itens.length === 0 ||
-      !order
-    ) {
-      toast.error(
-        `${ERROR_MESSAGES.REQUIRED_FIELD}. Adicione pelo menos um item ao pedido`
-      );
+    // Prevenir duplos cliques
+    if (isSubmitting || loading || !order) {
       return;
     }
 
-    const result = await withLoading(async () => {
-      try {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await withLoading(async () => {
         const updatedOrderData: Partial<TPedidoWithRelations> = {
           clienteId: formData.clienteId,
           formaPagamento: formData.formaPagamento as
@@ -264,23 +285,20 @@ export function EditOrderModal({
         };
 
         await onSave(order.id, updatedOrderData);
-        return { success: true };
-      } catch (error) {
-        console.error("Erro ao editar pedido:", error);
-        return {
-          success: false,
-          error:
-            error instanceof Error
-              ? error.message
-              : ERROR_MESSAGES.UPDATE_ERROR,
-        };
-      }
-    });
+      });
 
-    if (result.success) {
       toast.success(SUCCESS_MESSAGES.ORDER_UPDATED);
-    } else {
-      toast.error(`${ERROR_MESSAGES.UPDATE_ERROR}: ${result.error}`);
+      resetForm();
+      onClose();
+    } catch (error) {
+      console.error("Erro ao editar pedido:", error);
+      toast.error(
+        `${ERROR_MESSAGES.UPDATE_ERROR}: ${
+          error instanceof Error ? error.message : ERROR_MESSAGES.UPDATE_ERROR
+        }`
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -288,6 +306,7 @@ export function EditOrderModal({
     resetForm();
     onClose();
   };
+
   if (!order) return null;
 
   return (
@@ -304,78 +323,48 @@ export function EditOrderModal({
           {/* Informações do Cliente */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <User className="h-5 w-5" />
-                Cliente
+              <CardTitle className="flex items-center gap-2 text-base">
+                <User className="h-4 w-4" />
+                Informações do Cliente
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="cliente">Cliente *</Label>
-                <Select
-                  value={formData.clienteId}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, clienteId: value }))
-                  }
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={UI_LABELS.SELECT_OPTION} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clientes.map((cliente) => (
-                      <SelectItem key={cliente.id} value={cliente.id}>
-                        {cliente.nome} - {cliente.telefone}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col space-y-6">
+                <div className="flex flex-col space-y-2">
+                  <Label htmlFor="cliente">Cliente *</Label>
+                  <Select
+                    value={formData.clienteId}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, clienteId: value }))
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um cliente" />
+                    </SelectTrigger>
+                    <SelectContent sideOffset={5} align="start">
+                      {clientes.map((cliente) => (
+                        <SelectItem key={cliente.id} value={cliente.id}>
+                          {cliente.nome} - {cliente.telefone}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="flex flex-col space-y-2">
                   <Label htmlFor="tipoEntrega">Tipo de Entrega *</Label>
                   <Select
                     value={formData.tipoEntrega}
                     onValueChange={(value: "balcao" | "entrega") =>
                       setFormData((prev) => ({ ...prev, tipoEntrega: value }))
                     }
-                    required
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="balcao">Retirada no Balcão</SelectItem>
                       <SelectItem value="entrega">Entrega</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="formaPagamento">Forma de Pagamento *</Label>
-                  <Select
-                    value={formData.formaPagamento}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        formaPagamento: value,
-                      }))
-                    }
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={UI_LABELS.SELECT_OPTION} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                      <SelectItem value="cartao_debito">
-                        Cartão de Débito
-                      </SelectItem>
-                      <SelectItem value="cartao_credito">
-                        Cartão de Crédito
-                      </SelectItem>
-                      <SelectItem value="pix">PIX</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -387,9 +376,9 @@ export function EditOrderModal({
           {formData.tipoEntrega === "entrega" && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <MapPin className="h-5 w-5" />
-                  {UI_LABELS.ADDRESS} de Entrega
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MapPin className="h-4 w-4" />
+                  Endereço de Entrega
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -482,19 +471,35 @@ export function EditOrderModal({
                   <Label htmlFor="taxaEntrega">Taxa de Entrega</Label>
                   <Input
                     id="taxaEntrega"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.taxaEntrega / 100}
-                    onChange={(e) =>
+                    type="text"
+                    value={taxaEntregaFormatada}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const numericValue = inputValue.replace(/\D/g, "");
+                      const formatted = formatCurrencyFromCents(numericValue);
+                      setTaxaEntregaFormatada(formatted);
+                      const centavos = convertFormattedToCents(formatted);
                       setFormData((prev) => ({
                         ...prev,
-                        taxaEntrega: Math.round(
-                          parseFloat(e.target.value || "0") * 100
-                        ),
-                      }))
-                    }
+                        taxaEntrega: centavos,
+                      }));
+                    }}
+                    onKeyDown={(e) => {
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
                     placeholder="0,00"
+                    inputMode="numeric"
                   />
                 </div>
               </CardContent>
@@ -504,74 +509,129 @@ export function EditOrderModal({
           {/* Itens do Pedido */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Package className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Package className="h-4 w-4" />
                 Itens do Pedido
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Adicionar Item */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50">
-                <div className="md:col-span-2">
-                  <Label htmlFor="produto">Produto</Label>
-                  <Select
-                    value={selectedProduto}
-                    onValueChange={setSelectedProduto}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um produto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {produtos
-                        .filter((p) => p.ativo)
-                        .map((produto) => (
-                          <SelectItem key={produto.id} value={produto.id}>
-                            {produto.nome} -{" "}
-                            {formatCurrency(produto.precoVenda)}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="quantidade">Quantidade</Label>
-                  <Input
-                    id="quantidade"
-                    type="number"
-                    min="1"
-                    value={quantidade}
-                    onChange={(e) =>
-                      setQuantidade(parseInt(e.target.value) || 1)
-                    }
-                  />
-                </div>
-                <div className="flex items-end">
-                  <Button
-                    type="button"
-                    onClick={handleAddItem}
-                    disabled={!selectedProduto}
-                    className="w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Adicionar
-                  </Button>
+              <div className="bg-gradient-to-r from-muted/30 to-muted/10 border border-border/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="flex flex-col gap-4">
+                  {/* Seção de Produto */}
+                  <div className="flex-1 space-y-3">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="produto"
+                        className="text-sm font-semibold text-foreground/90 flex items-center gap-2"
+                      >
+                        <Package className="h-4 w-4 text-primary" />
+                        Produto *
+                      </Label>
+                      <Select
+                        value={selectedProduto}
+                        onValueChange={setSelectedProduto}
+                      >
+                        <SelectTrigger className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation">
+                          <SelectValue placeholder="Selecione um produto" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[250px]">
+                          {produtos
+                            .filter((p) => p.ativo)
+                            .map((produto) => (
+                              <SelectItem
+                                key={produto.id}
+                                value={produto.id}
+                                className="py-4 touch-manipulation"
+                              >
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-medium text-sm">
+                                    {produto.nome} -{" "}
+                                    {formatCurrency(getPreco(produto))}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 bg-background/60 rounded-lg border border-border/30 touch-manipulation">
+                      <Checkbox
+                        id="revenda"
+                        checked={revenda}
+                        onCheckedChange={(e) => {
+                          setRevenda(e as boolean);
+                        }}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary w-5 h-5"
+                      />
+                      <Label
+                        htmlFor="revenda"
+                        className="text-sm font-medium cursor-pointer flex-1"
+                      >
+                        Revenda
+                      </Label>
+                      <div className="text-xs text-muted-foreground text-right">
+                        {revenda ? "Preço revenda" : "Preço normal"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seção de Quantidade e Ação */}
+                  <div className="flex flex-col gap-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="quantidade"
+                        className="text-sm font-semibold text-foreground/90 flex items-center gap-2"
+                      >
+                        <span className="text-base">📊</span>
+                        Quantidade
+                      </Label>
+                      <Input
+                        id="quantidade"
+                        type="number"
+                        min="1"
+                        value={quantidade || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "") {
+                            setQuantidade(0);
+                          } else {
+                            const numValue = parseInt(value);
+                            setQuantidade(numValue > 0 ? numValue : 1);
+                          }
+                        }}
+                        placeholder="Digite a quantidade"
+                        className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm text-center font-medium text-lg touch-manipulation"
+                        inputMode="numeric"
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={handleAddItem}
+                      disabled={!selectedProduto}
+                      className="w-full h-12 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all duration-200 font-semibold text-base touch-manipulation active:scale-95"
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Adicionar Item
+                    </Button>
+                  </div>
                 </div>
               </div>
 
               {/* Lista de Itens */}
               {itens.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="font-medium">Itens Adicionados:</h4>
                   {itens.map((item, index) => (
                     <div
-                      key={item.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
                     >
                       <div className="flex-1">
                         <p className="font-medium">{item.produtoNome}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatCurrency(item.precoUnitario)} x{" "}
-                          {item.quantidade}
+                          {formatCurrency(item.precoUnitario)} cada
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -600,15 +660,18 @@ export function EditOrderModal({
                         </Button>
                         <Button
                           type="button"
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
                           onClick={() => handleRemoveItem(index)}
+                          className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
-                        <div className="w-20 text-right font-medium">
+                      </div>
+                      <div className="text-right ml-4">
+                        <p className="font-medium">
                           {formatCurrency(item.precoUnitario * item.quantidade)}
-                        </div>
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -617,17 +680,129 @@ export function EditOrderModal({
             </CardContent>
           </Card>
 
-          {/* Informações Adicionais */}
+          {/* Pagamento e Observações */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <CreditCard className="h-5 w-5" />
-                Informações Adicionais
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CreditCard className="h-4 w-4" />
+                Pagamento e Observações
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="observacoes">Observações</Label>
+            <CardContent className="space-y-6">
+              {/* Forma de Pagamento - Mobile First */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="formaPagamento"
+                  className="text-sm font-semibold flex items-center gap-2"
+                >
+                  💳 Forma de Pagamento *
+                </Label>
+                <Select
+                  value={formData.formaPagamento}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      formaPagamento: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation w-full">
+                    <SelectValue placeholder="Selecione a forma de pagamento" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    <SelectItem
+                      value="dinheiro"
+                      className="py-3 touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💵</span>
+                        <span>Dinheiro</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="cartao_debito"
+                      className="py-3 touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💳</span>
+                        <span>Cartão de Débito</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="cartao_credito"
+                      className="py-3 touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💳</span>
+                        <span>Cartão de Crédito</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="pix" className="py-3 touch-manipulation">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📱</span>
+                        <span>PIX</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Desconto - Mobile Optimized */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="desconto"
+                  className="text-sm font-semibold flex items-center gap-2"
+                >
+                  🏷️ Desconto (Opcional)
+                </Label>
+                <div className="flex items-center gap-3 p-4 bg-background/60 rounded-lg border border-border/30">
+                  <div className="flex-1">
+                    <Input
+                      id="desconto"
+                      type="text"
+                      value={descontoFormatado}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const numericValue = inputValue.replace(/\D/g, "");
+                        const formatted = formatCurrencyFromCents(numericValue);
+                        setDescontoFormatado(formatted);
+                        const centavos = convertFormattedToCents(formatted);
+                        setFormData((prev) => ({
+                          ...prev,
+                          desconto: centavos,
+                        }));
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          !/[0-9]/.test(e.key) &&
+                          ![
+                            "Backspace",
+                            "Delete",
+                            "Tab",
+                            "ArrowLeft",
+                            "ArrowRight",
+                          ].includes(e.key)
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                      placeholder="0,00"
+                      className="h-11 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm text-center font-medium touch-manipulation"
+                      inputMode="numeric"
+                    />
+                  </div>
+                  <div className="text-xs text-muted-foreground">R$</div>
+                </div>
+              </div>
+
+              {/* Observações - Mobile Optimized */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="observacoes"
+                  className="text-sm font-semibold flex items-center gap-2"
+                >
+                  📝 Observações (Opcional)
+                </Label>
                 <Textarea
                   id="observacoes"
                   value={formData.observacoes}
@@ -637,90 +812,52 @@ export function EditOrderModal({
                       observacoes: e.target.value,
                     }))
                   }
-                  placeholder="Observações sobre o pedido..."
-                  rows={3}
+                  placeholder="Digite observações adicionais sobre o pedido..."
+                  rows={4}
+                  className="min-h-[100px] bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm resize-none touch-manipulation"
                 />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="desconto">Desconto</Label>
-                  <Input
-                    id="desconto"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.desconto / 100}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        desconto: Math.round(
-                          parseFloat(e.target.value || "0") * 100
-                        ),
-                      }))
-                    }
-                    placeholder="0,00"
-                  />
-                </div>
-                {formData.tipoEntrega === "entrega" && (
-                  <div>
-                    <Label htmlFor="taxaEntregaDisplay">Taxa de Entrega</Label>
-                    <Input
-                      id="taxaEntregaDisplay"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.taxaEntrega / 100}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          taxaEntrega: Math.round(
-                            parseFloat(e.target.value || "0") * 100
-                          ),
-                        }))
-                      }
-                      placeholder="0,00"
-                    />
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
 
           {/* Resumo do Pedido */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Resumo do Pedido</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>{formatCurrency(subtotal)}</span>
-                </div>
-                {formData.desconto > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Desconto:</span>
-                    <span>-{formatCurrency(formData.desconto)}</span>
+          {itens.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Resumo do Pedido</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal:</span>
+                    <span>{formatCurrency(subtotal)}</span>
                   </div>
-                )}
-                {formData.taxaEntrega > 0 && (
-                  <div className="flex justify-between">
-                    <span>Taxa de Entrega:</span>
-                    <span>{formatCurrency(formData.taxaEntrega)}</span>
+                  {formData.desconto > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Desconto:</span>
+                      <span className="text-red-600">
+                        -{formatCurrency(formData.desconto)}
+                      </span>
+                    </div>
+                  )}
+                  {formData.taxaEntrega > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Taxa de Entrega:</span>
+                      <span>{formatCurrency(formData.taxaEntrega)}</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total:</span>
+                    <span>{formatCurrency(total)}</span>
                   </div>
-                )}
-                <Separator />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total:</span>
-                  <span>{formatCurrency(total)}</span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Botões de Ação */}
-          <div className="flex justify-end gap-4">
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               {UI_LABELS.CANCEL}
             </Button>
@@ -728,13 +865,16 @@ export function EditOrderModal({
               type="submit"
               disabled={
                 loading ||
+                isSubmitting ||
                 !formData.clienteId ||
                 !formData.formaPagamento ||
                 itens.length === 0
               }
             >
               <Save className="h-4 w-4 mr-2" />
-              {loading ? INFO_MESSAGES.SAVING : UI_LABELS.SAVE + " Alterações"}
+              {loading || isSubmitting
+                ? INFO_MESSAGES.SAVING
+                : UI_LABELS.SAVE + " Alterações"}
             </Button>
           </div>
         </form>

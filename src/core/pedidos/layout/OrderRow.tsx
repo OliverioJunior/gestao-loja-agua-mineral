@@ -18,11 +18,11 @@ import {
   getStatusText,
   getPaymentMethodText,
   formatCurrency,
-  formatDate,
   formatPhone,
   canAdvanceStatus,
   canCancelOrder,
   getNextStatus,
+  formatDateTime,
 } from "./order-utils";
 
 export function OrderRow({
@@ -58,7 +58,7 @@ export function OrderRow({
           {order.endereco?.numero}
         </div>
         <div className="text-xs text-muted-foreground">
-          {formatDate(new Date(order.createdAt))}
+          {formatDateTime(new Date(order.createdAt))}
         </div>
       </td>
 

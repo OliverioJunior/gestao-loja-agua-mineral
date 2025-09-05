@@ -7,13 +7,14 @@ import {
   formatDateForInput,
   formatPhone,
 } from "@/shared/utils";
+import { formatDateTime } from "@/shared/utils/formatters";
 
 // Re-exportar funções centralizadas para manter compatibilidade
 export const getStatusColor = getOrderStatusColor;
 export const getStatusText = getOrderStatusText;
 
 // Re-exportar formatadores centralizados
-export { formatCurrency, formatDate, formatPhone };
+export { formatCurrency, formatDate, formatDateTime, formatPhone };
 
 // Alias para manter compatibilidade
 export const formatDateOnly = formatDateForInput;

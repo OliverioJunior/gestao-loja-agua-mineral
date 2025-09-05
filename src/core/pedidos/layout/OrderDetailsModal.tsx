@@ -23,6 +23,7 @@ import {
   getPaymentMethodText,
   formatCurrency,
   formatDate,
+  formatDateTime,
   formatPhone,
 } from "./order-utils";
 
@@ -61,9 +62,7 @@ export function OrderDetailsModal({
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">Data do Pedido:</span>
                 <span className="font-medium">
-                  {formatDate(
-                    new Date(order.createdAt || new Date().toISOString())
-                  )}
+                  {formatDateTime(new Date(order.createdAt))}
                 </span>
               </div>
 
@@ -75,7 +74,7 @@ export function OrderDetailsModal({
                   </span>
                   <span className="font-medium">
                     {order.dataEntrega
-                      ? formatDate(new Date(order.dataEntrega!))
+                      ? formatDate(new Date(order.dataEntrega))
                       : "Pendente"}
                   </span>
                 </div>
