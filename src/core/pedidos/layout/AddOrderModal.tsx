@@ -471,17 +471,20 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         <SelectTrigger className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation">
                           <SelectValue placeholder="Selecione um produto" />
                         </SelectTrigger>
-                        <SelectContent className="max-h-[250px]">
+                        <SelectContent className="max-h-[250px] ">
                           {produtos
                             .filter((p) => p.ativo)
                             .map((produto) => (
                               <SelectItem
                                 key={produto.id}
                                 value={produto.id}
-                                className="py-4 touch-manipulation"
+                                className="py-4 touch-manipulation whitespace-normal break-words max-w-[364px]"
                               >
                                 <span className="font-medium text-sm whitespace-normal break-words">
-                                  {produto.nome + "\u00A0" + produto.marca}
+                                  {produto.marca}
+                                  <span>
+                                    {"\u00A0 (" + produto.nome + ")\u00A0"}
+                                  </span>
                                   <span className="whitespace-nowrap">
                                     {formatCurrency(getPreco(produto))}
                                   </span>
