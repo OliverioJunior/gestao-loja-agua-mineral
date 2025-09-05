@@ -108,7 +108,7 @@ export interface AddOrderModalProps {
 export interface EditOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (id: string, data: Partial<TPedidoWithRelations>) => void;
+  onSave: (id: string, data: Partial<TPedidoWithRelations>) => Promise<void>;
   order: TPedidoWithRelations | null;
 }
 

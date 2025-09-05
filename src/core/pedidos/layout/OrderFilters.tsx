@@ -9,8 +9,9 @@ import {
   SelectValue,
 } from "@/shared/components/ui";
 import { Search, Plus, Download } from "lucide-react";
-import { ICreatePedido, OrderFiltersProps } from "./types";
+import { OrderFiltersProps } from "./types";
 import { AddOrderModal } from "./AddOrderModal";
+import { CreatePedidoInput } from "../domain";
 
 export function OrderFilters({
   searchTerm,
@@ -21,7 +22,7 @@ export function OrderFilters({
 }: OrderFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleAddOrder = async (order: ICreatePedido) => {
+  const handleAddOrder = async (order: CreatePedidoInput) => {
     await onAddOrder(order);
     setIsAddModalOpen(false);
   };

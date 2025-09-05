@@ -19,8 +19,8 @@ export { formatCurrency, formatDate, formatDateTime, formatPhone };
 // Alias para manter compatibilidade
 export const formatDateOnly = formatDateForInput;
 
-export const getDeliveryTypeText = (tipo: "balcao" | "entrega") => {
-  return tipo === "balcao" ? "Balcão" : "Entrega";
+export const getDeliveryTypeText = (tipo: null | string) => {
+  return tipo === null ? "Portaria" : "Entrega";
 };
 
 export const getPaymentMethodText = (
