@@ -5,7 +5,6 @@ import {
 } from "@/infrastructure/generated/prisma";
 
 export type TPedido = Pedido;
-
 export const pedidoWithRelationsInclude = {
   cliente: true,
   itens: {
@@ -42,24 +41,13 @@ export type TPedidoComplete = Prisma.PedidoGetPayload<{
   };
 }>;
 
-export type CreatePedidoInput = Omit<
-  TPedido,
-  "id" | "createdAt" | "updatedAt" | "data"
-> & {
-  // Campos adicionais para criação
-  tipoEntrega?: "balcao" | "entrega";
-  formaPagamento?: "dinheiro" | "cartao_debito" | "cartao_credito" | "pix";
-  enderecoEntrega?: string;
-  observacoes?: string;
-  desconto?: number;
-  taxaEntrega?: number;
+export type CreatePedidoInput = Omit<Prisma.PedidoCreateInput, "criadoPor"> & {
+  clienteId: string;
+  criadoPorId: string;
+  itens: { produtoId: string; quantidade: number; preco: number }[];
 };
 
-export type UpdatePedidoInput = Partial<
-  Omit<CreatePedidoInput, "clienteId">
-> & {
-  status?: StatusPedido;
-};
+export type UpdatePedidoInput = Prisma.PedidoUncheckedUpdateInput;
 
 export interface IPaginatedResponse<T> {
   data: T[];

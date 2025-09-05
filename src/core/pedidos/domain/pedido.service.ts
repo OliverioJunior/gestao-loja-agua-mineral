@@ -1,4 +1,4 @@
-import { ErrorHandler } from "../../error/errors-handler";
+import { ErrorHandler } from "@/core/error/errors-handler";
 import {
   IPedidoRepository,
   CreatePedidoInput,
@@ -15,21 +15,15 @@ import {
   PedidoBusinessRulesError,
 } from "./pedido.errors";
 import { PedidoValidation } from "./pedido.validation";
-import { PrismaClient } from "@/infrastructure/generated/prisma";
-import { prisma } from "@/infrastructure";
-import { ClienteService } from "../../cliente/domain/cliente.service";
-import { ClienteRepository } from "../../cliente/domain/cliente.repository";
-import { ItemService } from "../../item/domain/item.service";
-import { ItemRepository } from "../../item/domain/item.repository";
+
+import { ClienteService, ClienteRepository } from "@/core/cliente/domain";
+import { ItemService, ItemRepository } from "@/core/item/domain";
 
 export class PedidoService {
   private clienteService: ClienteService;
   private itemService: ItemService;
 
-  constructor(
-    private pedidoRepository: IPedidoRepository,
-    private readonly db: PrismaClient = prisma
-  ) {
+  constructor(private pedidoRepository: IPedidoRepository) {
     // Inicializar serviços de dependências para delegar operações
     this.clienteService = new ClienteService(new ClienteRepository());
     this.itemService = new ItemService(new ItemRepository());
@@ -64,21 +58,27 @@ export class PedidoService {
       if (data.status !== undefined) {
         PedidoValidation.validateStatusTransition(
           existingPedido.status,
-          data.status
+          data.status as StatusPedido
         );
       }
 
       // Validar desconto vs total se fornecido
       if (data.desconto !== undefined && data.total !== undefined) {
-        PedidoValidation.validateDescontoVsTotal(data.desconto, data.total);
+        PedidoValidation.validateDescontoVsTotal(
+          data.desconto as number,
+          data.total as number
+        );
       } else if (data.desconto !== undefined) {
         PedidoValidation.validateDescontoVsTotal(
-          data.desconto,
-          existingPedido.total
+          data.desconto as number,
+          existingPedido.total as number
         );
       } else if (data.total !== undefined && existingPedido.total) {
         const desconto = 0; // Assumir desconto zero se não fornecido
-        PedidoValidation.validateDescontoVsTotal(desconto, data.total);
+        PedidoValidation.validateDescontoVsTotal(
+          desconto,
+          data.total as number
+        );
       }
 
       const updatedPedido = await this.pedidoRepository.update(id, data);
@@ -147,7 +147,10 @@ export class PedidoService {
     try {
       return await this.pedidoRepository.findAllPaginated(page, limit, filters);
     } catch (error) {
-      return ErrorHandler.handleRepositoryError(error, "busca paginada de pedidos");
+      return ErrorHandler.handleRepositoryError(
+        error,
+        "busca paginada de pedidos"
+      );
     }
   }
 

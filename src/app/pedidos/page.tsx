@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useMemo, useCallback } from "react";
 import {
   OrderStatsCards,
@@ -9,11 +8,10 @@ import {
   EditOrderModal,
   StatusTransitionModal,
   IPedidoStats,
-  ICreatePedido,
 } from "@/core/pedidos/layout";
 import { usePedidos } from "@/core/pedidos/hooks/usePedidos";
 import { useVendas } from "@/core/vendas/hooks";
-import { TPedidoWithRelations } from "@/core/pedidos/domain";
+import { CreatePedidoInput, TPedidoWithRelations } from "@/core/pedidos/domain";
 
 export default function PedidosPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -149,7 +147,7 @@ export default function PedidosPage() {
     [updateStatus, error, createVendas]
   );
   const handleCreateOrder = useCallback(
-    async (orderData: ICreatePedido) => {
+    async (orderData: CreatePedidoInput) => {
       const success = await createPedido(orderData);
       if (success) {
         setIsAddModalOpen(false);
@@ -160,7 +158,7 @@ export default function PedidosPage() {
     [createPedido, error]
   );
   const handleAddOrder = useCallback(
-    async (order: ICreatePedido) => {
+    async (order: CreatePedidoInput) => {
       await handleCreateOrder(order);
     },
     [handleCreateOrder]

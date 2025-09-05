@@ -14,17 +14,33 @@ export class PedidoRepository implements IPedidoRepository {
   constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
   async create(data: CreatePedidoInput): Promise<TPedido> {
-    return await this.db.pedido.create({
-      data: {
-        clienteId: data.clienteId,
-        total: data.total,
-        status: data.status,
-        criadoPorId: data.criadoPorId,
-        atualizadoPorId: data.atualizadoPorId,
-        enderecoId: data.enderecoId,
-        formaPagamento: data.formaPagamento,
-      },
-    });
+    try {
+      return await this.db.pedido.create({
+        data: {
+          total: data.total,
+          status: data.status,
+          formaPagamento: data.formaPagamento,
+          observacoes: data.observacoes,
+          desconto: data.desconto,
+          taxaEntrega: data.taxaEntrega,
+          clienteId: data.clienteId,
+          criadoPorId: data.criadoPorId,
+          itens: {
+            createMany: {
+              data: data.itens.map((item) => ({
+                produtoId: item.produtoId,
+                quantidade: item.quantidade,
+                preco: item.preco,
+                criadoPorId: data.criadoPorId,
+              })),
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
   async update(id: string, data: UpdatePedidoInput): Promise<TPedido> {

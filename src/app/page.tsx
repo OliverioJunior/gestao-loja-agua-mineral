@@ -4,8 +4,8 @@ import { DashboardContent } from "@/layout/dashboard";
 import { useDashboard } from "@/hooks/dashboard/useDashboard";
 import { AddOrderModal } from "@/core/pedidos/layout/AddOrderModal";
 import { redirect } from "next/navigation";
-import { ICreatePedido } from "@/core/pedidos/layout";
 import { usePedidos } from "@/core/pedidos/hooks/usePedidos";
+import { CreatePedidoInput } from "@/core/pedidos/domain";
 export default function Home() {
   const [isCreateOrderModalOpen, setIsCreateOrderModalOpen] = useState(false);
 
@@ -69,7 +69,7 @@ export default function Home() {
     setIsCreateOrderModalOpen(true);
   };
 
-  const handleOrderSuccess = async (order: ICreatePedido) => {
+  const handleOrderSuccess = async (order: CreatePedidoInput) => {
     refreshData(); // Atualizar dados do dashboard
     await createPedido(order);
     setIsCreateOrderModalOpen(false);

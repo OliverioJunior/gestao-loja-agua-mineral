@@ -41,15 +41,15 @@ export class PedidoValidation {
     this.validateTotal(data.total);
 
     if (data.formaPagamento !== undefined) {
-      this.validateFormaPagamento(data.formaPagamento);
+      this.validateFormaPagamento(data.formaPagamento as FormaPagamento);
     }
 
     if (data.desconto !== undefined) {
-      this.validateDesconto(data.desconto);
+      this.validateDesconto(data.desconto || 0);
     }
 
     if (data.taxaEntrega !== undefined) {
-      this.validateTaxaEntrega(data.taxaEntrega);
+      this.validateTaxaEntrega(data.taxaEntrega || 0);
     }
 
     this.validateAllFields(data);
@@ -58,27 +58,33 @@ export class PedidoValidation {
 
   static validateUpdateInput(data: UpdatePedidoInput) {
     if (data.total !== undefined) {
-      this.validateTotal(data.total);
+      const totalValue =
+        typeof data.total === "number" ? data.total : data.total?.set || 0;
+      this.validateTotal(totalValue);
     }
 
     if (data.status !== undefined) {
-      this.validateStatus(data.status);
-    }
-
-    if (data.tipoEntrega !== undefined) {
-      this.validateTipoEntrega(data.tipoEntrega);
+      this.validateStatus(data.status as StatusPedido);
     }
 
     if (data.formaPagamento !== undefined) {
-      this.validateFormaPagamento(data.formaPagamento);
+      this.validateFormaPagamento(data.formaPagamento as FormaPagamento);
     }
 
     if (data.desconto !== undefined) {
-      this.validateDesconto(data.desconto);
+      const descontoValue =
+        typeof data.desconto === "number"
+          ? data.desconto
+          : data.desconto?.set || 0;
+      this.validateDesconto(descontoValue);
     }
 
     if (data.taxaEntrega !== undefined) {
-      this.validateTaxaEntrega(data.taxaEntrega);
+      const taxaEntregaValue =
+        typeof data.taxaEntrega === "number"
+          ? data.taxaEntrega
+          : data.taxaEntrega?.set || 0;
+      this.validateTaxaEntrega(taxaEntregaValue);
     }
 
     this.validateAtLeastOneField(data);
