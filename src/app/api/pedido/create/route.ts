@@ -47,10 +47,8 @@ export async function POST(request: NextRequest) {
       const pedidoToCreate: CreatePedidoInput = {
         ...pedidoData,
         total,
-        data: new Date(),
         status: "PENDENTE",
         criadoPorId: currentUser.id,
-        atualizadoPorId: null,
       };
       const pedidoCreated = await pedidoService.create(pedidoToCreate);
 

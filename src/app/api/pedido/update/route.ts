@@ -44,12 +44,9 @@ export async function PUT(request: NextRequest) {
     // Adicionar campos opcionais se fornecidos
     if (body.total !== undefined) updateData.total = Number(body.total);
     if (body.status !== undefined) updateData.status = body.status;
-    if (body.tipoEntrega !== undefined)
-      updateData.tipoEntrega = body.tipoEntrega;
     if (body.formaPagamento !== undefined)
       updateData.formaPagamento = body.formaPagamento;
-    if (body.enderecoEntrega !== undefined)
-      updateData.enderecoEntrega = body.enderecoEntrega;
+    if (body.enderecoId !== undefined) updateData.enderecoId = body.enderecoId;
     if (body.observacoes !== undefined)
       updateData.observacoes = body.observacoes;
     if (body.desconto !== undefined)
