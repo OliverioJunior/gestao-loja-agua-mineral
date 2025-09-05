@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Button,
@@ -173,7 +174,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           itens: itens.map((item) => ({
             produtoId: item.produtoId,
             quantidade: item.quantidade,
-            precoUnitario: item.precoUnitario,
+            preco: item.precoUnitario,
           })),
           total,
           criadoPorId: "",
@@ -240,6 +241,10 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
             <Package className="h-5 w-5" />
             Novo Pedido
           </DialogTitle>
+          <DialogDescription>
+            Crie um novo pedido, adicionando itens, cliente, forma de pagamento
+            e observações.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">

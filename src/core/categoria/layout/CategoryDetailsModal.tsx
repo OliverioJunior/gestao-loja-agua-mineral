@@ -2,6 +2,7 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -34,6 +35,7 @@ export function CategoryDetailsModal({
             <Tag className="h-5 w-5" />
             Detalhes da Categoria
           </DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-3">

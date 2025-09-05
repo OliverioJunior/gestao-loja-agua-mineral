@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Button,
@@ -122,6 +123,11 @@ export function ProductDetailsModal({
               <Package className="h-5 w-5 text-primary" />
               {editMode ? "Editar Produto" : "Detalhes do Produto"}
             </DialogTitle>
+            <DialogDescription>
+              {editMode
+                ? "Edite as informações do produto abaixo."
+                : "Visualize os detalhes do produto."}
+            </DialogDescription>
           </div>
         </DialogHeader>
 

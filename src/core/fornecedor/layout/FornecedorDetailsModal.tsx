@@ -1,20 +1,21 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Separator } from "@/shared/components/ui/separator";
-import { 
-  Building, 
-  FileText, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
+import {
+  Building,
+  FileText,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
   ShoppingCart,
-  Package
+  Package,
 } from "lucide-react";
 import { FornecedorDetailsModalProps } from "./types";
 import { FornecedorUtils } from "./fornecedor-utils";
@@ -22,7 +23,7 @@ import { FornecedorUtils } from "./fornecedor-utils";
 export function FornecedorDetailsModal({
   isOpen,
   onClose,
-  fornecedor
+  fornecedor,
 }: FornecedorDetailsModalProps) {
   if (!fornecedor) return null;
 
@@ -39,6 +40,10 @@ export function FornecedorDetailsModal({
             <Building className="h-5 w-5" />
             <span>Detalhes do Fornecedor</span>
           </DialogTitle>
+          <DialogDescription>
+            Visualize as informações detalhadas do fornecedor, incluindo
+            documentos, contato e compras.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -46,19 +51,20 @@ export function FornecedorDetailsModal({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-lg">{fornecedor.nome}</h3>
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={`${statusColors.bg} ${statusColors.text} ${statusColors.border}`}
               >
                 {FornecedorUtils.getStatusText(fornecedor.status)}
               </Badge>
             </div>
-            
-            {fornecedor.razaoSocial && fornecedor.razaoSocial !== fornecedor.nome && (
-              <p className="text-muted-foreground">
-                <strong>Razão Social:</strong> {fornecedor.razaoSocial}
-              </p>
-            )}
+
+            {fornecedor.razaoSocial &&
+              fornecedor.razaoSocial !== fornecedor.nome && (
+                <p className="text-muted-foreground">
+                  <strong>Razão Social:</strong> {fornecedor.razaoSocial}
+                </p>
+              )}
           </div>
 
           <Separator />
@@ -72,10 +78,10 @@ export function FornecedorDetailsModal({
             <div className="bg-muted/50 p-4 rounded-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Documento Principal</p>
-                  <p className="font-mono font-medium">
-                    {document.formatted}
+                  <p className="text-sm text-muted-foreground">
+                    Documento Principal
                   </p>
+                  <p className="font-mono font-medium">{document.formatted}</p>
                   <p className="text-xs text-muted-foreground">
                     {document.type}
                   </p>
@@ -106,7 +112,9 @@ export function FornecedorDetailsModal({
                     )}
                     {contact.telefone && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Telefone</p>
+                        <p className="text-sm text-muted-foreground">
+                          Telefone
+                        </p>
                         <div className="flex items-center space-x-2">
                           <Phone className="h-4 w-4 text-muted-foreground" />
                           <p className="font-medium">{contact.telefone}</p>
@@ -145,7 +153,9 @@ export function FornecedorDetailsModal({
                   <h3 className="font-semibold">Observações</h3>
                 </div>
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <p className="whitespace-pre-wrap">{fornecedor.observacoes}</p>
+                  <p className="whitespace-pre-wrap">
+                    {fornecedor.observacoes}
+                  </p>
                 </div>
               </div>
             </>
@@ -166,7 +176,7 @@ export function FornecedorDetailsModal({
                   <div>
                     <p className="text-sm text-blue-700">Total de Compras</p>
                     <p className="text-2xl font-bold text-blue-800">
-                      {compras.totalCompras.toLocaleString('pt-BR')}
+                      {compras.totalCompras.toLocaleString("pt-BR")}
                     </p>
                   </div>
                 </div>
@@ -177,7 +187,7 @@ export function FornecedorDetailsModal({
                   <div>
                     <p className="text-sm text-green-700">Total de Itens</p>
                     <p className="text-2xl font-bold text-green-800">
-                      {compras.totalItens.toLocaleString('pt-BR')}
+                      {compras.totalItens.toLocaleString("pt-BR")}
                     </p>
                   </div>
                 </div>
@@ -193,10 +203,15 @@ export function FornecedorDetailsModal({
                 <h3 className="font-semibold">Compras Recentes</h3>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {fornecedor.compras.slice(0, 5).map((compra) => (
-                    <div key={compra.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div
+                      key={compra.id}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                    >
                       <div>
                         <p className="font-medium">
-                          {compra.numeroNota ? `NF: ${compra.numeroNota}` : 'Sem nota fiscal'}
+                          {compra.numeroNota
+                            ? `NF: ${compra.numeroNota}`
+                            : "Sem nota fiscal"}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {FornecedorUtils.formatDateOnly(compra.createdAt)}

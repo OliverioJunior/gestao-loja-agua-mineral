@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
@@ -35,6 +36,10 @@ export function ItemCompraDetailsModal({
             <Package className="h-5 w-5" />
             <span>Detalhes do Item de Compra</span>
           </DialogTitle>
+          <DialogDescription>
+            Visualize as informações detalhadas do item de compra, incluindo
+            produto, quantidade, preço unitário, desconto e total.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -123,6 +124,9 @@ export function EditClientModal({
             <Edit className="h-5 w-5" />
             Editar Cliente
           </DialogTitle>
+          <DialogDescription>
+            Edite as informações do cliente abaixo.
+          </DialogDescription>
         </DialogHeader>
 
         {error && (

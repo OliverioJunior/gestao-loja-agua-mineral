@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -41,9 +42,9 @@ export function DeleteConfirmModal({
               <DialogTitle className="text-lg font-semibold text-foreground">
                 Confirmar Exclusão
               </DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <DialogDescription className="text-sm text-muted-foreground mt-1">
                 Esta ação não pode ser desfeita
-              </p>
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>

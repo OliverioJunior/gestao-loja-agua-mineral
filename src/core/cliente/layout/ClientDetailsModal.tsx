@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -44,6 +45,9 @@ export function ClientDetailsModal({
             <User className="h-5 w-5" />
             Detalhes do Cliente
           </DialogTitle>
+          <DialogDescription>
+            Visualize e edite os detalhes do cliente.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

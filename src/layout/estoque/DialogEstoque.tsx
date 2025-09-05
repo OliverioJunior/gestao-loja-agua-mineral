@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -116,6 +117,11 @@ export const DialogEstoque = ({
               </>
             )}
           </DialogTitle>
+          <DialogDescription className="text-slate-400">
+            {mode === "edit"
+              ? "Edite as informações do estoque abaixo."
+              : "Visualize os detalhes do estoque."}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

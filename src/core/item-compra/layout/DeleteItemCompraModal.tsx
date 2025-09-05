@@ -4,7 +4,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
 import { AlertTriangle, Package } from "lucide-react";
@@ -15,7 +15,7 @@ export function DeleteItemCompraModal({
   isOpen,
   onClose,
   item,
-  onConfirm
+  onConfirm,
 }: DeleteItemCompraModalProps) {
   if (!item) return null;
 
@@ -32,7 +32,8 @@ export function DeleteItemCompraModal({
             <span>Confirmar Exclusão</span>
           </DialogTitle>
           <DialogDescription>
-            Esta ação não pode ser desfeita. O item de compra será removido permanentemente.
+            Esta ação não pode ser desfeita. O item de compra será removido
+            permanentemente.
           </DialogDescription>
         </DialogHeader>
 
@@ -44,18 +45,18 @@ export function DeleteItemCompraModal({
               <div className="flex-1 space-y-2">
                 <div>
                   <p className="font-semibold">
-                    {item.produto?.nome || 'Produto não encontrado'}
+                    {item.produto?.nome || "Produto não encontrado"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Fornecedor: {ItemCompraUtils.getFornecedorName(item)}
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Quantidade:</span>
                     <span className="ml-2 font-mono">
-                      {item.quantidade.toLocaleString('pt-BR')}
+                      {item.quantidade.toLocaleString("pt-BR")}
                     </span>
                   </div>
                   <div>
@@ -65,7 +66,7 @@ export function DeleteItemCompraModal({
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="text-sm">
                   <span className="text-muted-foreground">Nota Fiscal:</span>
                   <span className="ml-2">
@@ -95,16 +96,10 @@ export function DeleteItemCompraModal({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
+          <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button
-            variant="destructive"
-            onClick={handleConfirm}
-          >
+          <Button variant="destructive" onClick={handleConfirm}>
             Excluir Item
           </Button>
         </DialogFooter>

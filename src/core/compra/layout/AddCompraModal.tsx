@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -360,6 +361,9 @@ export function AddCompraModal({
             <Plus className="h-5 w-5" />
             <span>Adicionar Compra</span>
           </DialogTitle>
+          <DialogDescription>
+            Preencha as informações básicas da compra.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">

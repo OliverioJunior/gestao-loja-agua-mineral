@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -150,6 +151,11 @@ export function EditDespesaModal({
               </>
             )}
           </DialogTitle>
+          <DialogDescription>
+            {mode === "create"
+              ? "Adicione uma nova despesa"
+              : "Edite as informações da despesa"}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">

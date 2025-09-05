@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -123,6 +124,9 @@ export function AddClientModal({
             <Plus className="h-5 w-5" />
             Adicionar Novo Cliente
           </DialogTitle>
+          <DialogDescription>
+            Preencha os campos abaixo para adicionar um novo cliente.
+          </DialogDescription>
         </DialogHeader>
 
         {error && (

@@ -40,12 +40,14 @@ export function DeleteDespesaModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
-        <DialogDescription />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="h-5 w-5" />
             Confirmar Exclusão
           </DialogTitle>
+          <DialogDescription>
+            Esta ação não pode ser desfeita.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

@@ -2,6 +2,7 @@ import {
   Badge,
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Separator,
@@ -40,8 +41,13 @@ export function OrderDetailsModal({
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
             Detalhes do Pedido{" "}
-            {order.endereco?.logradouro + ", " + order.endereco?.numero || ""}
           </DialogTitle>
+          <DialogDescription>
+            Observação:{" "}
+            <Badge className="font-muted" variant={"outline"}>
+              {order.observacoes || "Nenhuma"}
+            </Badge>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -87,17 +93,8 @@ export function OrderDetailsModal({
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
                   Tipo de Entrega
                 </h3>
-                <Badge
-                  variant="outline"
-                  className={`text-sm ${
-                    order.enderecoId !== null
-                      ? "bg-blue-500/20 text-blue-600 border-blue-500/30"
-                      : "bg-gray-500/20 text-gray-600 border-gray-500/30"
-                  }`}
-                >
-                  {getDeliveryTypeText(
-                    order.enderecoId !== null ? "entrega" : "balcao"
-                  )}
+                <Badge variant="destructive" className={`text-muted `}>
+                  {getDeliveryTypeText(order.enderecoId)}
                 </Badge>
               </div>
 

@@ -3,6 +3,7 @@ import { useCategory } from "@/core/categoria/hooks/useCategory";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Button,
@@ -128,6 +129,9 @@ export function AddProductModal({
               <Plus className="h-5 w-5 text-primary" />
               Adicionar Novo Produto
             </DialogTitle>
+            <DialogDescription>
+              Preencha os campos abaixo para adicionar um novo produto.
+            </DialogDescription>
           </div>
         </DialogHeader>
 

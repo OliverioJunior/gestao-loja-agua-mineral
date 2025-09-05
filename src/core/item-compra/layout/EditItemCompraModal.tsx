@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter
+  DialogFooter,
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -14,7 +15,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/shared/components/ui/select";
 import { Edit, Calculator } from "lucide-react";
 import { EditItemCompraModalProps, ItemCompraFormData } from "./types";
@@ -24,17 +25,17 @@ export function EditItemCompraModal({
   isOpen,
   onClose,
   item,
-  onSubmit
+  onSubmit,
 }: EditItemCompraModalProps) {
   const [formData, setFormData] = useState<ItemCompraFormData>({
-    compraId: '',
-    produtoId: '',
+    compraId: "",
+    produtoId: "",
     quantidade: 1,
     precoUnitario: 0,
     precoTotal: 0,
-    desconto: 0
+    desconto: 0,
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
@@ -47,7 +48,7 @@ export function EditItemCompraModal({
         quantidade: item.quantidade,
         precoUnitario: ItemCompraUtils.toReais(item.precoUnitario),
         precoTotal: ItemCompraUtils.toReais(item.precoTotal),
-        desconto: ItemCompraUtils.toReais(item.desconto || 0)
+        desconto: ItemCompraUtils.toReais(item.desconto || 0),
       });
     }
   }, [item]);
@@ -59,10 +60,10 @@ export function EditItemCompraModal({
       ItemCompraUtils.toCents(formData.precoUnitario),
       ItemCompraUtils.toCents(formData.desconto || 0)
     );
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      precoTotal: ItemCompraUtils.toReais(total)
+      precoTotal: ItemCompraUtils.toReais(total),
     }));
   }, [formData.quantidade, formData.precoUnitario, formData.desconto]);
 
@@ -70,19 +71,19 @@ export function EditItemCompraModal({
     const newErrors: Record<string, string> = {};
 
     if (!formData.produtoId.trim()) {
-      newErrors.produtoId = 'Selecione um produto';
+      newErrors.produtoId = "Selecione um produto";
     }
 
     if (formData.quantidade <= 0) {
-      newErrors.quantidade = 'Quantidade deve ser maior que zero';
+      newErrors.quantidade = "Quantidade deve ser maior que zero";
     }
 
     if (formData.precoUnitario <= 0) {
-      newErrors.precoUnitario = 'Preço unitário deve ser maior que zero';
+      newErrors.precoUnitario = "Preço unitário deve ser maior que zero";
     }
 
     if (formData.desconto && formData.desconto < 0) {
-      newErrors.desconto = 'Desconto não pode ser negativo';
+      newErrors.desconto = "Desconto não pode ser negativo";
     }
 
     setErrors(newErrors);
@@ -91,7 +92,7 @@ export function EditItemCompraModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm() || !item) return;
 
     setLoading(true);
@@ -101,11 +102,13 @@ export function EditItemCompraModal({
         quantidade: formData.quantidade,
         precoUnitario: ItemCompraUtils.toCents(formData.precoUnitario),
         precoTotal: ItemCompraUtils.toCents(formData.precoTotal),
-        desconto: formData.desconto ? ItemCompraUtils.toCents(formData.desconto) : 0,
-        atualizadoPorId: 'current-user-id' // TODO: Obter do contexto de usuário
+        desconto: formData.desconto
+          ? ItemCompraUtils.toCents(formData.desconto)
+          : 0,
+        atualizadoPorId: "current-user-id", // TODO: Obter do contexto de usuário
       });
     } catch (error) {
-      console.error('Erro ao atualizar item:', error);
+      console.error("Erro ao atualizar item:", error);
     } finally {
       setLoading(false);
     }
@@ -126,6 +129,10 @@ export function EditItemCompraModal({
             <Edit className="h-5 w-5" />
             <span>Editar Item de Compra</span>
           </DialogTitle>
+          <DialogDescription>
+            Edite as informações do item de compra, como produto, quantidade,
+            preço unitário e desconto.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -154,7 +161,9 @@ export function EditItemCompraModal({
               <Label htmlFor="produtoId">Produto *</Label>
               <Select
                 value={formData.produtoId}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, produtoId: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, produtoId: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um produto" />
@@ -162,7 +171,7 @@ export function EditItemCompraModal({
                 <SelectContent>
                   {/* TODO: Carregar produtos do backend */}
                   <SelectItem value={item.produtoId}>
-                    {item.produto?.nome || 'Produto atual'}
+                    {item.produto?.nome || "Produto atual"}
                   </SelectItem>
                   <SelectItem value="produto-1">Água Mineral 500ml</SelectItem>
                   <SelectItem value="produto-2">Água Mineral 1L</SelectItem>
@@ -183,10 +192,12 @@ export function EditItemCompraModal({
                 type="number"
                 min="1"
                 value={formData.quantidade}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  quantidade: parseInt(e.target.value) || 0
-                }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    quantidade: parseInt(e.target.value) || 0,
+                  }))
+                }
                 placeholder="Ex: 100"
               />
               {errors.quantidade && (
@@ -203,14 +214,18 @@ export function EditItemCompraModal({
                 step="0.01"
                 min="0"
                 value={formData.precoUnitario}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  precoUnitario: parseFloat(e.target.value) || 0
-                }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    precoUnitario: parseFloat(e.target.value) || 0,
+                  }))
+                }
                 placeholder="Ex: 1.50"
               />
               {errors.precoUnitario && (
-                <p className="text-sm text-destructive">{errors.precoUnitario}</p>
+                <p className="text-sm text-destructive">
+                  {errors.precoUnitario}
+                </p>
               )}
             </div>
           </div>
@@ -224,11 +239,13 @@ export function EditItemCompraModal({
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.desconto || ''}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  desconto: parseFloat(e.target.value) || 0
-                }))}
+                value={formData.desconto || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    desconto: parseFloat(e.target.value) || 0,
+                  }))
+                }
                 placeholder="Ex: 5.00"
               />
               {errors.desconto && (
@@ -242,7 +259,9 @@ export function EditItemCompraModal({
               <div className="flex items-center space-x-2">
                 <Calculator className="h-4 w-4 text-muted-foreground" />
                 <span className="font-mono text-lg font-semibold">
-                  {ItemCompraUtils.formatCurrency(ItemCompraUtils.toCents(formData.precoTotal))}
+                  {ItemCompraUtils.formatCurrency(
+                    ItemCompraUtils.toCents(formData.precoTotal)
+                  )}
                 </span>
               </div>
             </div>
@@ -250,7 +269,9 @@ export function EditItemCompraModal({
 
           {/* Comparação com valores originais */}
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-            <h4 className="font-medium mb-2 text-blue-800">Comparação com Valores Originais</h4>
+            <h4 className="font-medium mb-2 text-blue-800">
+              Comparação com Valores Originais
+            </h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-blue-700 mb-1">Valores Originais:</p>
@@ -283,13 +304,17 @@ export function EditItemCompraModal({
                   <div className="flex justify-between">
                     <span>Preço Unit.:</span>
                     <span className="font-mono">
-                      {ItemCompraUtils.formatCurrency(ItemCompraUtils.toCents(formData.precoUnitario))}
+                      {ItemCompraUtils.formatCurrency(
+                        ItemCompraUtils.toCents(formData.precoUnitario)
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Total:</span>
                     <span className="font-mono font-semibold">
-                      {ItemCompraUtils.formatCurrency(ItemCompraUtils.toCents(formData.precoTotal))}
+                      {ItemCompraUtils.formatCurrency(
+                        ItemCompraUtils.toCents(formData.precoTotal)
+                      )}
                     </span>
                   </div>
                 </div>
@@ -306,11 +331,8 @@ export function EditItemCompraModal({
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? 'Salvando...' : 'Salvar Alterações'}
+            <Button type="submit" disabled={loading}>
+              {loading ? "Salvando..." : "Salvar Alterações"}
             </Button>
           </DialogFooter>
         </form>

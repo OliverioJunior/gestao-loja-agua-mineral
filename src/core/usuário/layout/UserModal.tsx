@@ -3,6 +3,7 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -26,7 +27,7 @@ interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (user: IUser) => void;
-  initialMode?: 'view' | 'edit';
+  initialMode?: "view" | "edit";
 }
 
 export function UserModal({
@@ -34,9 +35,9 @@ export function UserModal({
   isOpen,
   onClose,
   onSave,
-  initialMode = 'view',
+  initialMode = "view",
 }: UserModalProps) {
-  const [mode, setMode] = useState<'view' | 'edit'>(initialMode);
+  const [mode, setMode] = useState<"view" | "edit">(initialMode);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<IUser>>({
     id: "",
@@ -88,7 +89,7 @@ export function UserModal({
       toast.success("Usuário atualizado com sucesso!");
 
       onSave(result);
-      setMode('view');
+      setMode("view");
     } catch (error) {
       console.error("Erro ao atualizar usuário:", error);
       toast.error(
@@ -107,11 +108,11 @@ export function UserModal({
       password: user.password,
       role: user.role,
     });
-    setMode('view');
+    setMode("view");
   };
 
   const handleClose = () => {
-    setMode('view');
+    setMode("view");
     onClose();
   };
 
@@ -120,7 +121,7 @@ export function UserModal({
       <DialogContent className="bg-slate-900 border-slate-700 max-w-md">
         <DialogHeader>
           <DialogTitle className="text-slate-200 flex items-center gap-2">
-            {mode === 'edit' ? (
+            {mode === "edit" ? (
               <>
                 <Edit3 className="h-5 w-5" />
                 Editar Usuário
@@ -132,9 +133,14 @@ export function UserModal({
               </>
             )}
           </DialogTitle>
+          <DialogDescription className="text-slate-400">
+            {mode === "edit"
+              ? "Edite as informações do usuário abaixo."
+              : "Visualize os detalhes do usuário."}
+          </DialogDescription>
         </DialogHeader>
-        
-        {mode === 'edit' ? (
+
+        {mode === "edit" ? (
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="flex items-center gap-3">
@@ -295,7 +301,7 @@ export function UserModal({
               </Button>
               <Button
                 type="button"
-                onClick={() => setMode('edit')}
+                onClick={() => setMode("edit")}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Edit3 className="h-4 w-4 mr-2" />

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Button,
@@ -42,7 +43,6 @@ import {
   convertFormattedToCents,
 } from "@/shared/utils";
 import {
-  SUCCESS_MESSAGES,
   ERROR_MESSAGES,
   INFO_MESSAGES,
   UI_LABELS,
@@ -124,7 +124,7 @@ export function EditOrderModal({
         clienteId: order.cliente?.id || "",
         tipoEntrega: order.endereco?.logradouro ? "entrega" : "balcao",
         formaPagamento: order.formaPagamento || "",
-        observacoes: "",
+        observacoes: order.observacoes || "",
         enderecoEntrega: {
           logradouro: order.endereco?.logradouro || "",
           numero: order.endereco?.numero || "",
@@ -265,11 +265,7 @@ export function EditOrderModal({
       await withLoading(async () => {
         const updatedOrderData: Partial<TPedidoWithRelations> = {
           clienteId: formData.clienteId,
-          formaPagamento: formData.formaPagamento as
-            | "dinheiro"
-            | "cartao_debito"
-            | "cartao_credito"
-            | "pix",
+          formaPagamento: formData.formaPagamento,
           taxaEntrega: formData.taxaEntrega,
           desconto: formData.desconto,
           total: total,
@@ -287,7 +283,6 @@ export function EditOrderModal({
         await onSave(order.id, updatedOrderData);
       });
 
-      toast.success(SUCCESS_MESSAGES.ORDER_UPDATED);
       resetForm();
       onClose();
     } catch (error) {
@@ -317,6 +312,9 @@ export function EditOrderModal({
             <Package className="h-5 w-5" />
             {UI_LABELS.EDIT} Pedido #{order.id.slice(-8)}
           </DialogTitle>
+          <DialogDescription className="text-sm text-slate-500">
+            Você está editando o pedido #{order.id.slice(-8)}.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">

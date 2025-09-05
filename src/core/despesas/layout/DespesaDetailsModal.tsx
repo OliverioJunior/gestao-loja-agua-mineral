@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -43,6 +44,10 @@ export function DespesaDetailsModal({
             <Receipt className="h-5 w-5" />
             Detalhes da Despesa
           </DialogTitle>
+          <DialogDescription>
+            Visualize os detalhes da despesa, incluindo descrição, valor, data,
+            forma de pagamento e categoria.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -183,6 +184,9 @@ export function EditCompraModal({
             <Edit className="h-5 w-5" />
             <span>Editar Compra</span>
           </DialogTitle>
+          <DialogDescription>
+            Edite as informações da compra abaixo.
+          </DialogDescription>
         </DialogHeader>
 
         {!canEdit && (

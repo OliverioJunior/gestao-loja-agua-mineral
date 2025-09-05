@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -173,6 +174,10 @@ export function AddFornecedorModal({
             <Plus className="h-5 w-5" />
             <span>Adicionar Fornecedor</span>
           </DialogTitle>
+          <DialogDescription>
+            Preencha as informações básicas do fornecedor, como nome, razão
+            social, CNPJ/CPF, email, telefone e endereço.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">

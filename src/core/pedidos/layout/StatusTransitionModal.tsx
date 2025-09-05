@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Button,
@@ -166,8 +167,11 @@ export function StatusTransitionModal({
                 #{order.id.slice(-8)}
               </Badge>
             </DialogTitle>
+            <DialogDescription>
+              {" "}
+              {statusConfig[currentStatus].description}
+            </DialogDescription>
           </DialogHeader>
-
           <div className="space-y-3">
             <Card
               className={`${statusConfig[currentStatus].bgColor} ${statusConfig[currentStatus].borderColor} border-2`}
