@@ -112,7 +112,7 @@ export function EditOrderModal({
     setRevenda(false);
     setSelectedProduto("");
     setQuantidade(0);
-    setDescontoFormatado("");
+    setDescontoFormatado(formatCurrencyFromCents("0"));
     setTaxaEntregaFormatada("");
     setIsSubmitting(false);
   };
@@ -341,8 +341,14 @@ export function EditOrderModal({
                     </SelectTrigger>
                     <SelectContent sideOffset={5} align="start">
                       {clientes.map((cliente) => (
-                        <SelectItem key={cliente.id} value={cliente.id}>
-                          {cliente.nome} - {cliente.telefone}
+                        <SelectItem
+                          className="max-w-[397px]"
+                          key={cliente.id}
+                          value={cliente.id}
+                        >
+                          <span className="font-medium text-sm whitespace-normal break-words">
+                            {cliente.nome}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -718,6 +724,15 @@ export function EditOrderModal({
                       <div className="flex items-center gap-2">
                         <span className="text-base">💵</span>
                         <span>Dinheiro</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="boleto"
+                      className="py-3 touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📜</span>
+                        <span>Boleto</span>
                       </div>
                     </SelectItem>
                     <SelectItem
