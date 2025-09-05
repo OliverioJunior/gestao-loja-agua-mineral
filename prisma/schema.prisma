@@ -70,49 +70,49 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos de auditoria - criação
-  clientesCriados       Cliente[]     @relation("ClienteCreatedBy")
-  produtosCriados       Produto[]     @relation("ProdutoCreatedBy")
-  categoriasCriadas     Categoria[]   @relation("CategoriaCreatedBy")
-  pedidosCriados        Pedido[]      @relation("PedidoCreatedBy")
-  itensCriados          Item[]        @relation("ItemCreatedBy")
-  vendasCriadas         Vendas[]      @relation("VendasCreatedBy")
-  fornecedoresCriados   Fornecedor[]  @relation("FornecedorCreatedBy")
-  comprasCriadas        Compra[]      @relation("CompraCreatedBy")
-  itensCompraCriados    ItemCompra[]  @relation("ItemCompraCreatedBy")
+  clientesCriados         Cliente[]    @relation("ClienteCreatedBy")
+  produtosCriados         Produto[]    @relation("ProdutoCreatedBy")
+  categoriasCriadas       Categoria[]  @relation("CategoriaCreatedBy")
+  pedidosCriados          Pedido[]     @relation("PedidoCreatedBy")
+  itensCriados            Item[]       @relation("ItemCreatedBy")
+  vendasCriadas           Vendas[]     @relation("VendasCreatedBy")
+  fornecedoresCriados     Fornecedor[] @relation("FornecedorCreatedBy")
+  comprasCriadas          Compra[]     @relation("CompraCreatedBy")
+  itensCompraCriados      ItemCompra[] @relation("ItemCompraCreatedBy")
   // Relacionamentos de auditoria - atualização
-  clientesAtualizados   Cliente[]     @relation("ClienteUpdatedBy")
-  produtosAtualizados   Produto[]     @relation("ProdutoUpdatedBy")
-  categoriasAtualizadas Categoria[]   @relation("CategoriaUpdatedBy")
-  pedidosAtualizados    Pedido[]      @relation("PedidoUpdatedBy")
-  itensAtualizados      Item[]        @relation("ItemUpdatedBy")
-  despesasCriadas       Despesa[]     @relation("DespesaCreatedBy")
-  despesasAtualizadas   Despesa[]     @relation("DespesaUpdatedBy")
-  vendasAtualizadas     Vendas[]      @relation("VendasUpdatedBy")
+  clientesAtualizados     Cliente[]    @relation("ClienteUpdatedBy")
+  produtosAtualizados     Produto[]    @relation("ProdutoUpdatedBy")
+  categoriasAtualizadas   Categoria[]  @relation("CategoriaUpdatedBy")
+  pedidosAtualizados      Pedido[]     @relation("PedidoUpdatedBy")
+  itensAtualizados        Item[]       @relation("ItemUpdatedBy")
+  despesasCriadas         Despesa[]    @relation("DespesaCreatedBy")
+  despesasAtualizadas     Despesa[]    @relation("DespesaUpdatedBy")
+  vendasAtualizadas       Vendas[]     @relation("VendasUpdatedBy")
   fornecedoresAtualizados Fornecedor[] @relation("FornecedorUpdatedBy")
-  comprasAtualizadas    Compra[]      @relation("CompraUpdatedBy")
-  itensCompraAtualizados ItemCompra[] @relation("ItemCompraUpdatedBy")
+  comprasAtualizadas      Compra[]     @relation("CompraUpdatedBy")
+  itensCompraAtualizados  ItemCompra[] @relation("ItemCompraUpdatedBy")
 
   @@map("users")
 }
 
 model Produto {
-  id            String     @id @default(uuid()) @db.Uuid
-  nome          String     @db.VarChar(255)
-  descricao     String?    @db.Text
-  marca         String?    @db.VarChar(100)
-  precoCusto    Int        @map("preco_custo")
-  precoVenda    Int        @map("preco_venda")
-  precoRevenda  Int?       @map("preco_revenda")
-  precoPromocao Int?       @map("preco_promocao")
-  estoque       Int        @default(0)
-  estoqueMinimo Int?       @default(0) @map("estoque_minimo")
-  ativo         Boolean    @default(true)
-  promocao      Boolean    @default(false)
-  createdAt     DateTime   @default(now()) @map("created_at")
-  updatedAt     DateTime   @updatedAt @map("updated_at")
+  id            String       @id @default(uuid()) @db.Uuid
+  nome          String       @db.VarChar(255)
+  descricao     String?      @db.Text
+  marca         String?      @db.VarChar(100)
+  precoCusto    Int          @map("preco_custo")
+  precoVenda    Int          @map("preco_venda")
+  precoRevenda  Int?         @map("preco_revenda")
+  precoPromocao Int?         @map("preco_promocao")
+  estoque       Int          @default(0)
+  estoqueMinimo Int?         @default(0) @map("estoque_minimo")
+  ativo         Boolean      @default(true)
+  promocao      Boolean      @default(false)
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
   // Relacionamentos
-  categoria     Categoria? @relation(fields: [categoriaId], references: [id])
-  categoriaId   String?    @map("categoria_id") @db.Uuid
+  categoria     Categoria?   @relation(fields: [categoriaId], references: [id])
+  categoriaId   String?      @map("categoria_id") @db.Uuid
   Item          Item[]
   itensCompra   ItemCompra[]
 
@@ -215,6 +215,7 @@ model Pedido {
   formaPagamento String       @default("dinheiro")
   taxaEntrega    Int?         @map("taxa_entrega")
   status         StatusPedido @default(PENDENTE)
+  observacoes    String?
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
 
@@ -286,15 +287,15 @@ model Vendas {
 }
 
 model Despesa {
-  id              String                 @id @default(uuid()) @db.Uuid
-  descricao       String                 @db.VarChar(255)
-  valor           Int                    // Valor em centavos
-  data            DateTime               @db.Date
-  categoria       CategoriaDespesa
-  formaPagamento  FormaPagamentoDespesa  @map("forma_pagamento")
-  observacoes     String?                @db.Text
-  createdAt       DateTime               @default(now()) @map("created_at")
-  updatedAt       DateTime               @updatedAt @map("updated_at")
+  id             String                @id @default(uuid()) @db.Uuid
+  descricao      String                @db.VarChar(255)
+  valor          Int // Valor em centavos
+  data           DateTime              @db.Date
+  categoria      CategoriaDespesa
+  formaPagamento FormaPagamentoDespesa @map("forma_pagamento")
+  observacoes    String?               @db.Text
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
 
   // Auditoria
   criadoPor       User    @relation("DespesaCreatedBy", fields: [criadoPorId], references: [id])
@@ -309,18 +310,18 @@ model Despesa {
 }
 
 model Fornecedor {
-  id            String   @id @default(uuid()) @db.Uuid
-  nome          String   @db.VarChar(255)
-  razaoSocial   String?  @map("razao_social") @db.VarChar(255)
-  cnpj          String?  @unique @db.VarChar(18)
-  cpf           String?  @unique @db.VarChar(14)
-  email         String?  @db.VarChar(255)
-  telefone      String?  @db.VarChar(20)
-  endereco      String?  @db.Text
-  observacoes   String?  @db.Text
-  status        Status   @default(ATIVO)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(uuid()) @db.Uuid
+  nome        String   @db.VarChar(255)
+  razaoSocial String?  @map("razao_social") @db.VarChar(255)
+  cnpj        String?  @unique @db.VarChar(18)
+  cpf         String?  @unique @db.VarChar(14)
+  email       String?  @db.VarChar(255)
+  telefone    String?  @db.VarChar(20)
+  endereco    String?  @db.Text
+  observacoes String?  @db.Text
+  status      Status   @default(ATIVO)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
   compras Compra[]
@@ -339,20 +340,20 @@ model Fornecedor {
 }
 
 model Compra {
-  id               String               @id @default(uuid()) @db.Uuid
-  fornecedorId     String               @map("fornecedor_id") @db.Uuid
-  numeroNota       String?              @map("numero_nota") @db.VarChar(50)
-  dataCompra       DateTime             @map("data_compra") @db.Date
-  dataVencimento   DateTime?            @map("data_vencimento") @db.Date
-  total            Int                  // Valor em centavos
-  desconto         Int?                 @default(0) // Valor em centavos
-  frete            Int?                 @default(0) // Valor em centavos
-  impostos         Int?                 @default(0) // Valor em centavos
-  formaPagamento   FormaPagamentoCompra @map("forma_pagamento")
-  status           StatusCompra         @default(PENDENTE)
-  observacoes      String?              @db.Text
-  createdAt        DateTime             @default(now()) @map("created_at")
-  updatedAt        DateTime             @updatedAt @map("updated_at")
+  id             String               @id @default(uuid()) @db.Uuid
+  fornecedorId   String               @map("fornecedor_id") @db.Uuid
+  numeroNota     String?              @map("numero_nota") @db.VarChar(50)
+  dataCompra     DateTime             @map("data_compra") @db.Date
+  dataVencimento DateTime?            @map("data_vencimento") @db.Date
+  total          Int // Valor em centavos
+  desconto       Int?                 @default(0) // Valor em centavos
+  frete          Int?                 @default(0) // Valor em centavos
+  impostos       Int?                 @default(0) // Valor em centavos
+  formaPagamento FormaPagamentoCompra @map("forma_pagamento")
+  status         StatusCompra         @default(PENDENTE)
+  observacoes    String?              @db.Text
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
 
   // Relacionamentos
   fornecedor Fornecedor   @relation(fields: [fornecedorId], references: [id])
@@ -372,15 +373,15 @@ model Compra {
 }
 
 model ItemCompra {
-  id           String   @id @default(uuid()) @db.Uuid
-  compraId     String   @map("compra_id") @db.Uuid
-  produtoId    String   @map("produto_id") @db.Uuid
-  quantidade   Int
-  precoUnitario Int     @map("preco_unitario") // Valor em centavos
-  precoTotal   Int      @map("preco_total") // Valor em centavos
-  desconto     Int?     @default(0) // Valor em centavos
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(uuid()) @db.Uuid
+  compraId      String   @map("compra_id") @db.Uuid
+  produtoId     String   @map("produto_id") @db.Uuid
+  quantidade    Int
+  precoUnitario Int      @map("preco_unitario") // Valor em centavos
+  precoTotal    Int      @map("preco_total") // Valor em centavos
+  desconto      Int?     @default(0) // Valor em centavos
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
   compra  Compra  @relation(fields: [compraId], references: [id], onDelete: Cascade)
