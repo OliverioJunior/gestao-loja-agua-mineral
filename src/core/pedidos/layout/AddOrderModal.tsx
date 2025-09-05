@@ -34,7 +34,7 @@ import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/core/cliente/hooks/useClientes";
 import { IProdutoEstoque, useProdutos } from "@/core/produto/hooks/useProdutos";
 import { toast } from "sonner";
-import { useLoading } from "@/shared/utils";
+import { useLoading, formatCurrencyFromCents, convertFormattedToCents } from "@/shared/utils";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const { loading, withLoading } = useLoading();
@@ -66,7 +66,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const [itens, setItens] = useState<IPedidoItem[]>([]);
   const [revenda, setRevenda] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState("");
-  const [quantidade, setQuantidade] = useState(1);
+  const [quantidade, setQuantidade] = useState(0);
+  const [descontoFormatado, setDescontoFormatado] = useState("");
+  const [taxaEntregaFormatada, setTaxaEntregaFormatada] = useState("");
 
   const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
 
@@ -111,7 +113,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
     setItens([...itens, newItem]);
     setSelectedProduto("");
-    setQuantidade(1);
+    setQuantidade(0);
   };
 
   const handleUpdateQuantity = (index: number, newQuantity: number) => {
@@ -194,8 +196,10 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     setFormData(initialFormData);
     setItens([]);
     setSelectedProduto("");
-    setQuantidade(1);
+    setQuantidade(0);
     setRevenda(false);
+    setDescontoFormatado("");
+    setTaxaEntregaFormatada("");
     setIsSubmitting(false);
   };
 
@@ -394,19 +398,36 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   <Label htmlFor="taxaEntrega">Taxa de Entrega</Label>
                   <Input
                     id="taxaEntrega"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.taxaEntrega / 100}
-                    onChange={(e) =>
+                    type="text"
+                    value={taxaEntregaFormatada}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      
+                      // Remove todos os caracteres não numéricos
+                      const numericValue = inputValue.replace(/\D/g, "");
+                      
+                      // Aplica formatação automática
+                      const formatted = formatCurrencyFromCents(numericValue);
+                      setTaxaEntregaFormatada(formatted);
+                      
+                      // Converte para centavos e atualiza o estado do formulário
+                      const centavos = convertFormattedToCents(formatted);
                       setFormData((prev) => ({
                         ...prev,
-                        taxaEntrega: Math.round(
-                          parseFloat(e.target.value || "0") * 100
-                        ),
-                      }))
-                    }
+                        taxaEntrega: centavos,
+                      }));
+                    }}
+                    onKeyDown={(e) => {
+                      // Permite apenas números, backspace, delete, tab e arrow keys
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
                     placeholder="0,00"
+                    inputMode="numeric"
                   />
                 </div>
               </CardContent>
@@ -424,55 +445,110 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
             <CardContent className="space-y-4">
               {/* Adicionar Item */}
 
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <Select
-                    value={selectedProduto}
-                    onValueChange={setSelectedProduto}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um produto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {produtos
-                        .filter((p) => p.ativo)
-                        .map((produto) => (
-                          <SelectItem key={produto.id} value={produto.id}>
-                            {produto.nome} - {formatCurrency(getPreco(produto))}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="flex items-center gap-2 mt-4">
-                    <Checkbox
-                      id="terms"
-                      checked={revenda}
-                      onCheckedChange={(e) => {
-                        setRevenda(e as boolean);
-                      }}
-                    />
-                    <Label htmlFor="terms">Revenda</Label>
+              <div className="bg-gradient-to-r from-muted/30 to-muted/10 border border-border/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="flex flex-col gap-4">
+                  {/* Seção de Produto */}
+                  <div className="flex-1 space-y-3">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="produto"
+                        className="text-sm font-semibold text-foreground/90 flex items-center gap-2"
+                      >
+                        <Package className="h-4 w-4 text-primary" />
+                        Produto *
+                      </Label>
+                      <Select
+                        value={selectedProduto}
+                        onValueChange={setSelectedProduto}
+                      >
+                        <SelectTrigger className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation">
+                          <SelectValue placeholder="Selecione um produto" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[250px]">
+                          {produtos
+                            .filter((p) => p.ativo)
+                            .map((produto) => (
+                              <SelectItem
+                                key={produto.id}
+                                value={produto.id}
+                                className="py-4 touch-manipulation"
+                              >
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-medium text-sm">
+                                    {produto.nome}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatCurrency(getPreco(produto))}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 bg-background/60 rounded-lg border border-border/30 touch-manipulation">
+                      <Checkbox
+                        id="terms"
+                        checked={revenda}
+                        onCheckedChange={(e) => {
+                          setRevenda(e as boolean);
+                        }}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary w-5 h-5"
+                      />
+                      <Label
+                        htmlFor="terms"
+                        className="text-sm font-medium cursor-pointer flex-1"
+                      >
+                        Revenda
+                      </Label>
+                      <div className="text-xs text-muted-foreground text-right">
+                        {revenda ? "Preço revenda" : "Preço normal"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seção de Quantidade e Ação */}
+                  <div className="flex flex-col gap-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="quantidade"
+                        className="text-sm font-semibold text-foreground/90 flex items-center gap-2"
+                      >
+                        <span className="text-base">📊</span>
+                        Quantidade
+                      </Label>
+                      <Input
+                        id="quantidade"
+                        type="number"
+                        min="1"
+                        value={quantidade || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "") {
+                            setQuantidade(0);
+                          } else {
+                            const numValue = parseInt(value);
+                            setQuantidade(numValue > 0 ? numValue : 1);
+                          }
+                        }}
+                        placeholder="Digite a quantidade"
+                        className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm text-center font-medium text-lg touch-manipulation"
+                        inputMode="numeric"
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={handleAddItem}
+                      disabled={!selectedProduto}
+                      className="w-full h-12 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all duration-200 font-semibold text-base touch-manipulation active:scale-95"
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Adicionar Item
+                    </Button>
                   </div>
                 </div>
-                <div className="w-24">
-                  <Input
-                    type="number"
-                    min="1"
-                    value={quantidade}
-                    onChange={(e) =>
-                      setQuantidade(parseInt(e.target.value) || 1)
-                    }
-                    placeholder="Qtd"
-                  />
-                </div>
-
-                <Button
-                  type="button"
-                  onClick={handleAddItem}
-                  disabled={!selectedProduto}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
               </div>
 
               {/* Lista de Itens */}
@@ -539,65 +615,126 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <CreditCard className="h-4 w-4 " />
+                <CreditCard className="h-4 w-4" />
                 Pagamento e Observações
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="formaPagamento">Forma de Pagamento *</Label>
-                  <Select
-                    value={formData.formaPagamento}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        formaPagamento: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a forma de pagamento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                      <SelectItem value="cartao_debito">
-                        Cartão de Débito
-                      </SelectItem>
-                      <SelectItem value="cartao_credito">
-                        Cartão de Crédito
-                      </SelectItem>
-                      <SelectItem value="pix">PIX</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            <CardContent className="space-y-6">
+              {/* Forma de Pagamento - Mobile First */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="formaPagamento"
+                  className="text-sm font-semibold flex items-center gap-2"
+                >
+                  💳 Forma de Pagamento *
+                </Label>
+                <Select
+                  value={formData.formaPagamento}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      formaPagamento: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation w-full">
+                    <SelectValue placeholder="Selecione a forma de pagamento" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    <SelectItem
+                      value="dinheiro"
+                      className="py-3 touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💵</span>
+                        <span>Dinheiro</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="cartao_debito"
+                      className="py-3 touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💳</span>
+                        <span>Cartão de Débito</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="cartao_credito"
+                      className="py-3 touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💳</span>
+                        <span>Cartão de Crédito</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="pix" className="py-3 touch-manipulation">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📱</span>
+                        <span>PIX</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="flex flex-col items-end  ">
-                  <div className="grid gap-2 ">
-                    <Label htmlFor="desconto">Desconto</Label>
+              {/* Desconto - Mobile Optimized */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="desconto"
+                  className="text-sm font-semibold flex items-center gap-2"
+                >
+                  🏷️ Desconto (Opcional)
+                </Label>
+                <div className="flex items-center gap-3 p-4 bg-background/60 rounded-lg border border-border/30">
+                  <div className="flex-1">
                     <Input
                       id="desconto"
-                      type="number"
-                      step="0.01"
-                      className="w-20"
-                      min="0"
-                      value={formData.desconto / 100}
-                      onChange={(e) =>
+                      type="text"
+                      value={descontoFormatado}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        
+                        // Remove todos os caracteres não numéricos
+                        const numericValue = inputValue.replace(/\D/g, "");
+                        
+                        // Aplica formatação automática
+                        const formatted = formatCurrencyFromCents(numericValue);
+                        setDescontoFormatado(formatted);
+                        
+                        // Converte para centavos e atualiza o estado do formulário
+                        const centavos = convertFormattedToCents(formatted);
                         setFormData((prev) => ({
                           ...prev,
-                          desconto: Math.round(
-                            parseFloat(e.target.value || "0") * 100
-                          ),
-                        }))
-                      }
+                          desconto: centavos,
+                        }));
+                      }}
+                      onKeyDown={(e) => {
+                        // Permite apenas números, backspace, delete, tab e arrow keys
+                        if (
+                          !/[0-9]/.test(e.key) &&
+                          !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
                       placeholder="0,00"
+                      className="h-11 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm text-center font-medium touch-manipulation"
+                      inputMode="numeric"
                     />
                   </div>
+                  <div className="text-xs text-muted-foreground">R$</div>
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-4">
-                <Label htmlFor="observacoes">Observações</Label>
+              {/* Observações - Mobile Optimized */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="observacoes"
+                  className="text-sm font-semibold flex items-center gap-2"
+                >
+                  📝 Observações (Opcional)
+                </Label>
                 <Textarea
                   id="observacoes"
                   value={formData.observacoes}
@@ -607,8 +744,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       observacoes: e.target.value,
                     }))
                   }
-                  placeholder="Observações adicionais sobre o pedido..."
-                  rows={3}
+                  placeholder="Digite observações adicionais sobre o pedido..."
+                  rows={4}
+                  className="min-h-[100px] bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm resize-none touch-manipulation"
                 />
               </div>
             </CardContent>
