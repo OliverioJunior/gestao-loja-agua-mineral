@@ -10,7 +10,7 @@ export function useVendas() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/venda");
+      const response = await fetch("/api/vendas");
       if (!response.ok) {
         throw new Error("Erro ao carregar vendas");
       }
