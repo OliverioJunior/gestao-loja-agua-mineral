@@ -481,7 +481,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                                 className="py-4 touch-manipulation"
                               >
                                 <span className="font-medium text-sm whitespace-normal break-words">
-                                  {produto.nome + "\u00A0"}
+                                  {produto.nome + "\u00A0" + produto.marca}
                                   <span className="whitespace-nowrap">
                                     {formatCurrency(getPreco(produto))}
                                   </span>
