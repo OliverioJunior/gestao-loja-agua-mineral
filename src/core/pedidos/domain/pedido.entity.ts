@@ -61,11 +61,33 @@ export type UpdatePedidoInput = Partial<
   status?: StatusPedido;
 };
 
+export interface IPaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
 export interface IPedidoRepository {
   create(data: CreatePedidoInput): Promise<TPedido>;
   update(id: string, data: UpdatePedidoInput): Promise<TPedido>;
   delete(id: string): Promise<TPedido>;
   findAll(): Promise<TPedidoWithRelations[]>;
+  findAllPaginated(
+    page: number,
+    limit: number,
+    filters?: {
+      clienteId?: string;
+      status?: StatusPedido;
+      startDate?: Date;
+      endDate?: Date;
+    }
+  ): Promise<IPaginatedResponse<TPedidoWithRelations>>;
   findById(id: string): Promise<TPedidoWithRelations | null>;
   findByClienteId(clienteId: string): Promise<TPedidoWithRelations[]>;
   findByStatus(status: StatusPedido): Promise<TPedidoWithRelations[]>;

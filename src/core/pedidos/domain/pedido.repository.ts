@@ -6,6 +6,8 @@ import {
   UpdatePedidoInput,
   TPedido,
   TPedidoWithRelations,
+  IPaginatedResponse,
+  pedidoWithRelationsInclude,
 } from "./pedido.entity";
 
 export class PedidoRepository implements IPedidoRepository {
@@ -64,6 +66,78 @@ export class PedidoRepository implements IPedidoRepository {
       },
       orderBy: { createdAt: "desc" },
     });
+  }
+
+  async findAllPaginated(
+    page: number = 1,
+    limit: number = 10,
+    filters?: {
+      clienteId?: string;
+      status?: StatusPedido;
+      startDate?: Date;
+      endDate?: Date;
+    }
+  ): Promise<IPaginatedResponse<TPedidoWithRelations>> {
+    // Validar parâmetros de paginação
+    const validatedPage = Math.max(1, page);
+    const validatedLimit = Math.min(Math.max(1, limit), 100); // Máximo 100 itens por página
+    const skip = (validatedPage - 1) * validatedLimit;
+
+    // Construir filtros WHERE
+    const where: typeof filters & { createdAt?: { gte?: Date; lte?: Date } } =
+      {};
+
+    if (filters?.clienteId) {
+      where.clienteId = filters.clienteId;
+    }
+
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+
+    if (filters?.startDate && filters?.endDate) {
+      where.createdAt = {
+        gte: filters.startDate,
+        lte: filters.endDate,
+      };
+    } else if (filters?.startDate) {
+      where.createdAt = {
+        gte: filters.startDate,
+      };
+    } else if (filters?.endDate) {
+      where.createdAt = {
+        lte: filters.endDate,
+      };
+    }
+
+    // Executar consultas em paralelo para otimizar performance
+    const [data, total] = await Promise.all([
+      this.db.pedido.findMany({
+        where,
+        include: pedidoWithRelationsInclude,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: validatedLimit,
+      }),
+      this.db.pedido.count({ where }),
+    ]);
+
+    // Calcular informações de paginação
+    const totalPages = Math.ceil(total / validatedLimit);
+    const hasNext = validatedPage < totalPages;
+    const hasPrev = validatedPage > 1;
+
+    return {
+      data,
+      pagination: {
+        page: validatedPage,
+        limit: validatedLimit,
+        total,
+        totalPages,
+        hasNext,
+        hasPrev,
+      },
+    };
   }
 
   async findById(id: string): Promise<TPedidoWithRelations | null> {

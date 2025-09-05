@@ -7,6 +7,7 @@ import {
   TPedidoWithRelations,
   StatusPedido,
   IPedidoStats,
+  IPaginatedResponse,
 } from "./pedido.entity";
 import {
   PedidoNotFoundError,
@@ -130,6 +131,23 @@ export class PedidoService {
       return await this.pedidoRepository.findAll();
     } catch (error) {
       return ErrorHandler.handleRepositoryError(error, "busca de pedidos");
+    }
+  }
+
+  async findAllPaginated(
+    page: number = 1,
+    limit: number = 10,
+    filters?: {
+      clienteId?: string;
+      status?: StatusPedido;
+      startDate?: Date;
+      endDate?: Date;
+    }
+  ): Promise<IPaginatedResponse<TPedidoWithRelations>> {
+    try {
+      return await this.pedidoRepository.findAllPaginated(page, limit, filters);
+    } catch (error) {
+      return ErrorHandler.handleRepositoryError(error, "busca paginada de pedidos");
     }
   }
 
