@@ -1,5 +1,5 @@
 import {
-  ProdutoValidation,
+  ProdutoValidationError,
   ProdutoConflictError,
   ProdutoNotFoundError,
 } from "@/core/produto/domain/produto.errors";
@@ -7,21 +7,25 @@ describe("ProdutoError", () => {
   describe("ProdutoValidation", () => {
     it("should throw ProdutoValidation when nome is required and is empty", () => {
       expect(() => {
-        throw new ProdutoValidation("nome", "", "nome_required");
-      }).toThrow(ProdutoValidation);
+        throw new ProdutoValidationError("nome", "", "nome_required");
+      }).toThrow(ProdutoValidationError);
     });
     it("should return message when length is less than 2", () => {
-      const produto = new ProdutoValidation("nome", "a", "nome_min_length");
+      const produto = new ProdutoValidationError(
+        "nome",
+        "a",
+        "nome_min_length"
+      );
       expect(produto.message).toBe(
         "Nome do produto deve ter pelo menos 2 caracteres"
       );
     });
     it("should return message when preco is not positive", () => {
-      const produto = new ProdutoValidation("preco", -1, "preco_positive");
+      const produto = new ProdutoValidationError("preco", -1, "preco_positive");
       expect(produto.message).toBe("Preço deve ser maior que zero");
     });
     it("should return message when categoria is invalid", () => {
-      const produto = new ProdutoValidation(
+      const produto = new ProdutoValidationError(
         "categoria",
         "invalid",
         "categoria_invalid"
