@@ -44,9 +44,9 @@ export function OrderDetailsModal({
           </DialogTitle>
           <DialogDescription>
             Observação:{" "}
-            <Badge className="font-muted" variant={"outline"}>
+            <span className="font-muted text-sm bg-accent px-3 py-0.5 rounded-full">
               {order.observacoes || "Nenhuma"}
-            </Badge>
+            </span>
           </DialogDescription>
         </DialogHeader>
 
