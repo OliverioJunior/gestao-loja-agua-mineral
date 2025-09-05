@@ -34,7 +34,11 @@ import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/core/cliente/hooks/useClientes";
 import { IProdutoEstoque, useProdutos } from "@/core/produto/hooks/useProdutos";
 import { toast } from "sonner";
-import { useLoading, formatCurrencyFromCents, convertFormattedToCents } from "@/shared/utils";
+import {
+  useLoading,
+  formatCurrencyFromCents,
+  convertFormattedToCents,
+} from "@/shared/utils";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const { loading, withLoading } = useLoading();
@@ -402,14 +406,14 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                     value={taxaEntregaFormatada}
                     onChange={(e) => {
                       const inputValue = e.target.value;
-                      
+
                       // Remove todos os caracteres não numéricos
                       const numericValue = inputValue.replace(/\D/g, "");
-                      
+
                       // Aplica formatação automática
                       const formatted = formatCurrencyFromCents(numericValue);
                       setTaxaEntregaFormatada(formatted);
-                      
+
                       // Converte para centavos e atualiza o estado do formulário
                       const centavos = convertFormattedToCents(formatted);
                       setFormData((prev) => ({
@@ -421,7 +425,13 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       // Permite apenas números, backspace, delete, tab e arrow keys
                       if (
                         !/[0-9]/.test(e.key) &&
-                        !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
                       ) {
                         e.preventDefault();
                       }
@@ -475,9 +485,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                               >
                                 <div className="flex flex-col gap-1">
                                   <span className="font-medium text-sm">
-                                    {produto.nome}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
+                                    {produto.nome} -{" "}
                                     {formatCurrency(getPreco(produto))}
                                   </span>
                                 </div>
@@ -694,14 +702,14 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       value={descontoFormatado}
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        
+
                         // Remove todos os caracteres não numéricos
                         const numericValue = inputValue.replace(/\D/g, "");
-                        
+
                         // Aplica formatação automática
                         const formatted = formatCurrencyFromCents(numericValue);
                         setDescontoFormatado(formatted);
-                        
+
                         // Converte para centavos e atualiza o estado do formulário
                         const centavos = convertFormattedToCents(formatted);
                         setFormData((prev) => ({
@@ -713,7 +721,13 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         // Permite apenas números, backspace, delete, tab e arrow keys
                         if (
                           !/[0-9]/.test(e.key) &&
-                          !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)
+                          ![
+                            "Backspace",
+                            "Delete",
+                            "Tab",
+                            "ArrowLeft",
+                            "ArrowRight",
+                          ].includes(e.key)
                         ) {
                           e.preventDefault();
                         }
