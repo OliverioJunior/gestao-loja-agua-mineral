@@ -253,12 +253,10 @@ export class ItemCompraService implements IItemCompraService {
     try {
       // Esta funcionalidade seria implementada em conjunto com o CompraService
       // Por enquanto, apenas calculamos o total para validação
-      const total = await this.calculateTotalByCompra(compraId);
+      await this.calculateTotalByCompra(compraId);
 
       // TODO: Implementar atualização do total na tabela Compra
       // await this.compraService.updateTotal(compraId, total);
-
-      console.log(`Total calculado para compra ${compraId}: ${total}`);
     } catch (error) {
       return ErrorHandler.handleRepositoryError(
         error,

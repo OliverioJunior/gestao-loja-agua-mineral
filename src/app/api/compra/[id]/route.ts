@@ -73,7 +73,6 @@ export async function PUT(request: NextRequest) {
 
     const url = new URL(request.url);
     const id = url.pathname.split("/").pop();
-    console.log({ status: updateData.status });
     const compraRepository = new CompraRepository();
     const compra = await compraRepository.update(id || "", updateData);
 
