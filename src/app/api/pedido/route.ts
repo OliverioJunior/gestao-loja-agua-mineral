@@ -65,28 +65,43 @@ export async function GET(request: NextRequest) {
        
        if (clienteId) filters.clienteId = clienteId;
        if (status) filters.status = status as StatusPedido;
-       if (startDate) filters.startDate = new Date(startDate);
-       if (endDate) filters.endDate = new Date(endDate);
+       if (startDate) {
+         // Criar data no fuso horário do Brasil (UTC-3)
+         const startDateBR = new Date(startDate + 'T00:00:00.000-03:00');
+         filters.startDate = startDateBR;
+       }
+       if (endDate) {
+         // Criar data no fuso horário do Brasil (UTC-3)
+         const endDateBR = new Date(endDate + 'T23:59:59.999-03:00');
+         filters.endDate = endDateBR;
+       }
        
        result = await pedidoService.findAllPaginated(page, limit, filters);
     } else {
-      // Manter compatibilidade com a API existente (sem paginação)
-      let pedidos;
+      // Usar sempre paginação para garantir filtros combinados
+      const filters: {
+        clienteId?: string;
+        status?: StatusPedido;
+        startDate?: Date;
+        endDate?: Date;
+      } = {};
       
-      if (clienteId) {
-        pedidos = await pedidoService.findByClienteId(clienteId);
-      } else if (status) {
-        pedidos = await pedidoService.findByStatus(status as StatusPedido);
-      } else if (startDate && endDate) {
-        pedidos = await pedidoService.findByDateRange(
-          new Date(startDate),
-          new Date(endDate)
-        );
-      } else {
-        pedidos = await pedidoService.findAll();
-      }
+      if (clienteId) filters.clienteId = clienteId;
+       if (status) filters.status = status as StatusPedido;
+       if (startDate) {
+         // Criar data no fuso horário do Brasil (UTC-3)
+         const startDateBR = new Date(startDate + 'T00:00:00.000-03:00');
+         filters.startDate = startDateBR;
+       }
+       if (endDate) {
+         // Criar data no fuso horário do Brasil (UTC-3)
+         const endDateBR = new Date(endDate + 'T23:59:59.999-03:00');
+         filters.endDate = endDateBR;
+       }
       
-      result = pedidos;
+      // Usar paginação com limite alto para simular busca sem paginação
+      const paginatedResult = await pedidoService.findAllPaginated(1, 1000, filters);
+      result = paginatedResult.data;
     }
 
     return NextResponse.json(result);

@@ -59,8 +59,12 @@ export interface IPedidoStats {
 export interface OrderFiltersProps {
   searchTerm: string;
   statusFilter: string;
+  startDate?: string;
+  endDate?: string;
   onSearchChange: (term: string) => void;
   onStatusChange: (status: string) => void;
+  onStartDateChange?: (date: string) => void;
+  onEndDateChange?: (date: string) => void;
   onAddOrder: (order: CreatePedidoInput) => Promise<void>;
 }
 

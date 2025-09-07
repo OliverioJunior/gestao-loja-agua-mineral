@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   OrderStatsCards,
   OrderFilters,
@@ -9,13 +9,26 @@ import {
   StatusTransitionModal,
   IPedidoStats,
 } from "@/core/pedidos/layout";
-import { usePedidos } from "@/core/pedidos/hooks/usePedidos";
+import { usePedidos } from "@/core/pedidos/hooks";
 import { useVendas } from "@/core/vendas/hooks";
-import { CreatePedidoInput, TPedidoWithRelations } from "@/core/pedidos/domain";
+import {
+  CreatePedidoInput,
+  StatusPedido,
+  TPedidoWithRelations,
+} from "@/core/pedidos/domain";
 
 export default function PedidosPage() {
+  // Função para obter data atual formatada
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("todos");
+  const [statusFilter, setStatusFilter] = useState("PENDENTE"); // Padrão: status pendente
+  const [startDate, setStartDate] = useState(getCurrentDate()); // Padrão: data atual
+  const [endDate, setEndDate] = useState(getCurrentDate()); // Padrão: data atual
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [selectedOrder, setSelectedOrder] =
     useState<TPedidoWithRelations | null>(null);
   const [, setIsAddModalOpen] = useState(false);
@@ -33,29 +46,67 @@ export default function PedidosPage() {
     stats: pedidoStats,
     loading,
     error,
+    isInitialized,
+    initialize,
     updateStatus,
     deletePedido,
     createPedido,
     updatePedido,
+    fetchPedidos,
   } = usePedidos();
   const { createVendas } = useVendas();
-  // Optimized filtering with better search logic
+
+  // ✅ Inicialização única na montagem do componente
+  useEffect(() => {
+    initialize(); // Carrega dados padrão apenas uma vez
+  }, []); // Sem dependências - executa apenas na montagem
+
+  // ✅ Aplicar filtros apenas após interação do usuário
+  useEffect(() => {
+    if (!hasUserInteracted || !isInitialized) return;
+
+    const applyFilters = async () => {
+      const params: {
+        status?: StatusPedido | "todos" | undefined;
+        startDate?: string;
+        endDate?: string;
+      } = {};
+
+      // Só adiciona status se não for "todos"
+      if (statusFilter && statusFilter !== "todos") {
+        params.status = statusFilter as StatusPedido | "todos" | undefined;
+      }
+
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      await fetchPedidos(params);
+    };
+
+    applyFilters();
+  }, [
+    statusFilter,
+    startDate,
+    endDate,
+    hasUserInteracted,
+    isInitialized,
+    fetchPedidos,
+  ]);
+
+  // Filtro local apenas para busca por texto
   const filteredOrders = useMemo(() => {
-    if (!searchTerm && statusFilter === "todos") return orders;
+    if (!searchTerm) return orders;
 
     const searchLower = searchTerm.toLowerCase();
     return orders.filter((order) => {
-      const matchesSearch =
-        !searchTerm ||
+      return (
         order.endereco?.numero.toLowerCase().includes(searchLower) ||
         order.cliente!.nome.toLowerCase().includes(searchLower) ||
-        order.cliente!.telefone.includes(searchTerm);
-
-      const matchesStatus =
-        statusFilter === "todos" || order.status === statusFilter;
-      return matchesSearch && matchesStatus;
+        order.cliente!.telefone.includes(searchTerm) ||
+        order.id.toLowerCase().includes(searchLower)
+      );
     });
-  }, [orders, searchTerm, statusFilter]);
+  }, [orders, searchTerm]);
 
   // Use stats from hook or fallback to default
   const stats: IPedidoStats = pedidoStats || {
@@ -168,6 +219,22 @@ export default function PedidosPage() {
     setSelectedOrder(null);
   }, []);
 
+  // ✅ Handlers que marcam interação do usuário
+  const handleStatusChange = useCallback((status: string) => {
+    setStatusFilter(status);
+    setHasUserInteracted(true);
+  }, []);
+
+  const handleStartDateChange = useCallback((date: string) => {
+    setStartDate(date);
+    setHasUserInteracted(true);
+  }, []);
+
+  const handleEndDateChange = useCallback((date: string) => {
+    setEndDate(date);
+    setHasUserInteracted(true);
+  }, []);
+
   if (loading && orders.length === 0) {
     return (
       <div className="min-h-[calc(100dvh-93px)] container mx-auto p-6 flex items-center justify-center">
@@ -196,8 +263,12 @@ export default function PedidosPage() {
       <OrderFilters
         searchTerm={searchTerm}
         statusFilter={statusFilter}
+        startDate={startDate}
+        endDate={endDate}
         onSearchChange={setSearchTerm}
-        onStatusChange={setStatusFilter}
+        onStatusChange={handleStatusChange}
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
         onAddOrder={handleAddOrder}
       />
 

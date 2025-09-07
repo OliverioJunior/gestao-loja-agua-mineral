@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { IPedidoStats } from "@/core/pedidos/layout/types";
 import { CreatePedidoInput, TPedidoWithRelations } from "@/core/pedidos/domain";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ export const usePedidos = (): UsePedidosReturn => {
   const [stats, setStats] = useState<IPedidoStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [pagination, setPagination] = useState<
     PaginatedResponse<TPedidoWithRelations>["pagination"] | null
   >(null);
@@ -357,10 +358,31 @@ export const usePedidos = (): UsePedidosReturn => {
     [executeSearch]
   );
 
-  // Inicialização automática dos dados
-  useEffect(() => {
-    refreshData();
-  }, [refreshData]);
+  /**
+   * Obtém a data atual formatada para filtros (YYYY-MM-DD)
+   */
+  const getCurrentDate = useCallback((): string => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }, []);
+
+  /**
+   * Inicializa o hook com carregamento de dados
+   * Por padrão carrega pedidos do dia atual com status pendente
+   */
+  const initialize = useCallback(async (params?: FetchPedidosParams): Promise<void> => {
+    if (!isInitialized) {
+      const defaultParams: FetchPedidosParams = {
+        status: 'PENDENTE',
+        startDate: getCurrentDate(),
+        endDate: getCurrentDate(),
+        ...params // Permite sobrescrever os padrões se necessário
+      };
+      
+      await Promise.all([fetchPedidos(defaultParams), fetchStats()]);
+      setIsInitialized(true);
+    }
+  }, [isInitialized, fetchPedidos, fetchStats, getCurrentDate]);
 
   // Interface pública do hook
   return {
@@ -369,7 +391,11 @@ export const usePedidos = (): UsePedidosReturn => {
     stats,
     loading,
     error,
+    isInitialized,
     pagination,
+
+    // Controle de inicialização
+    initialize,
 
     // Operações de busca
     fetchPedidos,

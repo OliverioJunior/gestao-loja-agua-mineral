@@ -325,7 +325,6 @@ export class CompraService implements ICompraService {
       if (compraCompleta) {
         try {
           await EstoqueService.atualizarEstoqueCompra(compraCompleta);
-          console.log(`Estoque atualizado para compra ${id}`);
         } catch (estoqueError) {
           console.error(
             `Erro ao atualizar estoque para compra ${id}:`,
@@ -356,7 +355,6 @@ export class CompraService implements ICompraService {
       if (compraAntes.status === "RECEBIDA") {
         try {
           await EstoqueService.reverterEstoqueCompra(compraAntes);
-          console.log(`Estoque revertido para compra cancelada ${id}`);
         } catch (estoqueError) {
           console.error(
             `Erro ao reverter estoque para compra ${id}:`,

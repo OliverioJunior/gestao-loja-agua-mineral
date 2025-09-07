@@ -111,19 +111,18 @@ export class PedidoRepository implements IPedidoRepository {
       where.status = filters.status;
     }
 
-    if (filters?.startDate && filters?.endDate) {
-      where.createdAt = {
-        gte: filters.startDate,
-        lte: filters.endDate,
-      };
-    } else if (filters?.startDate) {
-      where.createdAt = {
-        gte: filters.startDate,
-      };
-    } else if (filters?.endDate) {
-      where.createdAt = {
-        lte: filters.endDate,
-      };
+    if (filters?.startDate || filters?.endDate) {
+      where.createdAt = {};
+      
+      if (filters.startDate) {
+        // Data já vem formatada com fuso horário correto da API
+        where.createdAt.gte = filters.startDate;
+      }
+      
+      if (filters.endDate) {
+        // Data já vem formatada com fuso horário correto da API
+        where.createdAt.lte = filters.endDate;
+      }
     }
 
     // Executar consultas em paralelo para otimizar performance
@@ -233,7 +232,7 @@ export class PedidoRepository implements IPedidoRepository {
   ): Promise<TPedidoWithRelations[]> {
     return await this.db.pedido.findMany({
       where: {
-        dataEntrega: {
+        createdAt: {
           gte: startDate,
           lte: endDate,
         },
@@ -255,7 +254,7 @@ export class PedidoRepository implements IPedidoRepository {
         },
         endereco: true,
       },
-      orderBy: { dataEntrega: "desc" },
+      orderBy: { createdAt: "desc" },
     });
   }
 

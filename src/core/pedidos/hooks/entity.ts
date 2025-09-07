@@ -6,7 +6,9 @@ export interface UsePedidosReturn {
   stats: IPedidoStats | null;
   loading: boolean;
   error: string | null;
+  isInitialized: boolean;
   pagination: PaginatedResponse<TPedidoWithRelations>["pagination"] | null;
+  initialize: (params?: FetchPedidosParams) => Promise<void>;
   fetchPedidos: (params?: FetchPedidosParams) => Promise<void>;
   fetchPedidosPaginated: (
     params: FetchPedidosParams & { paginated: true }
@@ -37,7 +39,7 @@ export interface PaginationParams {
 
 export interface FilterParams {
   clienteId?: string;
-  status?: TPedidoWithRelations["status"];
+  status?: TPedidoWithRelations["status"] | "todos";
   startDate?: string;
   endDate?: string;
 }
