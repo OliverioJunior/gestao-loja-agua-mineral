@@ -35,6 +35,8 @@ export const getPaymentMethodText = (
       return "Cartão de Crédito";
     case "pix":
       return "PIX";
+    case "boleto":
+      return "Boleto";
     default:
       return "Não informado";
   }

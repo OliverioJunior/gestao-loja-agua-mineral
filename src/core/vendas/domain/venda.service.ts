@@ -137,11 +137,14 @@ export class VendaService {
         });
       }
       // Criar venda
+      const status =
+        pedido.formaPagamento === "boleto" ? "EM_ABERTO" : "QUITADO";
       const vendaData: CreateVendaInput = {
         clienteId: pedido.clienteId,
         pedidoId: pedido.id,
         total: pedido.total,
         criadoPorId: userId,
+        status,
       };
 
       return await this.create(vendaData);

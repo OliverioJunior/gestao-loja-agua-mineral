@@ -13,12 +13,7 @@ export class VendaRepository implements IVendaRepository {
 
   async create(data: CreateVendaInput): Promise<TVendas> {
     return await this.db.vendas.create({
-      data: {
-        clienteId: data.clienteId,
-        pedidoId: data.pedidoId,
-        total: data.total,
-        criadoPorId: data.criadoPorId,
-      },
+      data,
     });
   }
 

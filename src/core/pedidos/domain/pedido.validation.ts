@@ -27,6 +27,7 @@ export class PedidoValidation {
     "cartao_debito",
     "cartao_credito",
     "pix",
+    "boleto",
   ];
 
   static validateInput(data: TPedido): { data: TPedido; validate: boolean } {

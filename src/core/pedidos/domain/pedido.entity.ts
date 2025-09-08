@@ -110,7 +110,8 @@ export type FormaPagamento =
   | "dinheiro"
   | "cartao_debito"
   | "cartao_credito"
-  | "pix";
+  | "pix"
+  | "boleto";
 
 export interface IPedidoStats {
   total: number;
