@@ -25,7 +25,16 @@ export const useProducts = () => {
   useEffect(() => {
     fetch("/api/produto")
       .then(async (res) => await res.json())
-      .then((data) => setProducts(data));
+      .then((response) => {
+        // A API retorna { success: true, data: produtos, message: ... }
+        const products = response?.data || [];
+        const productsArray = Array.isArray(products) ? products : [];
+        setProducts(productsArray);
+      })
+      .catch((error) => {
+        console.error('Erro ao carregar produtos:', error);
+        setProducts([]);
+      });
   }, []);
 
   // Memoized filtered products for better performance
