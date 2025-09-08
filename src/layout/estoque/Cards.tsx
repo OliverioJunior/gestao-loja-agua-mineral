@@ -1,5 +1,5 @@
 import { Package, TrendingUp, AlertTriangle } from "lucide-react";
-import { ResumoCard } from "./ResumoCard";
+import { GenericStatsCard } from "@/shared/components/ui";
 
 interface IEstatisticas {
   total: number;
@@ -21,38 +21,65 @@ export const Cards: React.FC<ICards> = ({ estatisticas }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <ResumoCard
-        titulo="Total de Produtos"
-        valor={total}
-        icone={<Package className="w-6 h-6 text-blue-400" />}
-        cor="text-blue-400"
-        subtitulo={`${ativos} ativos`}
+      {/* Total de Produtos */}
+      <GenericStatsCard
+        title="Total de Produtos"
+        value={total}
+        icon={Package}
+        variant="info"
+        description={`${ativos} ativos`}
+        valueFormatting={{
+          type: "number",
+          locale: "pt-BR",
+        }}
+        size="sm"
+        data-testid="total-produtos-card"
       />
 
-      <ResumoCard
-        titulo="Valor Total"
-        valor={`R$ ${(valorTotalEstoque / 100).toLocaleString("pt-BR", {
-          minimumFractionDigits: 2,
-        })}`}
-        subtitulo="💰 Inventário atual"
-        icone={<TrendingUp className="w-6 h-6 text-green-400" />}
-        cor="text-green-400"
+      {/* Valor Total do Estoque */}
+      <GenericStatsCard
+        title="Valor Total"
+        value={valorTotalEstoque / 100}
+        icon={TrendingUp}
+        variant="success"
+        description="💰 Inventário atual"
+        valueFormatting={{
+          type: "currency",
+          locale: "pt-BR",
+          options: { currency: "BRL" },
+        }}
+        size="sm"
+        data-testid="valor-total-card"
       />
 
-      <ResumoCard
-        titulo="Estoque Baixo"
-        valor={estoqueBaixo}
-        subtitulo="⚠️ Produtos"
-        icone={<AlertTriangle className="w-6 h-6 text-yellow-400" />}
-        cor="text-yellow-400"
+      {/* Estoque Baixo */}
+      <GenericStatsCard
+        title="Estoque Baixo"
+        value={estoqueBaixo}
+        icon={AlertTriangle}
+        variant="warning"
+        description="⚠️ Produtos"
+        valueFormatting={{
+          type: "number",
+          locale: "pt-BR",
+        }}
+        size="sm"
+        data-testid="estoque-baixo-card"
       />
 
-      <ResumoCard
-        titulo="Alertas Críticos"
-        valor={estoqueCritico}
-        subtitulo="🚨 Reposição urgente"
-        icone={<AlertTriangle className="w-6 h-6 text-red-400" />}
-        cor="text-red-400"
+      {/* Alertas Críticos */}
+      <GenericStatsCard
+        title="Alertas Críticos"
+        value={estoqueCritico}
+        icon={AlertTriangle}
+        variant="danger"
+        description="🚨 Reposição urgente"
+        valueFormatting={{
+          type: "number",
+          locale: "pt-BR",
+        }}
+        size="sm"
+        data-testid="alertas-criticos-card"
       />
     </div>
   );

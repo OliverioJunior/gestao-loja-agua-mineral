@@ -21,3 +21,5 @@ export * from "./separator";
 export * from "./table";
 export * from "./textarea";
 export * from "./checkbox";
+export * from "./generic-stats-card";
+export * from "./confirmation-modal";

@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/shared/components/ui";
+import { GenericStatsCard, StatsCardGridLoading } from "@/shared/components/ui";
 import {
   AlertTriangle,
   DollarSign,
@@ -27,118 +22,125 @@ interface KPICardsProps {
   loading?: boolean;
 }
 
-export function KPICards({ 
-  salesData, 
-  todayGrowthPercentage, 
-  newOrdersToday, 
-  lowStockCount, 
+export function KPICards({
+  salesData,
+  todayGrowthPercentage,
+  newOrdersToday,
+  lowStockCount,
   monthlyGoalPercentage,
-  loading = false 
+  loading = false,
 }: KPICardsProps) {
-  
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i} className="border-l-4 border-l-gray-200 animate-pulse">
-            <CardHeader className="pb-2">
-              <div className="h-4 bg-gray-200 rounded w-24"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-gray-200 rounded w-20 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-32"></div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <StatsCardGridLoading count={4} columns={4} size="sm" className="gap-4" />
     );
   }
+
+  // Determinar direção da tendência para vendas hoje
+  const salesTrendDirection = todayGrowthPercentage >= 0 ? "up" : "down";
+  const salesTrendText = `${
+    todayGrowthPercentage >= 0 ? "+" : ""
+  }${todayGrowthPercentage.toFixed(1)}% vs ontem`;
+
+  // Determinar variante para faturamento mensal baseado na meta
+  const monthlyVariant =
+    monthlyGoalPercentage >= 100
+      ? "success"
+      : monthlyGoalPercentage >= 75
+      ? "info"
+      : "warning";
+  const monthlyTrendDirection =
+    monthlyGoalPercentage >= 100
+      ? "up"
+      : monthlyGoalPercentage >= 75
+      ? "neutral"
+      : "down";
+
+  // Determinar variante para alertas de estoque
+  const stockVariant =
+    lowStockCount === 0 ? "success" : lowStockCount <= 3 ? "warning" : "danger";
+  const stockDescription =
+    lowStockCount === 0
+      ? "Estoque normal"
+      : lowStockCount === 1
+      ? "Produto em baixa"
+      : "Produtos em baixa";
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card className="border-l-4 border-l-[var(--primary)]">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-[var(--muted-foreground)] flex items-center justify-between">
-            Vendas Hoje
-            <DollarSign className="h-4 w-4 text-[var(--primary)]" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-[var(--foreground)]">
-            R${" "}
-            {salesData.today.toLocaleString("pt-BR", {
-              minimumFractionDigits: 2,
-            })}
-          </div>
-          <div className={`flex items-center gap-1 text-sm mt-1 ${
-            todayGrowthPercentage >= 0 ? 'text-green-600' : 'text-red-600'
-          }`}>
-            <TrendingUp className="h-3 w-3" />
-            {todayGrowthPercentage >= 0 ? '+' : ''}{todayGrowthPercentage.toFixed(1)}% vs ontem
-          </div>
-        </CardContent>
-      </Card>
+      {/* Vendas Hoje */}
+      <GenericStatsCard
+        title="Vendas Hoje"
+        value={salesData.today}
+        icon={DollarSign}
+        variant={todayGrowthPercentage >= 0 ? "success" : "danger"}
+        valueFormatting={{
+          type: "currency",
+          locale: "pt-BR",
+          options: { currency: "BRL" },
+        }}
+        showTrend
+        trendDirection={salesTrendDirection}
+        trendText={salesTrendText}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="vendas-hoje-card"
+      />
 
-      <Card className="border-l-4 border-l-[var(--secondary)]">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-[var(--muted-foreground)] flex items-center justify-between">
-            Pedidos Hoje
-            <ShoppingCart className="h-4 w-4 text-[var(--secondary)]" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-[var(--foreground)]">
-            {salesData.orders}
-          </div>
-          <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
-            <TrendingUp className="h-3 w-3" />
-            +{newOrdersToday} novos pedidos
-          </div>
-        </CardContent>
-      </Card>
+      {/* Pedidos Hoje */}
+      <GenericStatsCard
+        title="Pedidos Hoje"
+        value={salesData.orders}
+        icon={ShoppingCart}
+        variant="info"
+        description={`+${newOrdersToday} novos pedidos`}
+        valueFormatting={{
+          type: "number",
+          locale: "pt-BR",
+        }}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="pedidos-hoje-card"
+      />
 
-      <Card className="border-l-4 border-l-[var(--chart-1)]">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-[var(--muted-foreground)] flex items-center justify-between">
-            Faturamento Mensal
-            <TrendingUp className="h-4 w-4 text-[var(--chart-1)]" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-[var(--foreground)]">
-            R${" "}
-            {salesData.thisMonth.toLocaleString("pt-BR", {
-              minimumFractionDigits: 2,
-            })}
-          </div>
-          <div className={`flex items-center gap-1 text-sm mt-1 ${
-            monthlyGoalPercentage >= 100 ? 'text-green-600' : 
-            monthlyGoalPercentage >= 75 ? 'text-purple-600' : 'text-orange-600'
-          }`}>
-            <TrendingUp className="h-3 w-3" />
-            Meta: {monthlyGoalPercentage}% atingida
-          </div>
-        </CardContent>
-      </Card>
+      {/* Faturamento Mensal */}
+      <GenericStatsCard
+        title="Faturamento Mensal"
+        value={salesData.thisMonth}
+        icon={TrendingUp}
+        variant={monthlyVariant}
+        valueFormatting={{
+          type: "currency",
+          locale: "pt-BR",
+          options: { currency: "BRL" },
+        }}
+        showTrend
+        trendDirection={monthlyTrendDirection}
+        trendText={`Meta: ${monthlyGoalPercentage}% atingida`}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="faturamento-mensal-card"
+      />
 
-      <Card className="border-l-4 border-l-[var(--destructive)]">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-[var(--muted-foreground)] flex items-center justify-between">
-            Alertas Estoque
-            <AlertTriangle className="h-4 w-4 text-[var(--destructive)]" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-[var(--foreground)]">{lowStockCount}</div>
-          <div className={`flex items-center gap-1 text-sm mt-1 ${
-            lowStockCount === 0 ? 'text-green-600' : 
-            lowStockCount <= 3 ? 'text-orange-600' : 'text-red-600'
-          }`}>
-            <AlertTriangle className="h-3 w-3" />
-            {lowStockCount === 0 ? 'Estoque normal' : 
-             lowStockCount === 1 ? 'Produto em baixa' : 'Produtos em baixa'}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Alertas Estoque */}
+      <GenericStatsCard
+        title="Alertas Estoque"
+        value={lowStockCount}
+        icon={AlertTriangle}
+        variant={stockVariant}
+        description={stockDescription}
+        valueFormatting={{
+          type: "number",
+          locale: "pt-BR",
+        }}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="alertas-estoque-card"
+      />
     </div>
   );
 }

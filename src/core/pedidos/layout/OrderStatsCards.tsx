@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui";
+import { GenericStatsCard } from "@/shared/components/ui";
 import { ShoppingCart, Clock, CheckCircle, Truck, XCircle } from "lucide-react";
 import { OrderStatsCardsProps } from "./types";
 
@@ -19,94 +14,65 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
-      <Card className="border-l-4 border-l-blue-500">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-            Total de Pedidos
-            <ShoppingCart className="h-4 w-4 text-blue-500" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {stats.total}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Todos os pedidos cadastrados
-          </p>
-        </CardContent>
-      </Card>
+      <GenericStatsCard
+        title="Total de Pedidos"
+        value={stats.total}
+        icon={ShoppingCart}
+        variant="info"
+        size="sm"
+        description="Todos os pedidos cadastrados"
+        showBorder
+        borderPosition="left"
+        data-testid="order-stats-total"
+      />
 
-      {/* Pedidos Pendentes */}
-      <Card className="border-l-4 border-l-yellow-500">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-            Pendentes
-            <Clock className="h-4 w-4 text-yellow-500" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {stats.pendentes}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {pendentesPercentage.toFixed(1)}% do total
-          </p>
-        </CardContent>
-      </Card>
+      <GenericStatsCard
+        title="Pendentes"
+        value={stats.pendentes}
+        icon={Clock}
+        variant="warning"
+        size="sm"
+        description={`${pendentesPercentage.toFixed(1)}% do total`}
+        showBorder
+        borderPosition="left"
+        data-testid="order-stats-pending"
+      />
 
-      {/* Pedidos Confirmados */}
-      <Card className="border-l-4 border-l-blue-500">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-            Confirmados
-            <CheckCircle className="h-4 w-4 text-blue-500" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {stats.confirmados}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {confirmadosPercentage.toFixed(1)}% do total
-          </p>
-        </CardContent>
-      </Card>
+      <GenericStatsCard
+        title="Confirmados"
+        value={stats.confirmados}
+        icon={CheckCircle}
+        variant="info"
+        size="sm"
+        description={`${confirmadosPercentage.toFixed(1)}% do total`}
+        showBorder
+        borderPosition="left"
+        data-testid="order-stats-confirmed"
+      />
 
-      {/* Pedidos Entregues */}
-      <Card className="border-l-4 border-l-green-500">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-            Entregues
-            <Truck className="h-4 w-4 text-green-500" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {stats.entregues}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {entreguesPercentage.toFixed(1)}% do total
-          </p>
-        </CardContent>
-      </Card>
+      <GenericStatsCard
+        title="Entregues"
+        value={stats.entregues}
+        icon={Truck}
+        variant="success"
+        size="sm"
+        description={`${entreguesPercentage.toFixed(1)}% do total`}
+        showBorder
+        borderPosition="left"
+        data-testid="order-stats-delivered"
+      />
 
-      {/* Pedidos Cancelados */}
-      <Card className="border-l-4 border-l-red-500">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-            Cancelados
-            <XCircle className="h-4 w-4 text-red-500" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-foreground">
-            {stats.cancelados}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {canceladosPercentage.toFixed(1)}% do total
-          </p>
-        </CardContent>
-      </Card>
+      <GenericStatsCard
+        title="Cancelados"
+        value={stats.cancelados}
+        icon={XCircle}
+        variant="danger"
+        size="sm"
+        description={`${canceladosPercentage.toFixed(1)}% do total`}
+        showBorder
+        borderPosition="left"
+        data-testid="order-stats-cancelled"
+      />
     </div>
   );
 }

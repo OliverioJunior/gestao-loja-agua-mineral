@@ -3,7 +3,11 @@
 import React from "react";
 import { cn } from "@/shared/lib/utils";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { StatsCardLoadingProps, StatsCardSize, StatsCardVariant } from "./types";
+import {
+  StatsCardLoadingProps,
+  StatsCardSize,
+  StatsCardVariant,
+} from "./types";
 
 /**
  * Mapeamento de tamanhos para o componente de loading
@@ -61,17 +65,17 @@ interface SkeletonProps {
   animated?: boolean;
 }
 
-const Skeleton: React.FC<SkeletonProps> = ({ 
-  className, 
-  variant = "default", 
-  animated = true 
+const Skeleton: React.FC<SkeletonProps> = ({
+  className,
+  variant = "default",
+  animated = true,
 }) => {
   const baseClasses = "rounded";
   const variantClasses = loadingVariantMap[variant];
   const animationClasses = animated ? "animate-pulse" : "";
-  
+
   return (
-    <div 
+    <div
       className={cn(baseClasses, variantClasses, animationClasses, className)}
     />
   );
@@ -87,34 +91,37 @@ const HorizontalLoadingLayout: React.FC<{
   showDescription: boolean;
 }> = ({ size, variant, animated, showDescription }) => {
   const sizeConfig = loadingSizeMap[size];
-  
+
   return (
     <div className="space-y-3">
       {/* Header com título e ícone */}
       <div className="flex items-center justify-between">
-        <Skeleton 
+        <Skeleton
           className={cn(sizeConfig.titleWidth, sizeConfig.titleHeight)}
           variant={variant}
           animated={animated}
         />
-        <Skeleton 
+        <Skeleton
           className={sizeConfig.iconSize}
           variant={variant}
           animated={animated}
         />
       </div>
-      
+
       {/* Valor principal */}
-      <Skeleton 
+      <Skeleton
         className={cn(sizeConfig.valueWidth, sizeConfig.valueHeight, "mb-2")}
         variant={variant}
         animated={animated}
       />
-      
+
       {/* Descrição opcional */}
       {showDescription && (
-        <Skeleton 
-          className={cn(sizeConfig.descriptionWidth, sizeConfig.descriptionHeight)}
+        <Skeleton
+          className={cn(
+            sizeConfig.descriptionWidth,
+            sizeConfig.descriptionHeight
+          )}
           variant={variant}
           animated={animated}
         />
@@ -133,33 +140,45 @@ const VerticalLoadingLayout: React.FC<{
   showDescription: boolean;
 }> = ({ size, variant, animated, showDescription }) => {
   const sizeConfig = loadingSizeMap[size];
-  
+
   return (
     <div className="space-y-4">
       {/* Ícone centralizado */}
       <div className="flex justify-center">
-        <Skeleton 
+        <Skeleton
           className={cn(sizeConfig.iconSize, "rounded-lg")}
           variant={variant}
           animated={animated}
         />
       </div>
-      
+
       {/* Conteúdo centralizado */}
       <div className="text-center space-y-2">
-        <Skeleton 
-          className={cn(sizeConfig.titleWidth, sizeConfig.titleHeight, "mx-auto")}
+        <Skeleton
+          className={cn(
+            sizeConfig.titleWidth,
+            sizeConfig.titleHeight,
+            "mx-auto"
+          )}
           variant={variant}
           animated={animated}
         />
-        <Skeleton 
-          className={cn(sizeConfig.valueWidth, sizeConfig.valueHeight, "mx-auto")}
+        <Skeleton
+          className={cn(
+            sizeConfig.valueWidth,
+            sizeConfig.valueHeight,
+            "mx-auto"
+          )}
           variant={variant}
           animated={animated}
         />
         {showDescription && (
-          <Skeleton 
-            className={cn(sizeConfig.descriptionWidth, sizeConfig.descriptionHeight, "mx-auto")}
+          <Skeleton
+            className={cn(
+              sizeConfig.descriptionWidth,
+              sizeConfig.descriptionHeight,
+              "mx-auto"
+            )}
             variant={variant}
             animated={animated}
           />
@@ -174,18 +193,18 @@ const VerticalLoadingLayout: React.FC<{
  */
 export const StatsCardGridLoading: React.FC<{
   count?: number;
-  columns?: 1 | 2 | 3 | 4 | 5 | 6;
+  columns?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   size?: StatsCardSize;
   variant?: StatsCardVariant;
   animated?: boolean;
   className?: string;
-}> = ({ 
-  count = 4, 
-  columns = 4, 
-  size = "md", 
-  variant = "default", 
+}> = ({
+  count = 4,
+  columns = 4,
+  size = "md",
+  variant = "default",
   animated = true,
-  className 
+  className,
 }) => {
   const gridClasses = {
     1: "grid-cols-1",
@@ -194,6 +213,7 @@ export const StatsCardGridLoading: React.FC<{
     4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
     5: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5",
     6: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6",
+    7: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7",
   };
 
   return (
@@ -225,7 +245,7 @@ export const StatsCardLoading: React.FC<StatsCardLoadingProps> = ({
   "data-testid": testId,
 }) => {
   const sizeConfig = loadingSizeMap[size];
-  
+
   const borderClasses = showBorder
     ? {
         left: "border-l-4 border-muted",
@@ -273,14 +293,14 @@ export const StatsCardPulseLoading: React.FC<{
   className?: string;
   pulseColor?: string;
   duration?: "slow" | "normal" | "fast";
-}> = ({ 
-  size = "md", 
-  className, 
+}> = ({
+  size = "md",
+  className,
   pulseColor = "bg-primary/20",
-  duration = "normal"
+  duration = "normal",
 }) => {
   const sizeConfig = loadingSizeMap[size];
-  
+
   const durationClasses = {
     slow: "animate-pulse [animation-duration:2s]",
     normal: "animate-pulse",
@@ -290,7 +310,13 @@ export const StatsCardPulseLoading: React.FC<{
   return (
     <Card className={cn("bg-card border shadow-sm", className)}>
       <CardContent className={sizeConfig.card}>
-        <div className={cn("w-full h-full rounded-lg", pulseColor, durationClasses[duration])} />
+        <div
+          className={cn(
+            "w-full h-full rounded-lg",
+            pulseColor,
+            durationClasses[duration]
+          )}
+        />
       </CardContent>
     </Card>
   );
