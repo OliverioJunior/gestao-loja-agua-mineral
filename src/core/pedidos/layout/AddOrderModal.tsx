@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -77,6 +77,8 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const [descontoFormatado, setDescontoFormatado] = useState("");
   const [taxaEntregaFormatada, setTaxaEntregaFormatada] = useState("");
   const [clienteSearch, setClienteSearch] = useState("");
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
 
@@ -103,6 +105,17 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
       }));
     }
   }, [selectedCliente, formData.tipoEntrega]);
+
+  // Auto-focus no campo de pesquisa quando o dropdown abrir
+  useEffect(() => {
+    if (isSelectOpen && searchInputRef.current) {
+      // Pequeno delay para garantir que o DOM foi renderizado
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isSelectOpen]);
 
   // Função auxiliar para calcular preço baseado no tipo de venda
   const getPreco = (produto: IProdutoEstoque) => {
@@ -205,6 +218,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     setDescontoFormatado(formatCurrencyFromCents("0"));
     setTaxaEntregaFormatada("");
     setClienteSearch("");
+    setIsSelectOpen(false);
     setIsSubmitting(false);
   };
 
@@ -269,30 +283,49 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                 <div className="flex flex-col space-y-2">
                   <Label htmlFor="cliente">Cliente *</Label>
                   <Select
-                    value={formData.clienteId}
-                    onValueChange={(value) => {
-                      setFormData((prev) => ({ ...prev, clienteId: value }));
-                      setClienteSearch(""); // Limpar pesquisa após seleção
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione um cliente" />
-                    </SelectTrigger>
-                    <SelectContent sideOffset={5} align="start" className="max-h-[250px] overflow-hidden p-0">
-                      {/* Campo de pesquisa dentro do dropdown */}
-                      <div className="sticky top-0 z-10 bg-background border-b p-2">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Pesquisar cliente..."
-                            value={clienteSearch}
-                            onChange={(e) => setClienteSearch(e.target.value)}
-                            className="pl-10 h-8 text-sm"
-                            onClick={(e) => e.stopPropagation()}
-                            onKeyDown={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                      </div>
+                     value={formData.clienteId}
+                     open={isSelectOpen}
+                     onOpenChange={setIsSelectOpen}
+                     onValueChange={(value) => {
+                       setFormData((prev) => ({ ...prev, clienteId: value }));
+                       setClienteSearch(""); // Limpar pesquisa após seleção
+                       setIsSelectOpen(false); // Fechar dropdown após seleção
+                     }}
+                   >
+                     <SelectTrigger className="w-full">
+                       <SelectValue placeholder="Selecione um cliente" />
+                     </SelectTrigger>
+                     <SelectContent sideOffset={5} align="start" className="max-h-[250px] overflow-hidden p-0">
+                       {/* Campo de pesquisa dentro do dropdown */}
+                       <div className="sticky top-0 z-10 bg-background border-b p-2">
+                         <div className="relative">
+                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                           <Input
+                             ref={searchInputRef}
+                             placeholder="Pesquisar cliente..."
+                             value={clienteSearch}
+                             onChange={(e) => setClienteSearch(e.target.value)}
+                             className="pl-10 h-8 text-sm"
+                             onClick={(e) => e.stopPropagation()}
+                             onKeyDown={(e) => {
+                               e.stopPropagation();
+                               // Manter foco no input durante navegação
+                               if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                                 e.preventDefault();
+                                 setTimeout(() => searchInputRef.current?.focus(), 0);
+                               }
+                             }}
+                             onBlur={(e) => {
+                               // Prevenir perda de foco se o clique foi dentro do dropdown
+                               const relatedTarget = e.relatedTarget as HTMLElement;
+                               if (relatedTarget && relatedTarget.closest('[role="listbox"]')) {
+                                 setTimeout(() => searchInputRef.current?.focus(), 0);
+                               }
+                             }}
+                             autoFocus
+                           />
+                         </div>
+                       </div>
                       {/* Lista de clientes com scroll */}
                       <div className="max-h-[180px] overflow-y-auto">
                         {filteredClientes.length > 0 ? (
