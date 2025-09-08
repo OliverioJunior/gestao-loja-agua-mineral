@@ -48,7 +48,7 @@ export function DashboardContent({
   onViewReports,
 }: DashboardContentProps) {
   return (
-    <div className="p-4 lg:p-6 space-y-6">
+    <div className="p-4 lg:p-6 space-y-6 min-h-[calc(100dvh-93px)]">
       {/* KPI Cards */}
       <KPICards
         salesData={salesData}

@@ -5,14 +5,14 @@ import { Cards } from "./Cards";
 import { TabelaProdutos } from "./TabelaProdutos";
 import { DialogEstoque } from "./DialogEstoque";
 import { useProdutos, IProdutoEstoque } from "@/core/produto/hooks";
-import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 
 export function EstoquePage() {
   const {
     produtos,
-    loading,
     error,
+    loading,
     fetchProdutos,
     getEstatisticas,
     atualizarEstoque,
@@ -45,17 +45,6 @@ export function EstoquePage() {
     return success;
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">Carregando produtos...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -78,7 +67,7 @@ export function EstoquePage() {
 
   return (
     <div className="min-h-[calc(100dvh-93px)] p-6">
-      <Cards estatisticas={estatisticas} />
+      <Cards estatisticas={estatisticas} loading={loading} />
       <TabelaProdutos
         produtos={produtos}
         onView={handleView}

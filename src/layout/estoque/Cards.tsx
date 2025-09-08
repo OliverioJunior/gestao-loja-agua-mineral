@@ -13,9 +13,10 @@ interface IEstatisticas {
 
 interface ICards {
   estatisticas: IEstatisticas;
+  loading: boolean;
 }
 
-export const Cards: React.FC<ICards> = ({ estatisticas }) => {
+export const Cards: React.FC<ICards> = ({ estatisticas, loading }) => {
   const { total, ativos, estoqueBaixo, estoqueCritico, valorTotalEstoque } =
     estatisticas;
 
@@ -34,6 +35,7 @@ export const Cards: React.FC<ICards> = ({ estatisticas }) => {
         }}
         size="sm"
         data-testid="total-produtos-card"
+        loading={loading}
       />
 
       {/* Valor Total do Estoque */}
@@ -50,6 +52,7 @@ export const Cards: React.FC<ICards> = ({ estatisticas }) => {
         }}
         size="sm"
         data-testid="valor-total-card"
+        loading={loading}
       />
 
       {/* Estoque Baixo */}
@@ -65,6 +68,7 @@ export const Cards: React.FC<ICards> = ({ estatisticas }) => {
         }}
         size="sm"
         data-testid="estoque-baixo-card"
+        loading={loading}
       />
 
       {/* Alertas Críticos */}
@@ -80,6 +84,7 @@ export const Cards: React.FC<ICards> = ({ estatisticas }) => {
         }}
         size="sm"
         data-testid="alertas-criticos-card"
+        loading={loading}
       />
     </div>
   );
