@@ -261,18 +261,23 @@ model Item {
   @@map("itens")
 }
 
-model Vendas {
-  id        String   @id @default(uuid()) @db.Uuid
-  clienteId String   @map("cliente_id") @db.Uuid
-  pedidoId  String   @map("pedido_id") @db.Uuid
-  data      DateTime @default(now())
-  total     Int
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+enum StatusVenda {
+  QUITADO
+  EM_ABERTO
+}
 
+model Vendas {
+  id        String      @id @default(uuid()) @db.Uuid
+  clienteId String      @map("cliente_id") @db.Uuid
+  pedidoId  String      @map("pedido_id") @db.Uuid
+  data      DateTime    @default(now())
+  total     Int
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  status    StatusVenda @default(QUITADO)
   // Relacionamentos
-  cliente Cliente @relation(fields: [clienteId], references: [id])
-  pedido  Pedido  @relation(fields: [pedidoId], references: [id])
+  cliente   Cliente     @relation(fields: [clienteId], references: [id])
+  pedido    Pedido      @relation(fields: [pedidoId], references: [id])
 
   // Auditoria
   criadoPor       User    @relation("VendasCreatedBy", fields: [criadoPorId], references: [id])
