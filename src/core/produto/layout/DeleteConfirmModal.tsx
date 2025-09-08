@@ -1,13 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  Button,
-} from "@/shared/components/ui";
-import { AlertTriangle } from "lucide-react";
+import { ConfirmationModal } from "@/shared/components/ui";
 import { TProdutoWithCategoria } from "@/core/produto/domain/produto.entity";
 
 interface DeleteConfirmModalProps {
@@ -25,57 +16,43 @@ export function DeleteConfirmModal({
 }: DeleteConfirmModalProps) {
   if (!product) return null;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     onConfirm(product);
-    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-card/95 backdrop-blur-sm border-border/50">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-full">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-            </div>
-            <div>
-              <DialogTitle className="text-lg font-semibold text-foreground">
-                Confirmar Exclusão
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground mt-1">
-                Esta ação não pode ser desfeita
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="py-4">
-          <p className="text-foreground">
-            Tem certeza que deseja excluir o produto{" "}
-            <span className="font-semibold text-red-600">
-              &quot;{product.nome}&quot;
-            </span>
-            ?
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Todos os dados relacionados a este produto serão permanentemente
-            removidos.
-          </p>
-        </div>
-
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleConfirm}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Excluir Produto
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmationModal
+      isOpen={isOpen}
+      onClose={onClose}
+      onConfirm={handleConfirm}
+      title="Confirmar Exclusão"
+      description="Esta ação não pode ser desfeita. Tem certeza que deseja excluir este produto?"
+      variant="danger"
+      actionType="delete"
+      size="md"
+      itemInfo={{
+        name: product.nome,
+        type: "produto",
+        id: product.id,
+        details: {
+          categoria: product.categoria?.nome || "Sem categoria",
+          estoque: `${product.estoque} unidades`,
+        },
+      }}
+      confirmButton={{
+        text: "Excluir Produto",
+        variant: "destructive",
+      }}
+      cancelButton={{
+        text: "Cancelar",
+        variant: "outline",
+      }}
+      data-testid="delete-product-modal"
+    >
+      <p className="text-sm text-muted-foreground">
+        Todos os dados relacionados a este produto serão permanentemente
+        removidos.
+      </p>
+    </ConfirmationModal>
   );
 }
