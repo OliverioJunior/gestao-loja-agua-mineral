@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui";
 import { Search, Plus, X } from "lucide-react";
-import { OrderFiltersProps } from "./types";
+import { Filters, OrderFiltersProps } from "./types";
 import { AddOrderModal } from "./AddOrderModal";
 import { CreatePedidoInput } from "../domain";
 
@@ -25,12 +25,63 @@ export function OrderFilters({
   onAddOrder,
 }: OrderFiltersProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [, setFilter] = useState<Filters>(undefined);
+
+  // Detecta automaticamente qual filtro está ativo baseado nas datas
+  const getActiveFilter = (): Filters => {
+    if (!startDate || !endDate) return undefined;
+
+    const today = new Date().toISOString().split("T")[0];
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+    // Verifica se é "hoje"
+    if (startDate === today && endDate === today) return "hoje";
+
+    // Verifica se é "ontem"
+    if (startDate === yesterdayStr && endDate === yesterdayStr) return "ontem";
+
+    // Verifica se é "semana"
+    const todayDate = new Date();
+    const weekStart = new Date(todayDate);
+    weekStart.setDate(todayDate.getDate() - todayDate.getDay());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+    const weekEndStr = weekEnd.toISOString().split("T")[0];
+
+    if (startDate === weekStartStr && endDate === weekEndStr) return "semana";
+
+    // Verifica se é "mês"
+    const monthStart = new Date(
+      todayDate.getFullYear(),
+      todayDate.getMonth(),
+      1
+    );
+    const monthEnd = new Date(
+      todayDate.getFullYear(),
+      todayDate.getMonth() + 1,
+      0
+    );
+    const monthStartStr = monthStart.toISOString().split("T")[0];
+    const monthEndStr = monthEnd.toISOString().split("T")[0];
+
+    if (startDate === monthStartStr && endDate === monthEndStr) return "mês";
+
+    return undefined;
+  };
+
+  const activeFilter = getActiveFilter();
 
   const handleAddOrder = async (order: CreatePedidoInput) => {
     await onAddOrder(order);
     setIsAddModalOpen(false);
   };
 
+  const onFilterChange = (filter: Filters) => {
+    setFilter(filter);
+  };
   return (
     <>
       <div className="bg-gradient-to-br from-card/60 to-card/40 backdrop-blur-md border border-border/40 rounded-2xl p-3 sm:p-5 lg:p-6 mb-6 shadow-lg shadow-black/5 transition-all duration-300 hover:shadow-xl hover:shadow-black/10">
@@ -41,8 +92,12 @@ export function OrderFilters({
               <Search className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-foreground">Filtros de Busca</h3>
-              <p className="text-sm text-muted-foreground">Encontre pedidos rapidamente</p>
+              <h3 className="font-semibold text-lg text-foreground">
+                Filtros de Busca
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Encontre pedidos rapidamente
+              </p>
             </div>
           </div>
 
@@ -82,11 +137,36 @@ export function OrderFilters({
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl border-2 shadow-xl">
-                  <SelectItem value="todos" className="text-base py-3 px-4 rounded-lg m-1 focus:bg-primary/10">🔄 Todos os status</SelectItem>
-                  <SelectItem value="PENDENTE" className="text-base py-3 px-4 rounded-lg m-1 focus:bg-yellow-500/10">📋 Pendente</SelectItem>
-                  <SelectItem value="CONFIRMADO" className="text-base py-3 px-4 rounded-lg m-1 focus:bg-blue-500/10">✅ Confirmado</SelectItem>
-                  <SelectItem value="ENTREGUE" className="text-base py-3 px-4 rounded-lg m-1 focus:bg-green-500/10">🚚 Entregue</SelectItem>
-                  <SelectItem value="CANCELADO" className="text-base py-3 px-4 rounded-lg m-1 focus:bg-red-500/10">❌ Cancelado</SelectItem>
+                  <SelectItem
+                    value="todos"
+                    className="text-base py-3 px-4 rounded-lg m-1 focus:bg-primary/10"
+                  >
+                    🔄 Todos os status
+                  </SelectItem>
+                  <SelectItem
+                    value="PENDENTE"
+                    className="text-base py-3 px-4 rounded-lg m-1 focus:bg-yellow-500/10"
+                  >
+                    📋 Pendente
+                  </SelectItem>
+                  <SelectItem
+                    value="CONFIRMADO"
+                    className="text-base py-3 px-4 rounded-lg m-1 focus:bg-blue-500/10"
+                  >
+                    ✅ Confirmado
+                  </SelectItem>
+                  <SelectItem
+                    value="ENTREGUE"
+                    className="text-base py-3 px-4 rounded-lg m-1 focus:bg-green-500/10"
+                  >
+                    🚚 Entregue
+                  </SelectItem>
+                  <SelectItem
+                    value="CANCELADO"
+                    className="text-base py-3 px-4 rounded-lg m-1 focus:bg-red-500/10"
+                  >
+                    ❌ Cancelado
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -100,7 +180,10 @@ export function OrderFilters({
                 <Input
                   type="date"
                   value={startDate || ""}
-                  onChange={(e) => onStartDateChange?.(e.target.value)}
+                  onChange={(e) => {
+                    onFilterChange(undefined);
+                    onStartDateChange?.(e.target.value);
+                  }}
                   className="h-12 bg-background/70 border-2 border-border/50 rounded-xl text-base transition-all duration-200 focus:border-primary/50 focus:bg-background/90 focus:shadow-lg focus:shadow-primary/10 touch-manipulation"
                 />
               </div>
@@ -115,7 +198,10 @@ export function OrderFilters({
                 <Input
                   type="date"
                   value={endDate || ""}
-                  onChange={(e) => onEndDateChange?.(e.target.value)}
+                  onChange={(e) => {
+                    onFilterChange(undefined);
+                    onEndDateChange?.(e.target.value);
+                  }}
                   className="h-12 bg-background/70 border-2 border-border/50 rounded-xl text-base transition-all duration-200 focus:border-primary/50 focus:bg-background/90 focus:shadow-lg focus:shadow-primary/10 touch-manipulation"
                 />
               </div>
@@ -125,10 +211,14 @@ export function OrderFilters({
           {/* Ações e Controles */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-4 border-t border-border/20">
             {/* Botão Limpar Filtros */}
-            {(startDate || endDate || searchTerm || statusFilter !== "todos") && (
+            {(startDate ||
+              endDate ||
+              searchTerm ||
+              statusFilter !== "todos") && (
               <Button
                 variant="outline"
                 onClick={() => {
+                  onFilterChange(undefined);
                   onSearchChange("");
                   onStatusChange("todos");
                   onStartDateChange?.("");
@@ -142,74 +232,102 @@ export function OrderFilters({
             )}
 
             {/* Filtros Rápidos de Período */}
-             <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
-               <div className="flex flex-wrap gap-2">
-                 <Button
-                   variant="outline"
-                   size="sm"
-                   onClick={() => {
-                     const yesterday = new Date();
-                     yesterday.setDate(yesterday.getDate() - 1);
-                     const dateStr = yesterday.toISOString().split('T')[0];
-                     onStartDateChange?.(dateStr);
-                     onEndDateChange?.(dateStr);
-                   }}
-                   className="h-9 px-3 bg-background/50 border border-border/50 hover:bg-background/80 rounded-lg transition-all duration-200 text-xs font-medium"
-                 >
-                   📅 Ontem
-                 </Button>
-                 <Button
-                   variant="outline"
-                   size="sm"
-                   onClick={() => {
-                     const today = new Date().toISOString().split('T')[0];
-                     onStartDateChange?.(today);
-                     onEndDateChange?.(today);
-                   }}
-                   className="h-9 px-3 bg-background/50 border border-border/50 hover:bg-background/80 rounded-lg transition-all duration-200 text-xs font-medium"
-                 >
-                   🗓️ Hoje
-                 </Button>
-                 <Button
-                   variant="outline"
-                   size="sm"
-                   onClick={() => {
-                     const today = new Date();
-                     const weekStart = new Date(today);
-                     weekStart.setDate(today.getDate() - today.getDay());
-                     const weekEnd = new Date(weekStart);
-                     weekEnd.setDate(weekStart.getDate() + 6);
-                     onStartDateChange?.(weekStart.toISOString().split('T')[0]);
-                     onEndDateChange?.(weekEnd.toISOString().split('T')[0]);
-                   }}
-                   className="h-9 px-3 bg-background/50 border border-border/50 hover:bg-background/80 rounded-lg transition-all duration-200 text-xs font-medium"
-                 >
-                   📊 Semana
-                 </Button>
-                 <Button
-                   variant="outline"
-                   size="sm"
-                   onClick={() => {
-                     const today = new Date();
-                     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                     const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                     onStartDateChange?.(monthStart.toISOString().split('T')[0]);
-                     onEndDateChange?.(monthEnd.toISOString().split('T')[0]);
-                   }}
-                   className="h-9 px-3 bg-background/50 border border-border/50 hover:bg-background/80 rounded-lg transition-all duration-200 text-xs font-medium"
-                 >
-                   📈 Mês
-                 </Button>
-               </div>
-               <Button
-                 onClick={() => setIsAddModalOpen(true)}
-                 className="h-11 px-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-xl transition-all duration-200 touch-manipulation group font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
-               >
-                 <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-200" />
-                 <span className="hidden sm:inline">Novo Pedido</span>
-                 <span className="sm:hidden">Novo</span>
-               </Button>
-             </div>
+            <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onFilterChange("ontem");
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const dateStr = yesterday.toISOString().split("T")[0];
+                    onStartDateChange?.(dateStr);
+                    onEndDateChange?.(dateStr);
+                  }}
+                  className={`h-9 px-3 rounded-lg transition-all duration-200 text-xs font-medium ${
+                    activeFilter === "ontem"
+                      ? "bg-primary/10 border-2 border-primary/50 text-primary shadow-sm shadow-primary/10 hover:bg-primary/15 hover:border-primary/60"
+                      : "bg-background/50 border border-border/50 hover:bg-background/80 hover:border-border/70"
+                  }`}
+                >
+                  📅 Ontem
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onFilterChange("hoje");
+                    const today = new Date().toISOString().split("T")[0];
+                    onStartDateChange?.(today);
+                    onEndDateChange?.(today);
+                  }}
+                  className={`h-9 px-3 rounded-lg transition-all duration-200 text-xs font-medium ${
+                    activeFilter === "hoje"
+                      ? "bg-primary/10 border-2 border-primary/50 text-primary shadow-sm shadow-primary/10 hover:bg-primary/15 hover:border-primary/60"
+                      : "bg-background/50 border border-border/50 hover:bg-background/80 hover:border-border/70"
+                  }`}
+                >
+                  🗓️ Hoje
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onFilterChange("semana");
+                    const today = new Date();
+                    const weekStart = new Date(today);
+                    weekStart.setDate(today.getDate() - today.getDay());
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    onStartDateChange?.(weekStart.toISOString().split("T")[0]);
+                    onEndDateChange?.(weekEnd.toISOString().split("T")[0]);
+                  }}
+                  className={`h-9 px-3 rounded-lg transition-all duration-200 text-xs font-medium ${
+                    activeFilter === "semana"
+                      ? "bg-primary/10 border-2 border-primary/50 text-primary shadow-sm shadow-primary/10 hover:bg-primary/15 hover:border-primary/60"
+                      : "bg-background/50 border border-border/50 hover:bg-background/80 hover:border-border/70"
+                  }`}
+                >
+                  📊 Semana
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onFilterChange("mês");
+                    const today = new Date();
+                    const monthStart = new Date(
+                      today.getFullYear(),
+                      today.getMonth(),
+                      1
+                    );
+                    const monthEnd = new Date(
+                      today.getFullYear(),
+                      today.getMonth() + 1,
+                      0
+                    );
+                    onStartDateChange?.(monthStart.toISOString().split("T")[0]);
+                    onEndDateChange?.(monthEnd.toISOString().split("T")[0]);
+                  }}
+                  className={`h-9 px-3 rounded-lg transition-all duration-200 text-xs font-medium ${
+                    activeFilter === "mês"
+                      ? "bg-primary/10 border-2 border-primary/50 text-primary shadow-sm shadow-primary/10 hover:bg-primary/15 hover:border-primary/60"
+                      : "bg-background/50 border border-border/50 hover:bg-background/80 hover:border-border/70"
+                  }`}
+                >
+                  📈 Mês
+                </Button>
+              </div>
+              <Button
+                onClick={() => setIsAddModalOpen(true)}
+                className="h-11 px-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground rounded-xl transition-all duration-200 touch-manipulation group font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
+              >
+                <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-200" />
+                <span className="hidden sm:inline">Novo Pedido</span>
+                <span className="sm:hidden">Novo</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>

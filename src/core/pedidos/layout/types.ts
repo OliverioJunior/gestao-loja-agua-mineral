@@ -56,6 +56,7 @@ export interface IPedidoStats {
   faturamentoMensal: number;
 }
 
+export type Filters = "hoje" | "ontem" | "semana" | "mês" | undefined;
 export interface OrderFiltersProps {
   searchTerm: string;
   statusFilter: string;
