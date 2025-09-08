@@ -29,6 +29,7 @@ import {
   Package,
   MapPin,
   CreditCard,
+  Search,
 } from "lucide-react";
 import { AddOrderModalProps, IPedidoItem } from "./types";
 import { formatCurrency } from "./order-utils";
@@ -75,8 +76,14 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const [quantidade, setQuantidade] = useState(0);
   const [descontoFormatado, setDescontoFormatado] = useState("");
   const [taxaEntregaFormatada, setTaxaEntregaFormatada] = useState("");
+  const [clienteSearch, setClienteSearch] = useState("");
 
   const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
+
+  // Filtrar clientes baseado na pesquisa
+  const filteredClientes = clientes.filter((cliente) =>
+    cliente.nome.toLowerCase().includes(clienteSearch.toLowerCase())
+  );
 
   // Preencher endereço automaticamente quando cliente for selecionado
   useEffect(() => {
@@ -197,6 +204,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     setRevenda(false);
     setDescontoFormatado(formatCurrencyFromCents("0"));
     setTaxaEntregaFormatada("");
+    setClienteSearch("");
     setIsSubmitting(false);
   };
 
@@ -262,25 +270,49 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   <Label htmlFor="cliente">Cliente *</Label>
                   <Select
                     value={formData.clienteId}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, clienteId: value }))
-                    }
+                    onValueChange={(value) => {
+                      setFormData((prev) => ({ ...prev, clienteId: value }));
+                      setClienteSearch(""); // Limpar pesquisa após seleção
+                    }}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione um cliente" />
                     </SelectTrigger>
-                    <SelectContent sideOffset={5} align="start">
-                      {clientes.map((cliente) => (
-                        <SelectItem
-                          className="max-w-[397px]"
-                          key={cliente.id}
-                          value={cliente.id}
-                        >
-                          <span className="font-medium text-sm whitespace-normal break-words">
-                            {cliente.nome}
-                          </span>
-                        </SelectItem>
-                      ))}
+                    <SelectContent sideOffset={5} align="start" className="max-h-[250px] overflow-hidden p-0">
+                      {/* Campo de pesquisa dentro do dropdown */}
+                      <div className="sticky top-0 z-10 bg-background border-b p-2">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Pesquisar cliente..."
+                            value={clienteSearch}
+                            onChange={(e) => setClienteSearch(e.target.value)}
+                            className="pl-10 h-8 text-sm"
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </div>
+                      {/* Lista de clientes com scroll */}
+                      <div className="max-h-[180px] overflow-y-auto">
+                        {filteredClientes.length > 0 ? (
+                          filteredClientes.map((cliente) => (
+                            <SelectItem
+                              className="max-w-[397px]"
+                              key={cliente.id}
+                              value={cliente.id}
+                            >
+                              <span className="font-medium text-sm whitespace-normal break-words">
+                                {cliente.nome}
+                              </span>
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <div className="px-2 py-6 text-sm text-muted-foreground text-center">
+                            {clienteSearch ? "Nenhum cliente encontrado" : "Carregando clientes..."}
+                          </div>
+                        )}
+                      </div>
                     </SelectContent>
                   </Select>
                 </div>
