@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +29,8 @@ import {
   Package,
   MapPin,
   CreditCard,
-  Search,
 } from "lucide-react";
+import { Combobox, type ComboboxOption } from "@/shared/components/ui/combobox";
 import { AddOrderModalProps, IPedidoItem } from "./types";
 import { formatCurrency } from "./order-utils";
 import { useClientes } from "@/core/cliente/hooks/useClientes";
@@ -69,23 +69,20 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   };
 
   const [formData, setFormData] = useState(initialFormData);
-
   const [itens, setItens] = useState<IPedidoItem[]>([]);
   const [revenda, setRevenda] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState("");
   const [quantidade, setQuantidade] = useState(0);
   const [descontoFormatado, setDescontoFormatado] = useState("");
   const [taxaEntregaFormatada, setTaxaEntregaFormatada] = useState("");
-  const [clienteSearch, setClienteSearch] = useState("");
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
 
-  // Filtrar clientes baseado na pesquisa
-  const filteredClientes = clientes.filter((cliente) =>
-    cliente.nome.toLowerCase().includes(clienteSearch.toLowerCase())
-  );
+  // Preparar opções para o Combobox
+  const clienteOptions: ComboboxOption[] = clientes.map((cliente) => ({
+    value: cliente.id,
+    label: cliente.nome,
+  }));
 
   // Preencher endereço automaticamente quando cliente for selecionado
   useEffect(() => {
@@ -105,17 +102,6 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
       }));
     }
   }, [selectedCliente, formData.tipoEntrega]);
-
-  // Auto-focus no campo de pesquisa quando o dropdown abrir
-  useEffect(() => {
-    if (isSelectOpen && searchInputRef.current) {
-      // Pequeno delay para garantir que o DOM foi renderizado
-      const timer = setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isSelectOpen]);
 
   // Função auxiliar para calcular preço baseado no tipo de venda
   const getPreco = (produto: IProdutoEstoque) => {
@@ -140,6 +126,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     setItens([...itens, newItem]);
     setSelectedProduto("");
     setQuantidade(0);
+
+    // Feedback para leitores de tela
+    toast.success(`Item ${produto.nome} adicionado com sucesso`);
   };
 
   const handleUpdateQuantity = (index: number, newQuantity: number) => {
@@ -159,10 +148,17 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           : item
       )
     );
+
+    // Feedback para leitores de tela
+    toast.info(`Quantidade atualizada para ${newQuantity}`);
   };
 
   const handleRemoveItem = (index: number) => {
+    const itemName = itens[index].produtoNome;
     setItens((prevItens) => prevItens.filter((_, i) => i !== index));
+
+    // Feedback para leitores de tela
+    toast.info(`Item ${itemName} removido do pedido`);
   };
 
   const subtotal = itens.reduce(
@@ -204,7 +200,6 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     } finally {
       resetForm();
       onClose();
-
       setIsSubmitting(false);
     }
   };
@@ -217,8 +212,6 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     setRevenda(false);
     setDescontoFormatado(formatCurrencyFromCents("0"));
     setTaxaEntregaFormatada("");
-    setClienteSearch("");
-    setIsSelectOpen(false);
     setIsSubmitting(false);
   };
 
@@ -257,13 +250,17 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="max-w-4xl max-h-[90vh] overflow-y-auto"
+        aria-describedby="dialog-description"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
+            <Package className="h-5 w-5" aria-hidden="true" />
             Novo Pedido
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="dialog-description">
             Crie um novo pedido, adicionando itens, cliente, forma de pagamento
             e observações.
           </DialogDescription>
@@ -274,7 +271,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4" aria-hidden="true" />
                 Informações do Cliente
               </CardTitle>
             </CardHeader>
@@ -282,72 +279,18 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
               <div className="flex flex-col space-y-6">
                 <div className="flex flex-col space-y-2">
                   <Label htmlFor="cliente">Cliente *</Label>
-                  <Select
-                     value={formData.clienteId}
-                     open={isSelectOpen}
-                     onOpenChange={setIsSelectOpen}
-                     onValueChange={(value) => {
-                       setFormData((prev) => ({ ...prev, clienteId: value }));
-                       setClienteSearch(""); // Limpar pesquisa após seleção
-                       setIsSelectOpen(false); // Fechar dropdown após seleção
-                     }}
-                   >
-                     <SelectTrigger className="w-full">
-                       <SelectValue placeholder="Selecione um cliente" />
-                     </SelectTrigger>
-                     <SelectContent sideOffset={5} align="start" className="max-h-[250px] overflow-hidden p-0">
-                       {/* Campo de pesquisa dentro do dropdown */}
-                       <div className="sticky top-0 z-10 bg-background border-b p-2">
-                         <div className="relative">
-                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                           <Input
-                             ref={searchInputRef}
-                             placeholder="Pesquisar cliente..."
-                             value={clienteSearch}
-                             onChange={(e) => setClienteSearch(e.target.value)}
-                             className="pl-10 h-8 text-sm"
-                             onClick={(e) => e.stopPropagation()}
-                             onKeyDown={(e) => {
-                               e.stopPropagation();
-                               // Manter foco no input durante navegação
-                               if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                                 e.preventDefault();
-                                 setTimeout(() => searchInputRef.current?.focus(), 0);
-                               }
-                             }}
-                             onBlur={(e) => {
-                               // Prevenir perda de foco se o clique foi dentro do dropdown
-                               const relatedTarget = e.relatedTarget as HTMLElement;
-                               if (relatedTarget && relatedTarget.closest('[role="listbox"]')) {
-                                 setTimeout(() => searchInputRef.current?.focus(), 0);
-                               }
-                             }}
-                             autoFocus
-                           />
-                         </div>
-                       </div>
-                      {/* Lista de clientes com scroll */}
-                      <div className="max-h-[180px] overflow-y-auto">
-                        {filteredClientes.length > 0 ? (
-                          filteredClientes.map((cliente) => (
-                            <SelectItem
-                              className="max-w-[397px]"
-                              key={cliente.id}
-                              value={cliente.id}
-                            >
-                              <span className="font-medium text-sm whitespace-normal break-words">
-                                {cliente.nome}
-                              </span>
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <div className="px-2 py-6 text-sm text-muted-foreground text-center">
-                            {clienteSearch ? "Nenhum cliente encontrado" : "Carregando clientes..."}
-                          </div>
-                        )}
-                      </div>
-                    </SelectContent>
-                  </Select>
+                  <Combobox
+                    options={clienteOptions}
+                    value={formData.clienteId}
+                    onValueChange={(value) => {
+                      setFormData((prev) => ({ ...prev, clienteId: value }));
+                    }}
+                    placeholder="Selecione um cliente"
+                    searchPlaceholder="Pesquisar cliente..."
+                    emptyMessage="Nenhum cliente encontrado"
+                    width="w-full"
+                    className="max-w-[397px]"
+                  />
                 </div>
 
                 <div className="flex flex-col space-y-2">
@@ -358,7 +301,11 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       setFormData((prev) => ({ ...prev, tipoEntrega: value }))
                     }
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                      className="w-full"
+                      id="tipoEntrega"
+                      aria-label="Tipo de entrega"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -376,7 +323,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
                   Endereço de Entrega
                 </CardTitle>
               </CardHeader>
@@ -391,6 +338,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         updateEnderecoField("logradouro", e.target.value)
                       }
                       required
+                      aria-required="true"
                     />
                   </div>
                   <div>
@@ -402,6 +350,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         updateEnderecoField("numero", e.target.value)
                       }
                       required
+                      aria-required="true"
                     />
                   </div>
                 </div>
@@ -426,6 +375,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         updateEnderecoField("bairro", e.target.value)
                       }
                       required
+                      aria-required="true"
                     />
                   </div>
                 </div>
@@ -440,6 +390,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         updateEnderecoField("cidade", e.target.value)
                       }
                       required
+                      aria-required="true"
                     />
                   </div>
                   <div>
@@ -451,6 +402,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         updateEnderecoField("estado", e.target.value)
                       }
                       required
+                      aria-required="true"
                     />
                   </div>
                   <div>
@@ -462,6 +414,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         updateEnderecoField("cep", e.target.value)
                       }
                       required
+                      aria-required="true"
                     />
                   </div>
                 </div>
@@ -506,6 +459,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                     }}
                     placeholder="0,00"
                     inputMode="numeric"
+                    aria-label="Taxa de entrega em reais"
                   />
                 </div>
               </CardContent>
@@ -516,7 +470,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Package className="h-4 w-4" />
+                <Package className="h-4 w-4" aria-hidden="true" />
                 Itens do Pedido
               </CardTitle>
             </CardHeader>
@@ -532,14 +486,21 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         htmlFor="produto"
                         className="text-sm font-semibold text-foreground/90 flex items-center gap-2"
                       >
-                        <Package className="h-4 w-4 text-primary" />
+                        <Package
+                          className="h-4 w-4 text-primary"
+                          aria-hidden="true"
+                        />
                         Produto *
                       </Label>
                       <Select
                         value={selectedProduto}
                         onValueChange={setSelectedProduto}
                       >
-                        <SelectTrigger className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation">
+                        <SelectTrigger
+                          className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation"
+                          id="produto"
+                          aria-required="true"
+                        >
                           <SelectValue placeholder="Selecione um produto" />
                         </SelectTrigger>
                         <SelectContent className="max-h-[250px] ">
@@ -568,15 +529,16 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
                     <div className="flex items-center gap-3 p-4 bg-background/60 rounded-lg border border-border/30 touch-manipulation">
                       <Checkbox
-                        id="terms"
+                        id="revenda"
                         checked={revenda}
                         onCheckedChange={(e) => {
                           setRevenda(e as boolean);
                         }}
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary w-5 h-5"
+                        aria-label="Modo revenda"
                       />
                       <Label
-                        htmlFor="terms"
+                        htmlFor="revenda"
                         className="text-sm font-medium cursor-pointer flex-1"
                       >
                         Revenda
@@ -594,7 +556,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         htmlFor="quantidade"
                         className="text-sm font-semibold text-foreground/90 flex items-center gap-2"
                       >
-                        <span className="text-base">📊</span>
+                        <span className="text-base" aria-hidden="true">
+                          📊
+                        </span>
                         Quantidade
                       </Label>
                       <Input
@@ -614,6 +578,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                         placeholder="Digite a quantidade"
                         className="w-full h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm text-center font-medium text-lg touch-manipulation"
                         inputMode="numeric"
+                        aria-label="Quantidade do produto"
                       />
                     </div>
 
@@ -622,8 +587,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       onClick={handleAddItem}
                       disabled={!selectedProduto}
                       className="w-full h-12 bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all duration-200 font-semibold text-base touch-manipulation active:scale-95"
+                      aria-label="Adicionar item ao pedido"
                     >
-                      <Plus className="h-5 w-5 mr-2" />
+                      <Plus className="h-5 w-5 mr-2" aria-hidden="true" />
                       Adicionar Item
                     </Button>
                   </div>
@@ -632,7 +598,11 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
               {/* Lista de Itens */}
               {itens.length > 0 && (
-                <div className="space-y-2">
+                <div
+                  className="space-y-2"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   {itens.map((item, index) => (
                     <div
                       key={index}
@@ -652,10 +622,11 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                           onClick={() =>
                             handleUpdateQuantity(index, item.quantidade - 1)
                           }
+                          aria-label={`Diminuir quantidade de ${item.produtoNome}`}
                         >
-                          <Minus className="h-3 w-3" />
+                          <Minus className="h-3 w-3" aria-hidden="true" />
                         </Button>
-                        <span className="w-8 text-center">
+                        <span className="w-8 text-center" aria-live="polite">
                           {item.quantidade}
                         </span>
                         <Button
@@ -665,8 +636,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                           onClick={() =>
                             handleUpdateQuantity(index, item.quantidade + 1)
                           }
+                          aria-label={`Aumentar quantidade de ${item.produtoNome}`}
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="h-3 w-3" aria-hidden="true" />
                         </Button>
                         <Button
                           type="button"
@@ -674,8 +646,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                           size="sm"
                           onClick={() => handleRemoveItem(index)}
                           className="text-red-600 hover:text-red-700"
+                          aria-label={`Remover ${item.produtoNome} do pedido`}
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-3 w-3" aria-hidden="true" />
                         </Button>
                       </div>
                       <div className="text-right ml-4">
@@ -694,7 +667,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <CreditCard className="h-4 w-4" />
+                <CreditCard className="h-4 w-4" aria-hidden="true" />
                 Pagamento e Observações
               </CardTitle>
             </CardHeader>
@@ -705,7 +678,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   htmlFor="formaPagamento"
                   className="text-sm font-semibold flex items-center gap-2"
                 >
-                  💳 Forma de Pagamento *
+                  <span aria-hidden="true">💳</span> Forma de Pagamento *
                 </Label>
                 <Select
                   value={formData.formaPagamento}
@@ -716,7 +689,11 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                     }))
                   }
                 >
-                  <SelectTrigger className="h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation w-full">
+                  <SelectTrigger
+                    className="h-12 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm touch-manipulation w-full"
+                    id="formaPagamento"
+                    aria-required="true"
+                  >
                     <SelectValue placeholder="Selecione a forma de pagamento" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px]">
@@ -725,7 +702,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       className="py-3 touch-manipulation"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-base">💵</span>
+                        <span className="text-base" aria-hidden="true">
+                          💵
+                        </span>
                         <span>Dinheiro</span>
                       </div>
                     </SelectItem>
@@ -734,7 +713,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       className="py-3 touch-manipulation"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-base">📜</span>
+                        <span className="text-base" aria-hidden="true">
+                          📜
+                        </span>
                         <span>Boleto</span>
                       </div>
                     </SelectItem>
@@ -743,7 +724,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       className="py-3 touch-manipulation"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-base">💳</span>
+                        <span className="text-base" aria-hidden="true">
+                          💳
+                        </span>
                         <span>Cartão de Débito</span>
                       </div>
                     </SelectItem>
@@ -752,13 +735,17 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       className="py-3 touch-manipulation"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-base">💳</span>
+                        <span className="text-base" aria-hidden="true">
+                          💳
+                        </span>
                         <span>Cartão de Crédito</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="pix" className="py-3 touch-manipulation">
                       <div className="flex items-center gap-2">
-                        <span className="text-base">📱</span>
+                        <span className="text-base" aria-hidden="true">
+                          📱
+                        </span>
                         <span>PIX</span>
                       </div>
                     </SelectItem>
@@ -772,7 +759,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   htmlFor="desconto"
                   className="text-sm font-semibold flex items-center gap-2"
                 >
-                  🏷️ Desconto (Opcional)
+                  <span aria-hidden="true">🏷️</span> Desconto (Opcional)
                 </Label>
                 <div className="flex items-center gap-3 p-4 bg-background/60 rounded-lg border border-border/30">
                   <div className="flex-1">
@@ -815,6 +802,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                       placeholder="0,00"
                       className="h-11 bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm text-center font-medium touch-manipulation"
                       inputMode="numeric"
+                      aria-label="Valor do desconto em reais"
                     />
                   </div>
                   <div className="text-xs text-muted-foreground">R$</div>
@@ -827,7 +815,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   htmlFor="observacoes"
                   className="text-sm font-semibold flex items-center gap-2"
                 >
-                  📝 Observações (Opcional)
+                  <span aria-hidden="true">📝</span> Observações (Opcional)
                 </Label>
                 <Textarea
                   id="observacoes"
@@ -841,6 +829,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   placeholder="Digite observações adicionais sobre o pedido..."
                   rows={4}
                   className="min-h-[100px] bg-background/80 border-border/60 hover:border-border transition-colors shadow-sm resize-none touch-manipulation"
+                  aria-label="Observações adicionais do pedido"
                 />
               </div>
             </CardContent>
@@ -853,7 +842,11 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                 <CardTitle className="text-base">Resumo do Pedido</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div
+                  className="space-y-2"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
                     <span>{formatCurrency(subtotal)}</span>
@@ -896,6 +889,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                 !formData.formaPagamento ||
                 itens.length === 0
               }
+              aria-busy={loading || isSubmitting}
             >
               {loading || isSubmitting ? "Criando Pedido..." : "Criar Pedido"}
             </Button>
