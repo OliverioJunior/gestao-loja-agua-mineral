@@ -15,12 +15,18 @@ export async function encrypt(payload: { email: string; expiresAt: string }) {
 
 export async function decrypt(session: string | undefined = "") {
   try {
+    // Verificar se a sessão existe e não está vazia
+    if (!session || session.trim() === "") {
+      return null;
+    }
+
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],
     });
     return payload;
   } catch (error) {
     console.error("Failed to verify session", error);
+    return null;
   }
 }
 export async function createSession(email: string) {

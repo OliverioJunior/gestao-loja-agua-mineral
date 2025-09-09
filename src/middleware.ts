@@ -23,12 +23,13 @@ export async function middleware(request: NextRequest) {
   try {
     // Verificar se há uma sessão válida
     const sessionCookie = request.cookies.get("session")?.value;
-    const session = await decrypt(sessionCookie);
 
     if (!sessionCookie) {
       // Se não há sessão, redirecionar para login
       return NextResponse.redirect(new URL("/login", request.url));
     }
+
+    const session = await decrypt(sessionCookie);
 
     if (!session || !session.email) {
       // Se a sessão é inválida, limpar cookie e redirecionar para login
