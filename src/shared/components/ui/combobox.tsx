@@ -51,13 +51,27 @@ export interface ComboboxProps {
   autoClose?: boolean;
 }
 
+// Função para normalizar texto removendo acentos e caracteres especiais
+const normalizeText = (text: string): string => {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/gi, "")
+    .trim();
+};
+
 const defaultFilterFunction = (
   option: ComboboxOption,
   search: string
 ): boolean => {
+  const normalizedSearch = normalizeText(search);
+  const normalizedLabel = normalizeText(option.label);
+  const normalizedValue = normalizeText(option.value);
+  
   return (
-    option.label.toLowerCase().includes(search.toLowerCase()) ||
-    option.value.toLowerCase().includes(search.toLowerCase())
+    normalizedLabel.includes(normalizedSearch) ||
+    normalizedValue.includes(normalizedSearch)
   );
 };
 
