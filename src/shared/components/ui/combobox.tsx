@@ -39,6 +39,8 @@ export interface ComboboxProps {
   emptyMessage?: string;
   /** Largura do componente */
   width?: string;
+  /** Altura máxima do dropdown */
+  maxHeight?: string;
   /** Se o componente está desabilitado */
   disabled?: boolean;
   /** Classes CSS adicionais */
@@ -83,6 +85,7 @@ export function Combobox({
   searchPlaceholder = "Buscar...",
   emptyMessage = "Nenhuma opção encontrada.",
   width = "w-[200px]",
+  maxHeight = "max-h-[300px]",
   disabled = false,
   className,
   clearable = false,
@@ -137,16 +140,34 @@ export function Combobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={cn(width, "p-0")} align="start">
-        <Command>
+      <PopoverContent 
+        className={cn(
+          width, 
+          "p-0",
+          maxHeight,
+          "overflow-hidden"
+        )} 
+        align="start"
+        sideOffset={4}
+      >
+        <Command className="overflow-hidden">
           <CommandInput
             placeholder={searchPlaceholder}
-            className="h-9"
+            className="h-9 border-none focus:ring-0"
             value={searchValue}
             onValueChange={setSearchValue}
           />
-          <CommandList>
-            <CommandEmpty>{emptyMessage}</CommandEmpty>
+          <CommandList 
+            className={cn(
+              "overflow-y-auto overflow-x-hidden",
+              "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent",
+              "touch-pan-y",
+              "max-h-[250px]"
+            )}
+          >
+            <CommandEmpty className="py-6 text-center text-sm">
+              {emptyMessage}
+            </CommandEmpty>
             <CommandGroup>
               {filteredOptions.map((option) => (
                 <CommandItem
@@ -155,14 +176,18 @@ export function Combobox({
                   disabled={option.disabled}
                   onSelect={handleSelect}
                   className={cn(
-                    "cursor-pointer",
-                    option.disabled && "opacity-50 cursor-not-allowed"
+                    "cursor-pointer touch-manipulation",
+                    "px-2 py-3 text-sm",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    "focus:bg-accent focus:text-accent-foreground",
+                    "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground",
+                    option.disabled && "opacity-50 cursor-not-allowed pointer-events-none"
                   )}
                 >
                   <span className="flex-1 truncate">{option.label}</span>
                   <Check
                     className={cn(
-                      "ml-2 h-4 w-4",
+                      "ml-2 h-4 w-4 shrink-0",
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />
