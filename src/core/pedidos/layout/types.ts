@@ -1,4 +1,5 @@
 import { CreatePedidoInput, TPedidoWithRelations } from "@/core/pedidos/domain";
+import { FetchPedidosParams } from "../hooks/entity";
 
 export interface IEndereco {
   logradouro: string;
@@ -123,6 +124,7 @@ export interface StatusTransitionModalProps {
   onConfirm: (
     orderId: string,
     newStatus: TPedidoWithRelations["status"],
+    params?: FetchPedidosParams,
     observacoes?: string
   ) => Promise<void>;
   order: TPedidoWithRelations | null;

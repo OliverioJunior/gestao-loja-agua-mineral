@@ -21,7 +21,8 @@ export interface UsePedidosReturn {
   ) => Promise<boolean>;
   updateStatus: (
     id: string,
-    status: TPedidoWithRelations["status"]
+    status: TPedidoWithRelations["status"],
+    params?: FetchPedidosParams
   ) => Promise<boolean>;
   deletePedido: (id: string) => Promise<boolean>;
   findByCliente: (clienteId: string) => Promise<TPedidoWithRelations[]>;

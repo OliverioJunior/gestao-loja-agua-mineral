@@ -126,7 +126,12 @@ export function StatusTransitionModal({
 
     setIsLoading(true);
     try {
-      await onConfirm(order.id, selectedStatus as StatusPedido, observacoes);
+      await onConfirm(
+        order.id,
+        selectedStatus as StatusPedido,
+        undefined,
+        observacoes
+      );
       handleClose();
     } catch (error) {
       console.error("Erro ao alterar status:", error);

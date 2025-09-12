@@ -175,9 +175,12 @@ export const usePedidos = (): UsePedidosReturn => {
   /**
    * Recarrega dados após operações CRUD
    */
-  const refreshData = useCallback(async (): Promise<void> => {
-    await Promise.all([fetchPedidos(), fetchStats()]);
-  }, [fetchPedidos, fetchStats]);
+  const refreshData = useCallback(
+    async (params?: FetchPedidosParams): Promise<void> => {
+      await Promise.all([fetchPedidos(params), fetchStats()]);
+    },
+    [fetchPedidos, fetchStats]
+  );
 
   /**
    * Executa requisição HTTP com tratamento de erro padronizado
@@ -189,7 +192,8 @@ export const usePedidos = (): UsePedidosReturn => {
     async (
       url: string,
       options: RequestInit,
-      successMessage?: string
+      successMessage?: string,
+      params?: FetchPedidosParams
     ): Promise<boolean> => {
       try {
         setLoading(true);
@@ -208,7 +212,7 @@ export const usePedidos = (): UsePedidosReturn => {
           return false;
         }
 
-        await refreshData();
+        await refreshData(params);
         if (successMessage) showSuccessToast(successMessage);
         return true;
       } catch (err) {
@@ -258,12 +262,18 @@ export const usePedidos = (): UsePedidosReturn => {
   const updateStatus = useCallback(
     async (
       id: string,
-      status: TPedidoWithRelations["status"]
+      status: TPedidoWithRelations["status"],
+      params?: FetchPedidosParams
     ): Promise<boolean> =>
-      executeRequest("/api/pedido/status", {
-        method: "PUT",
-        body: JSON.stringify({ id, status }),
-      }),
+      executeRequest(
+        "/api/pedido/status",
+        {
+          method: "PUT",
+          body: JSON.stringify({ id, status }),
+        },
+        undefined,
+        params
+      ),
     [executeRequest]
   );
 
@@ -363,26 +373,29 @@ export const usePedidos = (): UsePedidosReturn => {
    */
   const getCurrentDate = useCallback((): string => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return today.toISOString().split("T")[0];
   }, []);
 
   /**
    * Inicializa o hook com carregamento de dados
    * Por padrão carrega pedidos do dia atual com status pendente
    */
-  const initialize = useCallback(async (params?: FetchPedidosParams): Promise<void> => {
-    if (!isInitialized) {
-      const defaultParams: FetchPedidosParams = {
-        status: 'PENDENTE',
-        startDate: getCurrentDate(),
-        endDate: getCurrentDate(),
-        ...params // Permite sobrescrever os padrões se necessário
-      };
-      
-      await Promise.all([fetchPedidos(defaultParams), fetchStats()]);
-      setIsInitialized(true);
-    }
-  }, [isInitialized, fetchPedidos, fetchStats, getCurrentDate]);
+  const initialize = useCallback(
+    async (params?: FetchPedidosParams): Promise<void> => {
+      if (!isInitialized) {
+        const defaultParams: FetchPedidosParams = {
+          status: "PENDENTE",
+          startDate: getCurrentDate(),
+          endDate: getCurrentDate(),
+          ...params, // Permite sobrescrever os padrões se necessário
+        };
+
+        await Promise.all([fetchPedidos(defaultParams), fetchStats()]);
+        setIsInitialized(true);
+      }
+    },
+    [isInitialized, fetchPedidos, fetchStats, getCurrentDate]
+  );
 
   // Interface pública do hook
   return {

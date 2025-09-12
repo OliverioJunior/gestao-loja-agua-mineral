@@ -16,6 +16,7 @@ import {
   StatusPedido,
   TPedidoWithRelations,
 } from "@/core/pedidos/domain";
+import { FetchPedidosParams } from "@/core/pedidos/hooks/entity";
 
 export default function PedidosPage() {
   // Função para obter data atual formatada
@@ -55,6 +56,19 @@ export default function PedidosPage() {
     fetchPedidos,
   } = usePedidos();
   const { createVendas } = useVendas();
+
+  // Função utilitária para obter filtros atuais
+  const getCurrentFilters = useCallback((): FetchPedidosParams => {
+    return {
+      // Só adiciona status se não for "todos"
+      ...(statusFilter && statusFilter !== "todos" && {
+        status: statusFilter as StatusPedido
+      }),
+      // Adiciona datas se definidas
+      ...(startDate && { startDate }),
+      ...(endDate && { endDate })
+    };
+  }, [statusFilter, startDate, endDate]);
 
   // ✅ Inicialização única na montagem do componente
   useEffect(() => {
@@ -140,21 +154,27 @@ export default function PedidosPage() {
       if (success) {
         setIsEditModalOpen(false);
         setEditingOrder(null);
+        
+        // Aplicar filtros atuais após atualizar pedido para manter consistência
+        await fetchPedidos(getCurrentFilters());
       } else if (error) {
         console.error("Erro ao atualizar pedido:", error);
       }
     },
-    [updatePedido, error]
+    [updatePedido, error, getCurrentFilters, fetchPedidos]
   );
 
   const handleDeleteOrder = useCallback(
     async (orderId: string) => {
       const success = await deletePedido(orderId);
-      if (!success && error) {
+      if (success) {
+        // Aplicar filtros atuais após deletar pedido para manter consistência
+        await fetchPedidos(getCurrentFilters());
+      } else if (error) {
         console.error("Erro ao deletar pedido:", error);
       }
     },
-    [deletePedido, error]
+    [deletePedido, error, getCurrentFilters, fetchPedidos]
   );
 
   const handleAdvanceStatus = useCallback(
@@ -185,8 +205,19 @@ export default function PedidosPage() {
   }, []);
 
   const handleConfirmStatusChange = useCallback(
-    async (orderId: string, newStatus: TPedidoWithRelations["status"]) => {
-      const success = await updateStatus(orderId, newStatus);
+    async (
+      orderId: string,
+      newStatus: TPedidoWithRelations["status"],
+      params?: FetchPedidosParams
+    ) => {
+      // Aplicar filtros atuais durante a atualização para manter consistência
+      const currentFilters: FetchPedidosParams = {
+        ...getCurrentFilters(),
+        // Merge com parâmetros passados (prioridade para params externos)
+        ...params
+      };
+
+      const success = await updateStatus(orderId, newStatus, currentFilters);
       if (newStatus === "ENTREGUE") {
         await createVendas(orderId);
       }
@@ -195,18 +226,21 @@ export default function PedidosPage() {
         throw new Error("Erro ao atualizar status");
       }
     },
-    [updateStatus, error, createVendas]
+    [updateStatus, error, createVendas, getCurrentFilters]
   );
   const handleCreateOrder = useCallback(
     async (orderData: CreatePedidoInput) => {
       const success = await createPedido(orderData);
       if (success) {
         setIsAddModalOpen(false);
+        
+        // Aplicar filtros atuais após criar pedido para manter consistência
+        await fetchPedidos(getCurrentFilters());
       } else if (error) {
         console.error("Erro ao criar pedido:", error);
       }
     },
-    [createPedido, error]
+    [createPedido, error, getCurrentFilters, fetchPedidos]
   );
   const handleAddOrder = useCallback(
     async (order: CreatePedidoInput) => {
