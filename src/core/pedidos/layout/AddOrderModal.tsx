@@ -51,7 +51,11 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
   // Estado inicial do formulário
   const initialFormData = {
-    clienteId: "",
+    clienteId: JSON.stringify({
+      id: "",
+      value: "",
+      label: "",
+    }),
     tipoEntrega: "balcao" as "balcao" | "entrega",
     formaPagamento: "",
     observacoes: "",
@@ -80,8 +84,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
   // Preparar opções para o Combobox
   const clienteOptions: ComboboxOption[] = clientes.map((cliente) => ({
-    value: cliente.id,
+    value: cliente.nome,
     label: cliente.nome,
+    id: cliente.id,
   }));
 
   // Preencher endereço automaticamente quando cliente for selecionado
@@ -169,7 +174,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    console.log(JSON.parse(formData.clienteId).id);
     // Prevenir duplos cliques
     if (isSubmitting || loading) {
       return;
@@ -182,7 +187,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     try {
       await withLoading(async () => {
         const orderData: CreatePedidoInput = {
-          clienteId: formData.clienteId,
+          clienteId: JSON.parse(formData.clienteId).id,
           formaPagamento: formData.formaPagamento,
           observacoes: formData.observacoes,
           taxaEntrega: formData.taxaEntrega,
@@ -281,7 +286,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
                   <Label htmlFor="cliente">Cliente *</Label>
                   <Combobox
                     options={clienteOptions}
-                    value={formData.clienteId}
+                    value={JSON.parse(formData.clienteId).value || ""}
                     onValueChange={(value) => {
                       setFormData((prev) => ({ ...prev, clienteId: value }));
                     }}

@@ -19,6 +19,7 @@ import {
 } from "@/shared/components/ui/popover";
 
 export interface ComboboxOption {
+  id: string;
   value: string;
   label: string;
   disabled?: boolean;
@@ -70,7 +71,6 @@ const defaultFilterFunction = (
   const normalizedSearch = normalizeText(search);
   const normalizedLabel = normalizeText(option.label);
   const normalizedValue = normalizeText(option.value);
-  
   return (
     normalizedLabel.includes(normalizedSearch) ||
     normalizedValue.includes(normalizedSearch)
@@ -102,16 +102,6 @@ export function Combobox({
     return options.filter((option) => filterFunction(option, searchValue));
   }, [options, searchValue, filterFunction]);
 
-  const handleSelect = (selectedValue: string) => {
-    const newValue = selectedValue === value && clearable ? "" : selectedValue;
-    onValueChange?.(newValue);
-
-    if (autoClose) {
-      setOpen(false);
-    }
-    setSearchValue("");
-  };
-
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (!newOpen) {
@@ -140,27 +130,21 @@ export function Combobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent 
-        className={cn(
-          width, 
-          "p-0",
-          maxHeight,
-          "overflow-hidden"
-        )} 
+      <PopoverContent
+        className={cn(width, "p-0", maxHeight)}
         align="start"
         sideOffset={4}
       >
-        <Command className="overflow-hidden">
+        <Command>
           <CommandInput
             placeholder={searchPlaceholder}
             className="h-9 border-none focus:ring-0"
             value={searchValue}
             onValueChange={setSearchValue}
           />
-          <CommandList 
+          <CommandList
             className={cn(
               "overflow-y-auto overflow-x-hidden",
-              "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent",
               "touch-pan-y",
               "max-h-[250px]"
             )}
@@ -171,17 +155,34 @@ export function Combobox({
             <CommandGroup>
               {filteredOptions.map((option) => (
                 <CommandItem
-                  key={option.value}
+                  key={option.id}
                   value={option.value}
                   disabled={option.disabled}
-                  onSelect={handleSelect}
+                  onSelect={() => {
+                    const newValue =
+                      option.value === value && clearable
+                        ? ""
+                        : JSON.stringify({
+                            id: option.id,
+                            value: option.value,
+                            label: option.label,
+                          });
+                    onValueChange?.(newValue);
+
+                    if (autoClose) {
+                      setOpen(false);
+                    }
+                    setSearchValue("");
+                  }}
                   className={cn(
                     "cursor-pointer touch-manipulation",
                     "px-2 py-3 text-sm",
                     "hover:bg-accent hover:text-accent-foreground",
                     "focus:bg-accent focus:text-accent-foreground",
                     "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground",
-                    option.disabled && "opacity-50 cursor-not-allowed pointer-events-none"
+
+                    option.disabled &&
+                      "opacity-50 cursor-not-allowed pointer-events-none"
                   )}
                 >
                   <span className="flex-1 truncate">{option.label}</span>
