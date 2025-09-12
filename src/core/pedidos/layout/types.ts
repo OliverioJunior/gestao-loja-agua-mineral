@@ -80,6 +80,7 @@ export interface OrderTableProps {
     status: TPedidoWithRelations["status"]
   ) => void;
   onCancelOrder?: (orderId: string) => void;
+  isLoading: boolean;
 }
 
 export interface OrderRowProps {

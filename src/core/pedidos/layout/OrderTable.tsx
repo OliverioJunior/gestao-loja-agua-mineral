@@ -16,7 +16,82 @@ export function OrderTable({
   onDelete,
   onAdvanceStatus,
   onCancelOrder,
+  isLoading,
 }: OrderTableProps) {
+  // Estado de carregamento
+  if (isLoading) {
+    return (
+      <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg overflow-hidden max-md:max-w-[88vw] max-md:overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b border-border/50 bg-muted/30">
+              <TableHead className="px-4 py-3 text-left font-medium text-foreground">
+                Data
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left font-medium text-foreground">
+                Cliente
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left font-medium text-foreground">
+                Tipo de Entrega
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left font-medium text-foreground">
+                Status
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left font-medium text-foreground">
+                Pagamento
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left font-medium text-foreground">
+                Total
+              </TableHead>
+              <TableHead className="px-4 py-3 text-center font-medium text-foreground">
+                Ações
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {/* Skeleton rows para loading */}
+            {Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index} className="border-b border-border/30">
+                <td className="px-4 py-4">
+                  <div className="space-y-2">
+                    <div className="h-4 bg-muted animate-pulse rounded w-24"></div>
+                    <div className="h-3 bg-muted animate-pulse rounded w-20"></div>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="space-y-2">
+                    <div className="h-4 bg-muted animate-pulse rounded w-32"></div>
+                    <div className="h-3 bg-muted animate-pulse rounded w-28"></div>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="h-6 bg-muted animate-pulse rounded-full w-20"></div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="h-6 bg-muted animate-pulse rounded-full w-24"></div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="h-6 bg-muted animate-pulse rounded-full w-20"></div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="h-4 bg-muted animate-pulse rounded w-16"></div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="flex justify-center gap-2">
+                    <div className="h-8 w-8 bg-muted animate-pulse rounded"></div>
+                    <div className="h-8 w-8 bg-muted animate-pulse rounded"></div>
+                    <div className="h-8 w-8 bg-muted animate-pulse rounded"></div>
+                  </div>
+                </td>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
+
+  // Estado vazio (sem dados)
   if (orders.length === 0) {
     return (
       <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-8">
@@ -40,7 +115,7 @@ export function OrderTable({
         <TableHeader>
           <TableRow className="border-b border-border/50 bg-muted/30">
             <TableHead className="px-4 py-3 text-left font-medium text-foreground">
-              Número / Data
+              Data
             </TableHead>
             <TableHead className="px-4 py-3 text-left font-medium text-foreground">
               Cliente

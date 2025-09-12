@@ -61,12 +61,13 @@ export default function PedidosPage() {
   const getCurrentFilters = useCallback((): FetchPedidosParams => {
     return {
       // Só adiciona status se não for "todos"
-      ...(statusFilter && statusFilter !== "todos" && {
-        status: statusFilter as StatusPedido
-      }),
+      ...(statusFilter &&
+        statusFilter !== "todos" && {
+          status: statusFilter as StatusPedido,
+        }),
       // Adiciona datas se definidas
       ...(startDate && { startDate }),
-      ...(endDate && { endDate })
+      ...(endDate && { endDate }),
     };
   }, [statusFilter, startDate, endDate]);
 
@@ -154,7 +155,7 @@ export default function PedidosPage() {
       if (success) {
         setIsEditModalOpen(false);
         setEditingOrder(null);
-        
+
         // Aplicar filtros atuais após atualizar pedido para manter consistência
         await fetchPedidos(getCurrentFilters());
       } else if (error) {
@@ -214,7 +215,7 @@ export default function PedidosPage() {
       const currentFilters: FetchPedidosParams = {
         ...getCurrentFilters(),
         // Merge com parâmetros passados (prioridade para params externos)
-        ...params
+        ...params,
       };
 
       const success = await updateStatus(orderId, newStatus, currentFilters);
@@ -233,7 +234,7 @@ export default function PedidosPage() {
       const success = await createPedido(orderData);
       if (success) {
         setIsAddModalOpen(false);
-        
+
         // Aplicar filtros atuais após criar pedido para manter consistência
         await fetchPedidos(getCurrentFilters());
       } else if (error) {
@@ -269,17 +270,6 @@ export default function PedidosPage() {
     setHasUserInteracted(true);
   }, []);
 
-  if (loading && orders.length === 0) {
-    return (
-      <div className="min-h-[calc(100dvh-93px)] container mx-auto p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando pedidos...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-[calc(100dvh-93px)] container mx-auto p-6 space-y-6">
       {/* Exibir erro se houver */}
@@ -314,6 +304,7 @@ export default function PedidosPage() {
         onDelete={handleDeleteOrder}
         onAdvanceStatus={handleAdvanceStatus}
         onCancelOrder={handleCancelOrder}
+        isLoading={loading}
       />
 
       {/* Modal de Detalhes */}
