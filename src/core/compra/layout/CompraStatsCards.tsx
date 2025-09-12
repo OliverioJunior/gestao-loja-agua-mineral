@@ -103,7 +103,9 @@ export function CompraStatsCards({
       icon: TrendingUp,
       variant: "default",
       size: "sm",
-      description: `${totalCompras} > 0 ? "Média por compra" : "Nenhuma compra registrada"`,
+      description: `${
+        totalCompras > 0 ? "Média por compra" : "Nenhuma compra registrada"
+      }`,
     },
   ];
 
