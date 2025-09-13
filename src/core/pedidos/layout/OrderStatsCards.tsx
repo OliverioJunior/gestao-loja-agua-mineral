@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
   const [version, setVersion] = useState("mobile");
-  const [width, setWidth] = useState(window?.innerWidth.toString());
+  const [width, setWidth] = useState<string | null>(null);
   useEffect(() => {
     const handleResize = () => {
       setVersion(window?.innerWidth > 768 ? "desktop" : "mobile");
