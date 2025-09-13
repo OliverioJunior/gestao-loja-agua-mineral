@@ -18,7 +18,9 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
     };
   }, []);
 
-  return version === "desktop" ? desktop({ stats }) : mobile({ stats }, width);
+  return version === "desktop"
+    ? desktop({ stats })
+    : mobile({ stats }, width || "");
 }
 
 const desktop = ({ stats }: OrderStatsCardsProps) => {
