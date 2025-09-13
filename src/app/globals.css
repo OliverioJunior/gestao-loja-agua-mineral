@@ -132,3 +132,36 @@
     border-radius: 4px;
   }
 }
+
+@layer components {
+  /* Correções para compatibilidade Safari/Chrome em botões */
+  button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  
+  /* Garantir renderização consistente de gradientes */
+  .bg-gradient-to-r {
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+  }
+  
+  /* Correção para sombras em Safari */
+  .shadow-lg, .shadow-xl {
+    -webkit-box-shadow: var(--tw-shadow);
+    box-shadow: var(--tw-shadow);
+  }
+  
+  /* Garantir transições suaves em Safari */
+  .transition-all, .transition-transform {
+    -webkit-transition: all var(--tw-transition-duration, 150ms) var(--tw-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1));
+    transition: all var(--tw-transition-duration, 150ms) var(--tw-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+  
+  /* Correção para transformações em Safari */
+  .group:hover .group-hover\:rotate-90 {
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+  }
+}
