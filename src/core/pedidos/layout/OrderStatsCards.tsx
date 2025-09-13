@@ -23,7 +23,7 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
         description="Todos os pedidos cadastrados"
         showBorder
         borderPosition="left"
-        data-testid="order-stats-total"
+        loading={!stats.total}
       />
 
       <GenericStatsCard
@@ -35,7 +35,7 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
         description={`${pendentesPercentage.toFixed(1)}% do total`}
         showBorder
         borderPosition="left"
-        data-testid="order-stats-pending"
+        loading={!stats.pendentes}
       />
 
       <GenericStatsCard
@@ -47,7 +47,7 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
         description={`${confirmadosPercentage.toFixed(1)}% do total`}
         showBorder
         borderPosition="left"
-        data-testid="order-stats-confirmed"
+        loading={!stats.confirmados}
       />
 
       <GenericStatsCard
@@ -59,7 +59,7 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
         description={`${entreguesPercentage.toFixed(1)}% do total`}
         showBorder
         borderPosition="left"
-        data-testid="order-stats-delivered"
+        loading={!stats.entregues}
       />
 
       <GenericStatsCard
@@ -71,7 +71,7 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
         description={`${canceladosPercentage.toFixed(1)}% do total`}
         showBorder
         borderPosition="left"
-        data-testid="order-stats-cancelled"
+        loading={!stats.entregues}
       />
     </div>
   );
