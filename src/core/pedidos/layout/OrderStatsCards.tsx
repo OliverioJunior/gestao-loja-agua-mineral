@@ -7,7 +7,9 @@ import { useEffect, useState } from "react";
 export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
   const [version, setVersion] = useState("mobile");
   const [width, setWidth] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
+    setIsLoading(false);
     const handleResize = () => {
       setVersion(window?.innerWidth > 768 ? "desktop" : "mobile");
       setWidth((window?.innerWidth).toString());
@@ -16,7 +18,7 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [isLoading]);
 
   return version === "desktop"
     ? desktop({ stats })
