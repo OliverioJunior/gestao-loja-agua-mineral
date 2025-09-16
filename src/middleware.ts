@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/shared/lib/session";
 
 // Rotas que não precisam de autenticação
-const publicRoutes = ["/login", "/api/auth/signin"];
+
+const publicRoutes = [
+  "/login",
+  "/api/auth/signin",
+  "/manifest.webmanifest",
+  "/icon-192x192.svg",
+  "/icon-512x512.svg",
+];
 
 // Rotas da API que não precisam de autenticação
 const publicApiRoutes = ["/api/auth/signin", "/api/auth/signout"];
