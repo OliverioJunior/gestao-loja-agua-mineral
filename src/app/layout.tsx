@@ -34,25 +34,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://aquagestao.com"),
+  metadataBase: new URL("https://gestao-loja-agua-mineral.vercel.app"),
   alternates: {
     canonical: "/",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
   },
   openGraph: {
     title: "AquaGestão - Sistema de Gestão",
     description: "Sistema completo de gestão para loja de água mineral",
-    url: "https://aquagestao.com",
+    url: "https://gestao-loja-agua-mineral.vercel.app",
     siteName: "AquaGestão",
     images: [
       {
@@ -71,7 +60,6 @@ export const metadata: Metadata = {
     description: "Sistema completo de gestão para loja de água mineral",
     images: ["/icon-512x512.svg"],
   },
-  manifest: "/manifest.ts",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
