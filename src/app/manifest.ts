@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "AquaGestão - Sistema de Gestão",
     short_name: "AquaGestão",
     description: "Sistema completo de gestão para loja de água mineral",
-    start_url: "/",
+    start_url: "/login",
     display: "standalone",
     background_color: "#0f172a",
     theme_color: "#4F46E5",
