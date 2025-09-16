@@ -9,6 +9,8 @@ const publicRoutes = [
   "/manifest.webmanifest",
   "/icon-192x192.svg",
   "/icon-512x512.svg",
+  "/icon-192x192.png",
+  "/icon-512x512.png",
 ];
 
 // Rotas da API que não precisam de autenticação
@@ -62,6 +64,6 @@ export const config = {
     /*
      * Interceptar todas as rotas exceto arquivos estáticos
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon-192x192.svg|icon-512x512.svg).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon-192x192.svg|icon-512x512.svg|icon-512x512.png|icon-192x192.png).*)",
   ],
 };
