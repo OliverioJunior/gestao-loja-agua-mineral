@@ -1,3 +1,4 @@
+"use client";
 import { GenericStatsCard, StatsCardGridLoading } from "@/shared/components/ui";
 import {
   AlertTriangle,
@@ -5,7 +6,7 @@ import {
   ShoppingCart,
   TrendingUp,
 } from "lucide-react";
-
+import { useState, useEffect } from "react";
 interface SalesData {
   today: number;
   yesterday: number;
@@ -30,6 +31,22 @@ export function KPICards({
   monthlyGoalPercentage,
   loading = false,
 }: KPICardsProps) {
+  const [version, setVersion] = useState<"desktop" | "mobile">(() =>
+    typeof window !== "undefined" && window.innerWidth > 768
+      ? "desktop"
+      : "mobile"
+  );
+  const [width, setWidth] = useState<string | null>(null);
+  useEffect(() => {
+    const handleResize = () => {
+      setVersion(window?.innerWidth > 768 ? "desktop" : "mobile");
+      setWidth(window?.innerWidth.toString());
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   if (loading) {
     return (
       <StatsCardGridLoading count={4} columns={4} size="sm" className="gap-4" />
@@ -65,13 +82,46 @@ export function KPICards({
       : lowStockCount === 1
       ? "Produto em baixa"
       : "Produtos em baixa";
+  const render = version === "desktop" ? desktop : mobile;
+  return render(
+    salesData.today,
+    todayGrowthPercentage,
+    salesTrendDirection,
+    salesTrendText,
+    salesData.orders,
+    newOrdersToday,
+    salesData.thisMonth,
+    monthlyVariant,
+    monthlyTrendDirection,
+    monthlyGoalPercentage,
+    lowStockCount,
+    stockVariant,
+    stockDescription,
+    width
+  );
+}
 
+function desktop(
+  salesDataToday: number,
+  todayGrowthPercentage: number,
+  salesTrendDirection: "up" | "down",
+  salesTrendText: string,
+  salesDataOrders: number,
+  newOrdersToday: number,
+  salesDataThisMonth: number,
+  monthlyVariant: "success" | "warning" | "info",
+  monthlyTrendDirection: "up" | "down" | "neutral",
+  monthlyGoalPercentage: number,
+  lowStockCount: number,
+  stockVariant: "success" | "warning" | "danger",
+  stockDescription: "Estoque normal" | "Produto em baixa" | "Produtos em baixa"
+) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Vendas Hoje */}
       <GenericStatsCard
         title="Vendas Hoje"
-        value={salesData.today}
+        value={salesDataToday}
         icon={DollarSign}
         variant={todayGrowthPercentage >= 0 ? "success" : "danger"}
         valueFormatting={{
@@ -91,7 +141,7 @@ export function KPICards({
       {/* Pedidos Hoje */}
       <GenericStatsCard
         title="Pedidos Hoje"
-        value={salesData.orders}
+        value={salesDataOrders}
         icon={ShoppingCart}
         variant="info"
         description={`+${newOrdersToday} novos pedidos`}
@@ -108,7 +158,7 @@ export function KPICards({
       {/* Faturamento Mensal */}
       <GenericStatsCard
         title="Faturamento Mensal"
-        value={salesData.thisMonth}
+        value={salesDataThisMonth}
         icon={TrendingUp}
         variant={monthlyVariant}
         valueFormatting={{
@@ -127,6 +177,110 @@ export function KPICards({
 
       {/* Alertas Estoque */}
       <GenericStatsCard
+        title="Alertas Estoque"
+        value={lowStockCount}
+        icon={AlertTriangle}
+        variant={stockVariant}
+        description={stockDescription}
+        valueFormatting={{
+          type: "number",
+          locale: "pt-BR",
+        }}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="alertas-estoque-card"
+      />
+    </div>
+  );
+}
+function mobile(
+  salesDataToday: number,
+  todayGrowthPercentage: number,
+  salesTrendDirection: "up" | "down",
+  salesTrendText: string,
+  salesDataOrders: number,
+  newOrdersToday: number,
+  salesDataThisMonth: number,
+  monthlyVariant: "success" | "warning" | "info",
+  monthlyTrendDirection: "up" | "down" | "neutral",
+  monthlyGoalPercentage: number,
+  lowStockCount: number,
+  stockVariant: "success" | "warning" | "danger",
+  stockDescription: "Estoque normal" | "Produto em baixa" | "Produtos em baixa",
+  width: string | null
+) {
+  if (!width) return null;
+  return (
+    <div
+      className={"flex gap-4 overflow-auto"}
+      style={{
+        maxWidth: `${Number(width) - 38}px`,
+      }}
+    >
+      {/* Vendas Hoje */}
+      <GenericStatsCard
+        className="min-w-9/12"
+        title="Vendas Hoje"
+        value={salesDataToday}
+        icon={DollarSign}
+        variant={todayGrowthPercentage >= 0 ? "success" : "danger"}
+        valueFormatting={{
+          type: "currency",
+          locale: "pt-BR",
+          options: { currency: "BRL" },
+        }}
+        showTrend
+        trendDirection={salesTrendDirection}
+        trendText={salesTrendText}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="vendas-hoje-card"
+      />
+
+      {/* Pedidos Hoje */}
+      <GenericStatsCard
+        className="min-w-9/12"
+        title="Pedidos Hoje"
+        value={salesDataOrders}
+        icon={ShoppingCart}
+        variant="info"
+        description={`+${newOrdersToday} novos pedidos`}
+        valueFormatting={{
+          type: "number",
+          locale: "pt-BR",
+        }}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="pedidos-hoje-card"
+      />
+
+      {/* Faturamento Mensal */}
+      <GenericStatsCard
+        className="min-w-9/12"
+        title="Faturamento Mensal"
+        value={salesDataThisMonth}
+        icon={TrendingUp}
+        variant={monthlyVariant}
+        valueFormatting={{
+          type: "currency",
+          locale: "pt-BR",
+          options: { currency: "BRL" },
+        }}
+        showTrend
+        trendDirection={monthlyTrendDirection}
+        trendText={`Meta: ${monthlyGoalPercentage}% atingida`}
+        showBorder
+        borderPosition="left"
+        size="sm"
+        data-testid="faturamento-mensal-card"
+      />
+
+      {/* Alertas Estoque */}
+      <GenericStatsCard
+        className="min-w-9/12"
         title="Alertas Estoque"
         value={lowStockCount}
         icon={AlertTriangle}
