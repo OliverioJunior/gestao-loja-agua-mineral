@@ -4,12 +4,23 @@ import { ShoppingCart, Clock, CheckCircle, Truck, XCircle } from "lucide-react";
 import { OrderStatsCardsProps } from "./types";
 import { useEffect, useState } from "react";
 
-export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
-  const [version, setVersion] = useState("mobile");
+export function OrderStatsCards({
+  stats,
+}: Omit<
+  OrderStatsCardsProps,
+  | "pendentesPercentage"
+  | "confirmadosPercentage"
+  | "entreguesPercentage"
+  | "canceladosPercentage"
+>) {
+  const [version, setVersion] = useState(() =>
+    typeof window !== "undefined" && window.innerWidth > 768
+      ? "desktop"
+      : "mobile"
+  );
   const [width, setWidth] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    setIsLoading(false);
     const handleResize = () => {
       setVersion(window?.innerWidth > 768 ? "desktop" : "mobile");
       setWidth((window?.innerWidth).toString());
@@ -18,14 +29,7 @@ export function OrderStatsCards({ stats }: OrderStatsCardsProps) {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [isLoading]);
-
-  return version === "desktop"
-    ? desktop({ stats })
-    : mobile({ stats }, width || "");
-}
-
-const desktop = ({ stats }: OrderStatsCardsProps) => {
+  }, []);
   const pendentesPercentage =
     stats.total > 0 ? (stats.pendentes / stats.total) * 100 : 0;
   const confirmadosPercentage =
@@ -34,6 +38,34 @@ const desktop = ({ stats }: OrderStatsCardsProps) => {
     stats.total > 0 ? (stats.entregues / stats.total) * 100 : 0;
   const canceladosPercentage =
     stats.total > 0 ? (stats.cancelados / stats.total) * 100 : 0;
+
+  return version === "desktop"
+    ? desktop({
+        stats,
+        pendentesPercentage,
+        confirmadosPercentage,
+        entreguesPercentage,
+        canceladosPercentage,
+      })
+    : mobile(
+        {
+          stats,
+          pendentesPercentage,
+          confirmadosPercentage,
+          entreguesPercentage,
+          canceladosPercentage,
+        },
+        width || ""
+      );
+}
+
+const desktop = ({
+  stats,
+  pendentesPercentage,
+  confirmadosPercentage,
+  entreguesPercentage,
+  canceladosPercentage,
+}: OrderStatsCardsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
       <GenericStatsCard
@@ -98,16 +130,18 @@ const desktop = ({ stats }: OrderStatsCardsProps) => {
     </div>
   );
 };
-const mobile = ({ stats }: OrderStatsCardsProps, width: string) => {
+const mobile = (
+  {
+    stats,
+    canceladosPercentage,
+    confirmadosPercentage,
+    entreguesPercentage,
+    pendentesPercentage,
+  }: OrderStatsCardsProps,
+  width: string
+) => {
   if (!width) return null;
-  const pendentesPercentage =
-    stats.total > 0 ? (stats.pendentes / stats.total) * 100 : 0;
-  const confirmadosPercentage =
-    stats.total > 0 ? (stats.confirmados / stats.total) * 100 : 0;
-  const entreguesPercentage =
-    stats.total > 0 ? (stats.entregues / stats.total) * 100 : 0;
-  const canceladosPercentage =
-    stats.total > 0 ? (stats.cancelados / stats.total) * 100 : 0;
+
   const carsdArray = [
     <GenericStatsCard
       className="flex-1 min-w-9/12"

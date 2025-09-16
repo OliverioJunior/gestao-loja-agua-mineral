@@ -104,6 +104,10 @@ export interface OrderDetailsModalProps {
 
 export interface OrderStatsCardsProps {
   stats: IPedidoStats;
+  pendentesPercentage: number;
+  confirmadosPercentage: number;
+  entreguesPercentage: number;
+  canceladosPercentage: number;
 }
 
 export interface AddOrderModalProps {
