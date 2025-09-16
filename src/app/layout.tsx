@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     "clientes",
   ],
   authors: [{ name: "AquaGestão Team" }],
-  creator: "AquaGestão",
-  publisher: "AquaGestão",
+  creator: "Olivério Júnior",
+  publisher: "Olivério Júnior",
   formatDetection: {
     email: false,
     address: false,
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     description: "Sistema completo de gestão para loja de água mineral",
     images: ["/icon-512x512.svg"],
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.ts",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
