@@ -62,6 +62,6 @@ export const config = {
     /*
      * Interceptar todas as rotas exceto arquivos estáticos
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|.*\\.webmanifest$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon-192x192.svg|icon-512x512.svg).*)",
   ],
 };
