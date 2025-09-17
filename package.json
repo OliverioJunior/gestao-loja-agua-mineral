@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "docker-compose up -d && next dev --turbopack",
+    "dev": "docker-compose up -d && next dev --turbopack --experimental-https",
     "build": "npx prisma generate && next build",
     "postinstall": "npx prisma generate",
     "start": "next start",

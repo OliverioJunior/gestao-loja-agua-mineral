@@ -60,11 +60,15 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Content-Type",
-            value: "image/svg+xml",
+            value: "application/javascript; charset=utf-8",
           },
           {
             key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            value: "no-cache, no-store, must-revalidate",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self'",
           },
         ],
       },

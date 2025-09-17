@@ -35,6 +35,11 @@ export async function signin(formData: FormData) {
     }
   } catch (err) {
     console.error("Signin error:", err);
-    throw err;
+    toast.error("Erro interno do servidor", {
+      style: {
+        background: "red",
+        color: "white",
+      },
+    });
   }
 }
