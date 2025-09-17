@@ -33,15 +33,17 @@ export function KPICards({
 }: KPICardsProps) {
   const [version, setVersion] = useState<"desktop" | "mobile">(() => {
     if (typeof window === "undefined") return "mobile";
-
-    // Verificar se é PWA
     const isPWA = window.matchMedia("(display-mode: standalone)").matches;
     const isMobile = window.innerWidth <= 768;
 
     return isPWA || isMobile ? "mobile" : "desktop";
   });
-  const [width, setWidth] = useState<string | null>(null);
+  const [width, setWidth] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return window.innerWidth.toString();
+  });
   useEffect(() => {
+    setWidth(window?.innerWidth.toString());
     const handleResize = () => {
       setVersion(window?.innerWidth > 768 ? "desktop" : "mobile");
       setWidth(window?.innerWidth.toString());
