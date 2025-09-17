@@ -31,11 +31,15 @@ export function KPICards({
   monthlyGoalPercentage,
   loading = false,
 }: KPICardsProps) {
-  const [version, setVersion] = useState<"desktop" | "mobile">(() =>
-    typeof window !== "undefined" && window.innerWidth > 768
-      ? "desktop"
-      : "mobile"
-  );
+  const [version, setVersion] = useState<"desktop" | "mobile">(() => {
+    if (typeof window === "undefined") return "mobile";
+
+    // Verificar se é PWA
+    const isPWA = window.matchMedia("(display-mode: standalone)").matches;
+    const isMobile = window.innerWidth <= 768;
+
+    return isPWA || isMobile ? "mobile" : "desktop";
+  });
   const [width, setWidth] = useState<string | null>(null);
   useEffect(() => {
     const handleResize = () => {
@@ -210,7 +214,6 @@ function mobile(
   stockDescription: "Estoque normal" | "Produto em baixa" | "Produtos em baixa",
   width: string | null
 ) {
-  if (!width) return null;
   return (
     <div
       className={"flex gap-4 overflow-auto"}
