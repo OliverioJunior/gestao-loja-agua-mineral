@@ -2,10 +2,64 @@
 import { Button, Input, Label } from "@/shared/components/ui";
 import { Mail, Lock } from "lucide-react";
 import { signin } from "../actions/auth";
-
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 export function SigninForm() {
+  const router = useRouter();
+
+  const handleLogin = async (formData: FormData) => {
+    try {
+      router.prefetch("/");
+      const [email, password] = [
+        formData.get("email") as string,
+        formData.get("password") as string,
+      ];
+      if (!email || !password) {
+        toast.error("Email e senha devem ser fornecidos", {
+          style: {
+            background: "red",
+            color: "white",
+          },
+        });
+      }
+      const result = await signin(formData);
+      if (result) {
+        toast.message("Login efetuado com sucesso", {
+          style: {
+            background: "green",
+            color: "white",
+          },
+        });
+        router.push("/");
+      }
+      toast.message("Algo deu errado", {
+        style: {
+          background: "red",
+          color: "white",
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message, {
+          style: {
+            background: "red",
+            color: "white",
+          },
+        });
+        return;
+      }
+      toast.error("Error interno do servidor", {
+        style: {
+          background: "red",
+          color: "white",
+        },
+      });
+      return;
+    }
+  };
+
   return (
-    <form action={signin} className="space-y-6">
+    <form action={handleLogin} className="space-y-6">
       {/* Campo Email */}
       <div className="space-y-2">
         <Label

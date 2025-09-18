@@ -6,6 +6,11 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
+    if (!email || !password)
+      return NextResponse.json({
+        message: "email e senha são obrigatórios",
+      });
+
     const user = await prisma.user.findUnique({
       where: {
         email,
