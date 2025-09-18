@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
     if (!verifyPassword) {
       return NextResponse.json({
         message: "Usuario ou Senha incorreta ",
+        status: 400,
       });
     }
     await createSession(user.email);
@@ -32,7 +33,8 @@ export async function POST(req: NextRequest) {
         status: 200,
       }
     );
-  } catch {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json({
       message: "Signin failed",
     });

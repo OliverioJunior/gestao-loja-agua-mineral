@@ -24,8 +24,15 @@ export async function signin(formData: FormData) {
     const data = await response.json();
 
     if (data.success) {
+      toast.success("Login efetuado com sucesso", {
+        style: {
+          background: "green",
+          color: "white",
+        },
+      });
       redirect("/");
     } else {
+      console.error("error", "errror");
       toast.error(data.message || "Login failed", {
         style: {
           background: "red",
