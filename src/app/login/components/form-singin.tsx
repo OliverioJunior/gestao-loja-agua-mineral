@@ -31,6 +31,7 @@ export function SigninForm() {
           },
         });
         router.push("/");
+        return;
       }
       toast.message("Algo deu errado", {
         style: {
