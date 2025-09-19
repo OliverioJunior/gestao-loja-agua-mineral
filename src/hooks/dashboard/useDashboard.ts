@@ -1,7 +1,6 @@
 "use client";
 
 import { TPedidoWithRelations } from "@/core/pedidos/domain";
-import { formatDateTime } from "@/shared/utils/formatters";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
@@ -88,7 +87,6 @@ export function useDashboard() {
       setRecentOrders(
         data.map((order: TPedidoWithRelations) => ({
           ...order,
-          createdAt: formatDateTime(order.createdAt),
         }))
       );
     } catch (err) {
