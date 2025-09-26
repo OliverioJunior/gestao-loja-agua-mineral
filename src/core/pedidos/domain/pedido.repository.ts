@@ -14,6 +14,7 @@ export class PedidoRepository implements IPedidoRepository {
   constructor(private readonly db: PrismaClient | PrismaTransaction = prisma) {}
 
   async create(data: CreatePedidoInput): Promise<TPedido> {
+    const enderecoId = (data.endereco?.connect as unknown as string) || null;
     try {
       return await this.db.pedido.create({
         data: {
@@ -25,6 +26,7 @@ export class PedidoRepository implements IPedidoRepository {
           taxaEntrega: data.taxaEntrega,
           clienteId: data.clienteId,
           criadoPorId: data.criadoPorId,
+          enderecoId,
           itens: {
             createMany: {
               data: data.itens.map((item) => ({
@@ -113,12 +115,12 @@ export class PedidoRepository implements IPedidoRepository {
 
     if (filters?.startDate || filters?.endDate) {
       where.createdAt = {};
-      
+
       if (filters.startDate) {
         // Data já vem formatada com fuso horário correto da API
         where.createdAt.gte = filters.startDate;
       }
-      
+
       if (filters.endDate) {
         // Data já vem formatada com fuso horário correto da API
         where.createdAt.lte = filters.endDate;

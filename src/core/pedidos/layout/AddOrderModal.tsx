@@ -42,6 +42,7 @@ import {
   convertFormattedToCents,
 } from "@/shared/utils";
 import { CreatePedidoInput } from "../domain";
+import { Prisma } from "@/infrastructure/generated/prisma";
 
 export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const { loading, withLoading } = useLoading();
@@ -60,6 +61,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
     formaPagamento: "",
     observacoes: "",
     enderecoEntrega: {
+      id: "",
       logradouro: "",
       numero: "",
       complemento: "",
@@ -98,6 +100,7 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
       setFormData((prev) => ({
         ...prev,
         enderecoEntrega: {
+          id: endereco.id || "",
           logradouro: endereco.logradouro || "",
           numero: endereco.numero || "",
           complemento: endereco.complemento || "",
@@ -193,6 +196,10 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
           observacoes: formData.observacoes,
           taxaEntrega: formData.taxaEntrega,
           desconto: formData.desconto,
+          endereco: {
+            connect: formData.enderecoEntrega
+              .id as unknown as Prisma.EnderecoWhereUniqueInput,
+          },
           itens: itens.map((item) => ({
             produtoId: item.produtoId,
             quantidade: item.quantidade,
