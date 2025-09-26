@@ -80,7 +80,9 @@ export function AddOrderModal({ isOpen, onClose, onAdd }: AddOrderModalProps) {
   const [descontoFormatado, setDescontoFormatado] = useState("");
   const [taxaEntregaFormatada, setTaxaEntregaFormatada] = useState("");
 
-  const selectedCliente = clientes.find((c) => c.id === formData.clienteId);
+  const selectedCliente = clientes.find(
+    (c) => c.id === JSON.parse(formData.clienteId).id
+  );
 
   // Preparar opções para o Combobox
   const clienteOptions: ComboboxOption[] = clientes.map((cliente) => ({

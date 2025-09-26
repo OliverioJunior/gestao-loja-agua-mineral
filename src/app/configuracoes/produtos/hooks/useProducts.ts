@@ -32,7 +32,7 @@ export const useProducts = () => {
         setProducts(productsArray);
       })
       .catch((error) => {
-        console.error('Erro ao carregar produtos:', error);
+        console.error("Erro ao carregar produtos:", error);
         setProducts([]);
       });
   }, []);
@@ -118,11 +118,11 @@ export const useProducts = () => {
           return;
         }
 
-        const newProduct = await response.json();
+        const newProduct = result.data;
         // Recarregar a lista de produtos para garantir sincronização
         const updatedResponse = await fetch("/api/produto");
         const updatedProducts = await updatedResponse.json();
-        setProducts(updatedProducts);
+        setProducts(updatedProducts.data);
 
         setIsAddModalOpen(false);
         toast.success(SUCCESS_MESSAGES.PRODUCT_CREATED, {

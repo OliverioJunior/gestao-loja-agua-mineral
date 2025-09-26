@@ -33,10 +33,8 @@ export async function POST(req: NextRequest) {
         .toString()
         .replace(/\./g, "")
         .replace(",", ".");
-      return Math.round(parseFloat(numericValue) * 100);
+      return Math.round(parseFloat(numericValue));
     };
-
-    // Converter preços de string formatada para centavos
     produtoData.precoCusto = convertBrazilianCurrencyToCents(
       produtoData.precoCusto
     );
